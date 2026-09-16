@@ -31,7 +31,7 @@ export function Mermaid({ chart }: { chart: string }) {
   }, [chart, id, resolvedTheme]);
 
   return (
-    <figure className="mermaid-diagram" aria-label="Protocol sequence or state diagram">
+    <figure className="mermaid-diagram" aria-label="Protocol diagram">
       {svg && !failed ? <div className="mermaid-canvas" dangerouslySetInnerHTML={{ __html: svg }} /> :
         <p role="status">{failed ? "The diagram could not be displayed. Its source is available below." : "Loading diagram…"}</p>}
       <details className="mermaid-source">
