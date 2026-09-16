@@ -61,6 +61,22 @@ For every tool call, the gateway requests approval from the AAP provider.
 
 This ensures that the agent has no execution sidepath to exploit.
 
+In this deployment, the gateway holds the service credentials and enforces approval before accessing the protected service:
+
+```mermaid
+flowchart TD
+    accTitle: A gateway controls access to the protected service
+    accDescr: The agent has no service credentials and calls tools through an MCP gateway. The gateway holds those credentials, requests a decision from the approval provider and accesses the protected service only after its execution checks pass.
+    Agent[Agent without service credentials] -->|Tool call| Gateway
+    subgraph Boundary[Controlled execution boundary]
+        Gateway[MCP gateway with service credentials]
+        Service[Protected service]
+        Gateway -->|Approved call only| Service
+    end
+    Gateway -->|Approval request| Provider[Approval provider]
+    Provider -->|Decision| Gateway
+```
+
 ## Adapter Requirements
 
 A conforming synchronous adapter must:
@@ -113,3 +129,27 @@ An asynchronous adapter and its receiving service must meet the shared identity,
 5. Save enough execution state to handle a notification arriving before suspension finishes.
 6. Retrieve the authoritative request and check approval expiry before execution starts.
 7. Discard notifications for abandoned execution and retain duplicate tracking through the retry window and grace period.
+
+The notification prompts an authenticated read of the decision.
+Only the adapter's execution checks can permit the saved call to run:
+
+```mermaid
+sequenceDiagram
+    accTitle: A notification does not grant permission to execute
+    accDescr: The provider records the decision and notification together. The receiver verifies and durably records the notification before acknowledging it. For an execution still waiting, the adapter fetches the authoritative request through the authenticated API and applies all execution checks. Duplicate notifications do not repeat execution.
+    participant Provider
+    participant Receiver
+    participant Adapter
+    Provider->>Provider: Record decision and notification together
+    Provider->>Receiver: Signed notification
+    Receiver->>Receiver: Verify signature, timestamp, ID and instance
+    Receiver->>Receiver: Durably record and deduplicate
+    Receiver-->>Provider: Acknowledge receipt
+    opt Execution still waiting
+        Receiver->>Adapter: Resume saved execution
+        Adapter->>Provider: Authenticated GET /v1/requests/{id}
+        Provider-->>Adapter: Authoritative request and decision
+        Adapter->>Adapter: Apply all execution boundary checks
+    end
+    Note over Receiver,Adapter: Duplicate notifications must not repeat execution
+```
