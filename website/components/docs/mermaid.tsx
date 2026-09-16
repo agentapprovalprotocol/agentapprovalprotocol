@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { useTheme } from "@/components/site/theme-provider";
+import { CodeFrame } from "./code-frame";
 
 let rendering: Promise<unknown> = Promise.resolve();
 let renderCount = 0;
@@ -36,7 +37,9 @@ export function Mermaid({ chart }: { chart: string }) {
         <p role="status">{failed ? "The diagram could not be displayed. Its source is available below." : "Loading diagram…"}</p>}
       <details className="mermaid-source">
         <summary>Diagram source</summary>
-        <pre><code>{chart}</code></pre>
+        <CodeFrame lang="mermaid">
+          <pre><code>{chart}</code></pre>
+        </CodeFrame>
       </details>
     </figure>
   );
