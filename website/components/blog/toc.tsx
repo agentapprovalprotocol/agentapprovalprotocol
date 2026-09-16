@@ -32,7 +32,7 @@ export function Toc({ items }: { items: TocItem[] }) {
 
   return (
     <nav aria-label="Table of contents">
-      <div className="mb-3.5 font-sans text-[0.6875rem] uppercase tracking-[0.08em] text-ink-faint">
+      <div className="mb-3.5 text-[0.8125rem] font-medium text-ink-soft">
         On this page
       </div>
       <ul className="flex flex-col gap-y-2.5 border-l-[0.5px] border-edge">

@@ -2,85 +2,51 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/cn";
+import { useEffect, useRef, useState } from "react";
+import { Search } from "@/components/site/search";
+import { ThemeToggle } from "@/components/site/theme-toggle";
 import type { DocsNavSection } from "@/lib/docs";
-
-/* Docs sidebar: sticky rail on desktop, CSS-only <details> disclosure on
- * mobile. Active state mirrors the blog Toc: a hairline left rail with the
- * active page's border overlaid in ink. */
-
-function SectionList({ nav, pathname }: { nav: DocsNavSection[]; pathname: string }) {
-  return (
-    <div className="flex flex-col gap-y-7">
-      {nav.map((section) => (
-        <div key={section.title}>
-          <div className="mb-3 font-sans text-[0.6875rem] uppercase tracking-[0.08em] text-ink-faint">
-            {section.title}
-          </div>
-          <ul className="flex flex-col gap-y-1 border-l-[0.5px] border-edge">
-            {section.pages.map((page) => {
-              const href = `/docs/${page.slug}`;
-              const active = pathname === href;
-              return (
-                <li key={page.slug}>
-                  <Link
-                    href={href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "-ml-px block border-l py-1 pl-4 text-[0.875rem] leading-[1.4] transition-colors",
-                      active
-                        ? "border-ink text-ink"
-                        : "border-transparent text-ink-muted hover:text-ink",
-                    )}
-                  >
-                    {page.title}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { site } from "@/site.config";
 
 export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const previousPath = useRef(pathname);
 
-  return (
-    <>
-      {/* Mobile: disclosure above the content. */}
-      <details key={pathname} className="group mb-8 rounded-xl border-[0.5px] border-edge bg-surface lg:hidden">
-        <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 text-[0.875rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
-          Documentation
-          <svg
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden
-            className="size-4 text-ink-muted transition-transform duration-200 group-open:rotate-180"
-          >
-            <path
-              d="M4 6l4 4 4-4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </summary>
-        <div className="border-t-[0.5px] border-edge px-5 py-5">
-          <SectionList nav={nav} pathname={pathname} />
-        </div>
-      </details>
+  useEffect(() => {
+    setMenuOpen(false);
+    if (previousPath.current !== pathname && !window.location.hash) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    previousPath.current = pathname;
+  }, [pathname]);
 
-      {/* Desktop: sticky rail. */}
-      <nav
-        aria-label="Documentation"
-        className="hidden lg:sticky lg:top-28 lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pb-8"
-      >
-        <SectionList nav={nav} pathname={pathname} />
+  return <aside className="docs-rail">
+    <div className="docs-brand-row">
+      <Link href="/" className="site-wordmark" aria-label={site.name}>
+        <span className="logo-mark">aap</span>
+        <span className="wordmark-name">Agent Approval<br />Protocol</span>
+      </Link>
+      <button className="docs-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="docs-navigation" onClick={() => setMenuOpen(!menuOpen)}>
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden><path d={menuOpen ? "M5 5l10 10M15 5L5 15" : "M3 5h14M3 10h14M3 15h14"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+      </button>
+    </div>
+    <Search />
+    <div id="docs-navigation" className="docs-rail-navigation" data-open={menuOpen} onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
+      <nav aria-label="Documentation" className="docs-section-list">
+        {nav.map((section) => <div key={section.title}>
+          <h2>{section.title}</h2>
+          <ul>{section.pages.map((page) => {
+            const href = `/docs/${page.slug}`;
+            return <li key={page.slug}><Link href={href} aria-current={pathname === href ? "page" : undefined} onClick={() => setMenuOpen(false)}>{page.title}</Link></li>;
+          })}</ul>
+        </div>)}
       </nav>
-    </>
-  );
+      <footer className="docs-rail-footer">
+        <a href={site.repository}>GitHub <span aria-hidden>↗</span></a>
+        <Link href="/openapi.yaml">OpenAPI schema <span aria-hidden>↗</span></Link>
+        <div className="docs-theme-row"><span>Appearance</span><ThemeToggle /></div>
+      </footer>
+    </div>
+  </aside>;
 }

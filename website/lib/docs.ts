@@ -5,8 +5,8 @@ import { getApiGroups, getApiSchemas, repositoryRoot, type ApiGroup, type ApiSch
 import { site } from "@/site.config";
 
 export const specificationPages = [
-  ["structure", "0_structure.md", "Structure", "How to read and implement the AAP version 1 specification."],
   ["overview", "1_overview.md", "Overview", "Approve agent tool calls through a shared, open protocol."],
+  ["structure", "0_structure.md", "Structure", "How to read and implement the AAP version 1 specification."],
   ["architecture", "2_architecture.md", "Architecture and modes", "The agent, adapter and provider, and how execution waits for approval."],
   ["identity", "3_identity.md", "Identity and authentication", "Provision instances and manage their credentials and delivery configuration."],
   ["requests", "4_requests.md", "Requests and decisions", "Describe a tool call, record an outcome and enforce its approval."],

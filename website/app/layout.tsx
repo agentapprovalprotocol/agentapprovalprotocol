@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import { ThemeProvider } from "@/components/site/theme-provider";
-import { ThemeToggle } from "@/components/site/theme-toggle";
+import { DocsSidebar } from "@/components/docs/sidebar";
 import { SiteNav } from "@/components/site/nav";
+import { getDocsNav } from "@/lib/docs";
 import { site } from "@/site.config";
 import "./globals.css";
 import "./site.css";
@@ -17,8 +17,9 @@ const themeScript = `(function(){try{var p=localStorage.getItem('aap-theme');var
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body>
-    <ThemeProvider><a href="#main-content" className="skip-link">Skip to content</a><SiteNav />{children}
-      <footer className="site-footer"><div><span>{site.name}</span><span className="footer-note">A shared contract for agent approvals.</span></div><div className="footer-actions"><Link href="/openapi.yaml">OpenAPI</Link><a href={site.repository}>GitHub</a><ThemeToggle /></div></footer>
+    <ThemeProvider><a href="#main-content" className="skip-link">Skip to content</a>
+      <DocsSidebar nav={getDocsNav()} />
+      <div className="docs-workspace"><SiteNav /><main id="main-content" className="docs-main">{children}</main></div>
     </ThemeProvider>
   </body></html>;
 }
