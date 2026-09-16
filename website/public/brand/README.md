@@ -1,6 +1,6 @@
 # AAP brand assets
 
-The AAP symbol shows two agent flows entering an angular approval gate and one approved output. The lowercase wordmark uses outlined Roboto Mono Medium glyphs with optical spacing.
+The AAP symbol shows two agent flows entering an angular approval gate and one approved output. The lowercase wordmark uses outlined Roboto Mono Light glyphs with optical spacing. Its lighter strokes and smaller size balance the symbol, with the letter bodies optically centered on the output arrow.
 
 | Files | Use |
 | --- | --- |
