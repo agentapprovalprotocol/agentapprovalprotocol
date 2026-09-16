@@ -13,16 +13,19 @@ import { Mermaid } from "./mermaid";
 const components: MDXComponents = {
   pre: CodeBlock,
   "mermaid-diagram": Mermaid,
-  a: ({ href = "", children, ...rest }) => {
-    const url = resolveDocLink(href);
-    return url.startsWith("/") || url.startsWith("#") ?
-      <Link href={url} {...rest}>{children}</Link> : <a href={url} {...rest}>{children}</a>;
-  },
   table: ({ children, ...props }) => <div className="blog-table-wrap"><table {...props}>{children}</table></div>,
 };
 
-export function Markdown({ source }: { source: string }) {
-  return <MDXRemote source={source} components={components} options={{ mdxOptions: {
+export function Markdown({ source, sourcePath }: { source: string; sourcePath: string }) {
+  const pageComponents: MDXComponents = {
+    ...components,
+    a: ({ href = "", children, ...rest }) => {
+      const url = resolveDocLink(href, sourcePath);
+      return url.startsWith("/") || url.startsWith("#") ?
+        <Link href={url} {...rest}>{children}</Link> : <a href={url} {...rest}>{children}</a>;
+    },
+  };
+  return <MDXRemote source={source} components={pageComponents} options={{ mdxOptions: {
     remarkPlugins: [remarkGfm], rehypePlugins: [rehypeMermaid, rehypeSlug, [rehypeShiki, shikiOptions]],
   } }} />;
 }

@@ -15,60 +15,83 @@ export const specificationPages = [
   ["security", "8_security.md", "Security and conformance", "Trust boundaries and the requirements every implementation must meet."],
 ] as const;
 
-export interface DocMeta { slug: string; section: string; title: string; description: string }
-export interface DocsNavSection { title: string; pages: DocMeta[] }
+export type DocsArea = "docs" | "specification";
+export interface DocMeta { slug: string; area: DocsArea; section: string; title: string; description: string }
+export interface DocsNavSection { area: DocsArea; title: string; pages: DocMeta[] }
 export type DocPage = DocMeta & { toc: TocItem[] } & (
   { kind: "markdown"; content: string; source: string } |
   { kind: "api"; group: ApiGroup } |
   { kind: "schemas"; schemas: ApiSchema[] }
 );
 
-export function getDocsNav(): DocsNavSection[] {
-  return [
-    { title: "Specification", pages: specificationPages.map(([slug, , title, description]) => ({ slug: `specification/${slug}`, section: "Specification", title, description })) },
-    { title: "API reference", pages: [
-      { slug: "reference/overview", section: "API reference", title: "Overview", description: "Connect to an approval provider, submit a tool call and receive a decision." },
-      ...getApiGroups().map((group) => ({ slug: `reference/${group.slug}`, section: "API reference", title: group.title, description: group.description })),
-      { slug: "reference/schemas", section: "API reference", title: "Schemas", description: "The objects, types and constraints defined by the OpenAPI contract." },
+const documentationPages = [
+  { slug: "docs/getting-started/introduction", area: "docs", section: "Get started", title: "What is AAP?", description: "Give agents a way to ask for approval before their tools take action.", source: "docs/getting-started/introduction.md" },
+  { slug: "docs/getting-started/quickstart", area: "docs", section: "Get started", title: "Quickstart", description: "Submit your first approval request and follow it to a decision.", source: "docs/getting-started/quickstart.md" },
+  { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
+  { slug: "docs/guides/build-an-adapter", area: "docs", section: "Build with AAP", title: "Build an adapter", description: "Connect an agent harness to an approval provider at the tool execution boundary.", source: "docs/guides/build-an-adapter.md" },
+  { slug: "docs/guides/build-a-provider", area: "docs", section: "Build with AAP", title: "Build a provider", description: "Accept proposed tool calls and make approval decisions available to adapters.", source: "docs/guides/build-a-provider.md" },
+] satisfies (DocMeta & { source: string })[];
+
+const markdownPages = [
+  ...documentationPages,
+  ...specificationPages.map(([slug, file, title, description]) => ({ slug: `specification/${slug}`, area: "specification" as const, section: "Protocol", title, description, source: `docs/specification/${file}` })),
+  { slug: "specification/reference/overview", area: "specification" as const, section: "API reference", title: "Overview", description: "Connect to an approval provider, submit a tool call and receive a decision.", source: "docs/specification/api_overview.md" },
+];
+
+export function getDocsNav(area?: DocsArea): DocsNavSection[] {
+  const sections: DocsNavSection[] = [
+    ...["Get started", "Core concepts", "Build with AAP"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
+    { area: "specification", title: "Protocol", pages: markdownPages.filter((page) => page.section === "Protocol") },
+    { area: "specification", title: "API reference", pages: [
+      markdownPages.find((page) => page.slug === "specification/reference/overview")!,
+      ...getApiGroups().map((group) => ({ slug: `specification/reference/${group.slug}`, area: "specification" as const, section: "API reference", title: group.title, description: group.description })),
+      { slug: "specification/reference/schemas", area: "specification", section: "API reference", title: "Schemas", description: "The objects, types and constraints defined by the OpenAPI contract." },
     ] },
   ];
+  return area ? sections.filter((section) => section.area === area) : sections;
 }
 
-export function getAllDocs(): DocMeta[] { return getDocsNav().flatMap((section) => section.pages); }
+export function getAllDocs(area?: DocsArea): DocMeta[] { return getDocsNav(area).flatMap((section) => section.pages); }
+
+export function getAdjacentDocs(doc: DocMeta) {
+  const pages = getAllDocs(doc.area);
+  const index = pages.findIndex((page) => page.slug === doc.slug);
+  return { prev: pages[index - 1], next: pages[index + 1] };
+}
 
 export function getDoc(slug: string): DocPage | null {
   const meta = getAllDocs().find((entry) => entry.slug === slug);
   if (!meta) return null;
-  const markdownFile = slug === "reference/overview" ? "api_overview.md" : specificationPages.find(([name]) => slug === `specification/${name}`)?.[1];
-  if (markdownFile) {
-    const source = `docs/specification/${markdownFile}`;
+  const source = markdownPages.find((page) => page.slug === slug)?.source;
+  if (source) {
     let content = fs.readFileSync(path.join(repositoryRoot, source), "utf8").replace(/^# .+\r?\n+/, "");
-    if (slug === "reference/overview") {
+    if (slug === "specification/reference/overview") {
       const pages = getAllDocs().filter((page) => page.section === meta.section && page.slug !== slug);
-      content += `\n## Explore the reference\n\n| Section | Description |\n| --- | --- |\n${pages.map((page) => `| [${page.title}](/docs/${page.slug}) | ${page.description} |`).join("\n")}\n`;
+      content += `\n## Explore the reference\n\n| Section | Description |\n| --- | --- |\n${pages.map((page) => `| [${page.title}](/${page.slug}) | ${page.description} |`).join("\n")}\n`;
     }
     return { ...meta, kind: "markdown", content, source, toc: extractHeadings(content) };
   }
-  if (slug === "reference/schemas") {
+  if (slug === "specification/reference/schemas") {
     const schemas = getApiSchemas();
     return { ...meta, kind: "schemas", schemas, toc: schemas.map(({ name }) => ({ id: name, title: name, level: 2, code: true })) };
   }
-  const group = getApiGroups().find((entry) => slug === `reference/${entry.slug}`)!;
+  const group = getApiGroups().find((entry) => slug === `specification/reference/${entry.slug}`)!;
   return { ...meta, kind: "api", group, toc: group.operations.map((op) => ({ id: op.id, title: op.webhook ? op.summary : op.path, level: 2, code: !op.webhook, method: op.method })) };
 }
 
-export function resolveDocLink(href: string): string {
+export function resolveDocLink(href: string, source: string): string {
   if (/^(https?:|mailto:|#|\/)/.test(href)) return href;
   const [file, anchor] = href.split("#");
-  if (file.endsWith("openapi.yaml")) return "/openapi.yaml";
-  const entry = specificationPages.find(([, name]) => name === file.replace(/^\.\//, ""));
-  if (!entry) throw new Error(`Unmapped documentation link: ${href}`);
-  return `/docs/specification/${entry[0]}${anchor ? `#${anchor}` : ""}`;
+  const target = path.posix.normalize(path.posix.join(path.posix.dirname(source), file));
+  if (target === "openapi.yaml") return `/openapi.yaml${anchor ? `#${anchor}` : ""}`;
+  const entry = markdownPages.find((page) => page.source === target);
+  if (!entry) throw new Error(`Unmapped documentation link in ${source}: ${href}`);
+  return `/${entry.slug}${anchor ? `#${anchor}` : ""}`;
 }
 
 export function markdownFor(doc: DocPage): string {
   const header = `# ${doc.title}\n\n${doc.description}\n\n`;
-  if (doc.kind === "markdown") return header + doc.content.replace(/\]\(([^)]+)\)/g, (_, href: string) => `](${resolveDocLink(href)})`);
+  if (doc.kind === "markdown") return header + doc.content.replace(/\]\(([^)]+)\)/g, (_, href: string) => `](${resolveDocLink(href, doc.source)})`);
   if (doc.kind === "schemas") return header + doc.schemas.map(({ name, schema }) => `## ${name}\n\n${schema.description ?? ""}\n\n\`\`\`json\n${JSON.stringify(schema, null, 2)}\n\`\`\``).join("\n\n");
   return header + doc.group.operations.map((op) => [
     `## ${op.summary}`, `\`${op.method} ${op.path}\``, op.description,
@@ -80,6 +103,6 @@ export function markdownFor(doc: DocPage): string {
       ...response.headers.map((header) => `- \`${header.name}\`${header.required ? " (required)" : ""}: ${header.description ?? ""}`),
       ...response.examples.map((example) => `\`\`\`json\n${JSON.stringify(example.value, null, 2)}\n\`\`\``),
     ]),
-    "See [Schemas](/docs/reference/schemas) and [OpenAPI](/openapi.yaml) for all fields and constraints.",
+    "See [Schemas](/specification/reference/schemas) and [OpenAPI](/openapi.yaml) for all fields and constraints.",
   ].join("\n\n")).join("\n\n");
 }

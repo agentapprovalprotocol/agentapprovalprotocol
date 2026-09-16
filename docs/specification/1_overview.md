@@ -13,7 +13,7 @@ Concretely, AAP allows agent tool calls to be gated behind an approval process.
 
 This specification defines the protocol requirements for AAP version 1.
 
-For guides, SDKs and implementation advice, head to [Agent Approval Protocol](https://agentapprovalprotocol.io).
+For guides and implementation advice, start with the [documentation](../getting-started/introduction.md).
 For discussion on the protocol, queries and questions, head to [GitHub](https://github.com/agentapprovalprotocol).
 
 ## Design Goals

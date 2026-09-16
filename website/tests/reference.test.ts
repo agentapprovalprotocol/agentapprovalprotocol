@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { createHmac } from "node:crypto";
-import { getAllDocs, getDoc, markdownFor, resolveDocLink } from "../lib/docs";
+import { getAdjacentDocs, getAllDocs, getDoc, getDocsNav, markdownFor, resolveDocLink } from "../lib/docs";
 import { getApiGroups, getApiSchemas, getSpec, repositoryRoot, resolve, schemaFields, schemaRules } from "../lib/openapi";
 import { extractHeadings } from "../lib/content";
 
@@ -37,14 +37,42 @@ test("all authored relative links and fragments map to real pages or the schema"
     assert.ok(markdownFor(doc).startsWith("# "));
     if (doc.kind !== "markdown") continue;
     for (const [, href] of doc.content.matchAll(/\]\(([^)]+)\)/g)) {
-      const resolved = resolveDocLink(href);
-      if (!resolved.startsWith("/docs/")) continue;
-      const [slug, fragment] = resolved.slice("/docs/".length).split("#");
+      const resolved = resolveDocLink(href, doc.source);
+      if (!/^\/(docs|specification)\//.test(resolved)) continue;
+      const [slug, fragment] = resolved.slice(1).split("#");
       const target = getDoc(slug);
       assert.ok(target, `${meta.slug}: missing ${resolved}`);
       if (fragment) assert.ok(target.toc.some((heading) => heading.id === fragment), `${meta.slug}: missing anchor ${resolved}`);
     }
   }
+});
+
+test("documentation and specification have separate navigation and page sequences", () => {
+  const docs = getAllDocs("docs");
+  const specification = getAllDocs("specification");
+  assert.ok(docs.some((doc) => doc.title === "Quickstart"));
+  assert.ok(docs.some((doc) => doc.title === "Build an adapter"));
+  assert.ok(specification.some((doc) => doc.section === "API reference"));
+  assert.equal(getAllDocs().length, docs.length + specification.length);
+  for (const area of ["docs", "specification"] as const) {
+    const pages = getAllDocs(area);
+    assert.ok(getDocsNav(area).every((section) => section.area === area));
+    for (const doc of pages) {
+      assert.ok(doc.slug.startsWith(`${area}/`));
+      const { prev, next } = getAdjacentDocs(doc);
+      if (prev) assert.equal(prev.area, area);
+      if (next) assert.equal(next.area, area);
+    }
+    assert.equal(getAdjacentDocs(pages[0]).prev, undefined);
+    assert.equal(getAdjacentDocs(pages.at(-1)!).next, undefined);
+  }
+});
+
+test("source-relative links work within and between both content areas", () => {
+  assert.equal(resolveDocLink("quickstart.md", "docs/getting-started/introduction.md"), "/docs/getting-started/quickstart");
+  assert.equal(resolveDocLink("../specification/8_security.md#adapter-requirements", "docs/guides/build-an-adapter.md"), "/specification/security#adapter-requirements");
+  assert.equal(resolveDocLink("../getting-started/introduction.md", "docs/specification/1_overview.md"), "/docs/getting-started/introduction");
+  assert.throws(() => resolveDocLink("missing.md", "docs/getting-started/introduction.md"), /Unmapped documentation link/);
 });
 
 test("documented webhook signature verifies against the exact example body", () => {

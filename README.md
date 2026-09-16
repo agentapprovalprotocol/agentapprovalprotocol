@@ -4,6 +4,7 @@ AAP is an open protocol for approving agent tool calls. An adapter intercepts a 
 
 This repository owns the version 1 specification, its OpenAPI contract and the Next.js documentation website.
 
+- [Read the documentation](docs/getting-started/introduction.md)
 - [Read the specification](docs/specification/1_overview.md)
 - [Specification contents](docs/specification/0_structure.md)
 - [OpenAPI contract](openapi.yaml)
@@ -11,6 +12,7 @@ This repository owns the version 1 specification, its OpenAPI contract and the N
 
 ## Repository layout
 
+- `docs/getting-started/`, `docs/concepts/` and `docs/guides/`: introductory documentation and implementation guides.
 - `docs/specification/`: the canonical Markdown specification.
 - `openapi.yaml`: the canonical objects, types and HTTP operations.
 - `website/`: the Next.js documentation site. It reads the specification and schema directly, without maintaining a second copy.
@@ -37,7 +39,9 @@ Stop the development server before making a production build. Run `npm start` to
 
 ## Documentation
 
-Edit the Markdown files in `docs/specification/` and keep relative links usable on GitHub. The site resolves them to documentation routes. Fenced Mermaid diagrams render on the website and remain readable in the source.
+Documentation at `/docs` introduces AAP and explains how to build with it. Specification at `/specification` contains the protocol requirements and generated API reference. Each area has its own sidebar and page sequence. The previous `/docs/specification/*` and `/docs/reference/*` URLs redirect to their new locations.
+
+Edit the Markdown files in `docs/` and keep relative links usable on GitHub. Keep normative requirements in `docs/specification/` and practical guides in the other documentation directories. The site resolves source links to the correct area. Fenced Mermaid diagrams render on the website and remain readable in the source.
 
 Update `openapi.yaml` first when changing the wire contract. The website generates instance, request, webhook and schema reference pages from that file, including authentication, examples, response headers and conditional fields. The source is also served at `/openapi.yaml`.
 
