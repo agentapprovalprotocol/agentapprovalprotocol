@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Search } from "@/components/site/search";
+import { Logo } from "@/components/site/logo";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import type { DocsNavSection } from "@/lib/docs";
 import { site } from "@/site.config";
@@ -24,8 +25,7 @@ export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
   return <aside className="docs-rail">
     <div className="docs-brand-row">
       <Link href="/" className="site-wordmark" aria-label={site.name}>
-        <span className="logo-mark">aap</span>
-        <span className="wordmark-name">Agent Approval<br />Protocol</span>
+        <Logo className="site-logo" />
       </Link>
       <button className="docs-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="docs-navigation" onClick={() => setMenuOpen(!menuOpen)}>
         <svg viewBox="0 0 20 20" fill="none" aria-hidden><path d={menuOpen ? "M5 5l10 10M15 5L5 15" : "M3 5h14M3 10h14M3 15h14"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
