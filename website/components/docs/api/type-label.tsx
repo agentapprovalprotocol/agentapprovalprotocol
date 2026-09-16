@@ -10,7 +10,7 @@ export function TypeLabel({ parts }: { parts: TypePart[] }) {
         part.ref ? (
           <Link
             key={i}
-            href={`/docs/reference/schemas#${part.ref}`}
+            href={`/specification/reference/schemas#${part.ref}`}
             className="docs-api-type-ref"
           >
             {part.text}

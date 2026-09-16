@@ -16,10 +16,10 @@ test("idempotency tables show a short summary and separate links to the detailed
     assert.ok(parameter.description!.split(/\s+/).length < 60);
     const html = renderToStaticMarkup(createElement(SchemaTable, { rows: [parameter] }));
     assert.equal([...html.matchAll(/<p>/g)].length, 2);
-    const links = [...html.matchAll(/href="(\/docs\/specification\/http#[^"]+)"/g)];
+    const links = [...html.matchAll(/href="(\/specification\/http#[^"]+)"/g)];
     assert.equal(links.length, 2);
     for (const [, href] of links) {
-      const [slug, fragment] = href.slice("/docs/".length).split("#");
+      const [slug, fragment] = href.slice(1).split("#");
       assert.ok(getDoc(slug)?.toc.some((heading) => heading.id === fragment), href);
     }
   }
@@ -27,9 +27,9 @@ test("idempotency tables show a short summary and separate links to the detailed
 
 test("API descriptions retain code spans and paragraph breaks without interpreting HTML or unsafe links", () => {
   const html = renderToStaticMarkup(createElement(Description, {
-    text: "Use `Idempotency-Key`.\r\n\r\nSee [retry rules](/docs/specification/http#idempotency-and-retries). <script>bad</script> [unsafe](javascript:alert).",
+    text: "Use `Idempotency-Key`.\r\n\r\nSee [retry rules](/specification/http#idempotency-and-retries). <script>bad</script> [unsafe](javascript:alert).",
   }));
-  assert.match(html, /<p>Use <code>Idempotency-Key<\/code>\.<\/p><p>See <a href="\/docs\/specification\/http#idempotency-and-retries">retry rules<\/a>/);
+  assert.match(html, /<p>Use <code>Idempotency-Key<\/code>\.<\/p><p>See <a href="\/specification\/http#idempotency-and-retries">retry rules<\/a>/);
   assert.ok(!html.includes("<script>"));
   assert.ok(!html.includes('href="javascript:'));
 });

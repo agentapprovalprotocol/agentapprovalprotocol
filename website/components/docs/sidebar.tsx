@@ -11,6 +11,7 @@ import { site } from "@/site.config";
 
 export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
   const pathname = usePathname();
+  const area = pathname.startsWith("/specification") ? "specification" : "docs";
   const [menuOpen, setMenuOpen] = useState(false);
   const previousPath = useRef(pathname);
 
@@ -33,11 +34,11 @@ export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
     </div>
     <Search />
     <div id="docs-navigation" className="docs-rail-navigation" data-open={menuOpen} onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
-      <nav aria-label="Documentation" className="docs-section-list">
-        {nav.map((section) => <div key={section.title}>
+      <nav aria-label={area === "specification" ? "Specification pages" : "Documentation pages"} className="docs-section-list">
+        {nav.filter((section) => section.area === area).map((section) => <div key={section.title}>
           <h2>{section.title}</h2>
           <ul>{section.pages.map((page) => {
-            const href = `/docs/${page.slug}`;
+            const href = `/${page.slug}`;
             return <li key={page.slug}><Link href={href} aria-current={pathname === href ? "page" : undefined} onClick={() => setMenuOpen(false)}>{page.title}</Link></li>;
           })}</ul>
         </div>)}

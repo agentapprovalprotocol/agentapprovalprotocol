@@ -63,6 +63,7 @@ button, input { font: inherit; }
 .search-results a:hover, .search-results a:focus-visible { background: var(--color-fill); }
 .search-results strong { font-size: 14px; font-weight: 500; }
 .search-results span { font-size: 13px; color: var(--color-ink-muted); }
+.search-results .search-result-section { font-size: 11px; color: var(--color-ink-faint); }
 .mermaid-diagram { margin: 28px 0; border: .5px solid var(--color-edge); border-radius: 12px; background: var(--color-surface); overflow: hidden; }
 .mermaid-canvas { padding: 22px 12px; overflow-x: auto; }
 .mermaid-canvas svg { display: block; min-width: 540px; margin: auto; }

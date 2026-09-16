@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function DocsIndex() { redirect("/docs/specification/overview"); }
+export default function DocsIndex() { redirect("/docs/getting-started/introduction"); }

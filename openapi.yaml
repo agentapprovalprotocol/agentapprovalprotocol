@@ -459,8 +459,8 @@ components:
         An opaque key for safely retrying this operation. Generate it before the
         first submission and reuse it only with the same input.
 
-        See [idempotency and retries](https://agentapprovalprotocol.io/docs/specification/http#idempotency-and-retries)
-        and [retention periods](https://agentapprovalprotocol.io/docs/specification/http#retention).
+        See [idempotency and retries](https://agentapprovalprotocol.io/specification/http#idempotency-and-retries)
+        and [retention periods](https://agentapprovalprotocol.io/specification/http#retention).
       schema:
         type: string
         minLength: 1

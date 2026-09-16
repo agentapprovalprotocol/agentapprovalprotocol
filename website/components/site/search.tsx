@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-interface SearchEntry { slug: string; title: string; description: string; text: string }
+interface SearchEntry { slug: string; area: "docs" | "specification"; section: string; title: string; description: string; text: string }
 
 export function Search() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -35,13 +35,13 @@ export function Search() {
     .sort((a, b) => Number(b.title.toLowerCase().includes(query.toLowerCase())) - Number(a.title.toLowerCase().includes(query.toLowerCase()))).slice(0, 8);
 
   return <>
-    <button type="button" onClick={open} className="search-trigger" aria-label="Search documentation"><span>Search docs</span><kbd>⌘ K</kbd></button>
-    <dialog ref={dialog} className="search-dialog" aria-label="Search documentation" onClick={(event) => { if (event.target === event.currentTarget) dialog.current?.close(); }}>
-      <div className="search-input-row"><input ref={input} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search the specification…" aria-label="Search query" /><button onClick={() => dialog.current?.close()} aria-label="Close search">Esc</button></div>
+    <button type="button" onClick={open} className="search-trigger" aria-label="Search documentation and specification"><span>Search</span><kbd>⌘ K</kbd></button>
+    <dialog ref={dialog} className="search-dialog" aria-label="Search documentation and specification" onClick={(event) => { if (event.target === event.currentTarget) dialog.current?.close(); }}>
+      <div className="search-input-row"><input ref={input} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search docs and specification…" aria-label="Search query" /><button onClick={() => dialog.current?.close()} aria-label="Close search">Esc</button></div>
       <div className="search-results">
         {failed && <p>Search could not load. Use the documentation sidebar to find a page.</p>}
         {!failed && !results.length && <p>{entries.length ? "No matching pages." : "Loading documentation…"}</p>}
-        {results.map((entry) => <Link key={entry.slug} href={`/docs/${entry.slug}`} onClick={() => dialog.current?.close()}><strong>{entry.title}</strong><span>{entry.description}</span></Link>)}
+        {results.map((entry) => <Link key={entry.slug} href={`/${entry.slug}`} onClick={() => dialog.current?.close()}><span className="search-result-section">{entry.area === "docs" ? "Documentation" : "Specification"} / {entry.section}</span><strong>{entry.title}</strong><span>{entry.description}</span></Link>)}
       </div>
     </dialog>
   </>;
