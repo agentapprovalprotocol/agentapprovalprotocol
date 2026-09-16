@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+.DS_Store
+website/next-env.d.ts
+test-results/
+playwright-report/

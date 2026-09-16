@@ -1,0 +1,975 @@
+@import "tailwindcss";
+
+/* The dark variant follows the data-theme attribute lib/theme.ts stamps on
+ * <html>, not the OS media query, so a stored override wins. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ---------------------------------------------------------------------------
+ * Fonts: Inter for interface and editorial text, Roboto Mono for machine
+ * content, and Georgia for display text.
+ * Webfonts are committed in /public/fonts; see the README there for licensing.
+ * If one is missing the fallback stacks below render instead.
+ * ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Inter 92";
+  src: url("/fonts/Inter-400-700.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 92%;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/fonts/RobotoMono-400-500.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Design tokens.
+ * ------------------------------------------------------------------------- */
+
+@theme {
+  /* Core brand */
+  --color-onyx-black: #0a0d17;
+  --color-porcelain-grey: #f9f9f8;
+  --color-ocean-blue: #0347fa;
+
+  /* Grey ramp */
+  --color-grey-400: #f1f1f1;
+  --color-grey-450: #ebebeb;
+  --color-grey-500: #e0e0e0;
+  --color-grey-600: #cdcdcd;
+  --color-grey-700: #808083;
+  --color-grey-800: #626366;
+  --color-grey-850: #3c3d40;
+  --color-grey-900: #1e1f22;
+
+  /* Accent palette */
+  --color-pastel-blue: #adc2fc;
+  --color-pill-active: #c8d6f9;
+  --color-moss-green: #1d3b2c;
+  --color-fern-green: #3d7e5d;
+  --color-link-green: #387456;
+  --color-pistachio-green: #daeeda;
+  --color-frosted-mint: #d7fdf6;
+  --color-candy-purple: #edd5fe;
+  --color-chocolate-brown: #521604;
+
+  /* Semantic roles: components reference these, never raw palette colors.
+   * The dark theme below overrides this block, the approval colors and the
+   * tints; the raw palette above stays untouched. */
+  --color-canvas: var(--color-porcelain-grey);
+  --color-surface: #ffffff;
+  --color-ink: var(--color-onyx-black);
+  --color-ink-soft: var(--color-grey-900);
+  --color-ink-body: var(--color-grey-850);
+  --color-ink-muted: var(--color-grey-800);
+  --color-ink-faint: var(--color-grey-700);
+  --color-edge: var(--color-grey-500);
+  --color-edge-strong: var(--color-grey-600);
+  --color-fill: var(--color-grey-400);
+  --color-fill-strong: var(--color-grey-450);
+  --color-accent: var(--color-ocean-blue);
+
+  /* Semantic: approval flow */
+  --color-approve: #00a544;
+  --color-approve-strong: #008a39;
+  --color-approve-soft: #dcfce7;
+  --color-approve-ink: #387456;
+  --color-deny: #e40014;
+  --color-deny-strong: #c30011;
+  --color-deny-soft: #fef2f2;
+  --color-deny-border: #ffcaca;
+
+  /* Semantic: decorative tints. Pastels in light, deep desaturated tints in
+   * dark so the big panels sit quietly on the dark canvas. Deliberately
+   * fixed fills (the phone gradient, the terminal's mint accent) keep using
+   * the raw pastels above. */
+  --color-tint-blue: var(--color-pill-active);
+  --color-tint-blue-strong: var(--color-pastel-blue);
+  --color-tint-mint: var(--color-frosted-mint);
+  --color-tint-green: var(--color-pistachio-green);
+  --color-tint-green-strong: var(--color-fern-green);
+  --color-tint-purple: var(--color-candy-purple);
+  --color-tint-moss: var(--color-moss-green);
+  --color-on-tint: var(--color-onyx-black);
+  --color-on-tint-green: var(--color-moss-green);
+  --color-on-tint-moss: var(--color-porcelain-grey);
+
+  /* Typography */
+  --font-sans: "Inter 92", ui-sans-serif, system-ui, sans-serif;
+  /* Reserved for code, commands, paths, identifiers, and payload values. */
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  /* Shape */
+  --radius-card: 20px;
+
+  /* Elevation */
+  --shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-float: 0 4px 16px rgba(10, 13, 23, 0.06);
+
+  /* Tracking (tight negative tracking throughout) */
+  --tracking-display: -0.021em;
+  --tracking-body: -0.012em;
+
+  /* Motion */
+  --animate-panel-fade: panel-fade 0.2s ease-out;
+
+  @keyframes panel-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-canvas: #0b0d13;
+    --color-surface: #12151d;
+    --color-ink: #f2f3f6;
+    --color-ink-soft: #d7dae0;
+    --color-ink-body: #b9bfc9;
+    --color-ink-muted: #9aa1ad;
+    --color-ink-faint: #6f7683;
+    --color-edge: #232832;
+    --color-edge-strong: #323947;
+    --color-fill: #1a1e28;
+    --color-fill-strong: #232937;
+    --color-accent: #4d79ff;
+
+    --color-approve: #00b34c;
+    --color-approve-strong: #00c455;
+    --color-approve-soft: #102a1b;
+    --color-approve-ink: #74d69c;
+    --color-deny: #ff4d55;
+    --color-deny-strong: #ff8a91;
+    --color-deny-soft: #2a1418;
+    --color-deny-border: #542229;
+
+    --color-tint-blue: #1c2540;
+    --color-tint-blue-strong: #212c4d;
+    --color-tint-mint: #112b28;
+    --color-tint-green: #14261b;
+    --color-tint-green-strong: #5fb587;
+    --color-tint-purple: #2a1f3d;
+    --color-tint-moss: #173224;
+    --color-on-tint: var(--color-ink);
+    --color-on-tint-green: #8fd9b0;
+    --color-on-tint-moss: var(--color-porcelain-grey);
+
+    --shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.4);
+    --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------------------------------------------------------------------------
+ * Base styles
+ * ------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    /* No-JS default; the dark block above switches it. */
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-body);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  ::selection {
+    background-color: var(--color-tint-blue);
+    color: var(--color-on-tint);
+  }
+
+  /* Nav menu: hovering one link fades the others. Scoped to the
+   * links/triggers themselves so a dropdown panel inside a li is unaffected. */
+  .nav-menu li > :is(a, button) {
+    transition: opacity 0.3s;
+  }
+  .nav-menu:has(li > :hover) li > :is(a, button):not(:hover) {
+    opacity: 0.4;
+  }
+  .nav-menu li > button[aria-expanded="true"] {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Blog prose — article body styling for MDX content. Semantic tokens only,
+ * so posts flip cleanly between light and dark. The living reference sample
+ * is on /styleguide.
+ * ------------------------------------------------------------------------- */
+
+.blog-prose {
+  color: var(--color-ink-soft);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.blog-prose > :first-child {
+  margin-top: 0;
+}
+
+/* Blog articles use bold sans headings, not the serif display face. */
+.blog-prose h2,
+.blog-prose h3 {
+  color: var(--color-ink);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+  scroll-margin-top: 6rem;
+}
+
+.blog-prose h2 {
+  font-size: 1.75rem;
+  margin: 3rem 0 1.125rem;
+}
+
+.blog-prose h3 {
+  font-size: 1.25rem;
+  margin: 2.25rem 0 0.875rem;
+}
+
+/* Docs pages layer this over .blog-prose: h2 switches to the serif display
+ * face so it matches the page title, h3 and below stay in the sans at a
+ * smaller size, and body copy softens to ink-body, sitting between the ink
+ * headings and the metadata greys (breadcrumb, table headers, sidebar). */
+.docs-prose {
+  color: var(--color-ink-body);
+}
+
+.docs-prose h2 {
+  font-family: var(--font-serif);
+  font-size: 1.875rem;
+  font-weight: 300;
+}
+
+.docs-prose h3 {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.blog-prose p {
+  margin: 1.125rem 0;
+}
+
+.blog-prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
+}
+
+.blog-prose a:hover {
+  text-decoration-color: var(--color-accent);
+}
+
+.blog-prose strong {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  margin: 1rem 0;
+  padding-left: 1.375rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose li {
+  margin: 0.375rem 0;
+}
+
+.blog-prose li::marker {
+  color: var(--color-ink-faint);
+}
+
+.blog-prose code {
+  background: var(--color-fill);
+  border-radius: 6px;
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.35em;
+}
+
+.blog-prose pre {
+  background: var(--color-fill);
+  border: 0.5px solid var(--color-edge);
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  padding: 1.25rem;
+}
+
+.blog-prose pre code {
+  background: none;
+  border-radius: 0;
+  font-size: inherit;
+  padding: 0;
+}
+
+.blog-prose blockquote {
+  border-left: 2px solid var(--color-edge-strong);
+  color: var(--color-ink-muted);
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 300;
+  line-height: 1.5;
+  margin: 1.75rem 0;
+  padding-left: 1.25rem;
+}
+
+.blog-prose .blog-table-wrap {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.blog-prose table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.blog-prose th {
+  border-bottom: 0.5px solid var(--color-edge-strong);
+  color: var(--color-ink-faint);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 0.625rem 1rem 0.625rem 0;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.blog-prose td {
+  border-bottom: 0.5px solid var(--color-edge);
+  font-size: 0.875rem;
+  padding: 0.625rem 1rem 0.625rem 0;
+  vertical-align: top;
+}
+
+.blog-prose hr {
+  border: none;
+  border-top: 0.5px solid var(--color-edge);
+  margin: 3rem 0;
+}
+
+.blog-prose img {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-edge);
+  border-radius: var(--radius-card);
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+ * Docs components: frames that sit inside .docs-prose (code block, callout,
+ * tabs, steps). They live here, unlayered, because the .blog-prose element
+ * rules above are unlayered too and would beat any Tailwind utility placed
+ * on the same element. Selectors are kept at element+class specificity so
+ * they win by source order.
+ * ------------------------------------------------------------------------- */
+
+/* Code block: the same frame as docs tables (white body, fill header row);
+ * the frame owns border, radius and margin, the Shiki <pre> inside keeps
+ * only padding and horizontal scroll. */
+.docs-code {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-edge);
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+
+.docs-code-header {
+  align-items: center;
+  background: var(--color-fill);
+  border-bottom: 0.5px solid var(--color-edge);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-height: 2.25rem;
+  padding: 0 0.5rem 0 1rem;
+}
+
+.docs-code pre {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  margin: 0;
+  overflow-x: auto;
+  padding: 1rem 1.25rem;
+}
+
+/* Dual-theme Shiki: every token span carries both colors as custom
+ * properties and the theme picks one. Line wrappers carry neither and
+ * inherit the pre's ink-soft. */
+.docs-code pre span {
+  color: var(--shiki-light);
+}
+
+:root[data-theme="dark"] .docs-code pre span {
+  color: var(--shiki-dark);
+}
+
+.docs-code pre:focus-visible {
+  outline: 1px solid var(--color-ink);
+  outline-offset: -1px;
+}
+
+/* Callout: body copy runs a step smaller than the page and loses the
+ * paragraph margins at either end. */
+.docs-callout {
+  margin: 1.5rem 0;
+}
+
+.docs-callout-body p {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  margin: 0.5rem 0;
+}
+
+.docs-callout-body > :first-child {
+  margin-top: 0;
+}
+
+.docs-callout-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Tabs: panels sit close under the rail. */
+.docs-tabs {
+  margin: 1.5rem 0;
+}
+
+.docs-tab-panel > :first-child {
+  margin-top: 1rem;
+}
+
+.docs-tab-panel > :last-child {
+  margin-bottom: 0;
+}
+
+/* Steps: counter circle on a hairline connector, heading aligned to it. */
+ol.docs-steps {
+  counter-reset: step;
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0;
+}
+
+li.docs-step {
+  counter-increment: step;
+  margin: 0;
+  padding: 0 0 2.5rem 2.75rem;
+  position: relative;
+}
+
+li.docs-step:last-child {
+  padding-bottom: 0;
+}
+
+li.docs-step::before {
+  align-items: center;
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-edge-strong);
+  border-radius: 9999px;
+  color: var(--color-ink);
+  content: counter(step);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  height: 1.75rem;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 1.75rem;
+}
+
+li.docs-step::after {
+  border-left: 0.5px solid var(--color-edge);
+  bottom: 0.5rem;
+  content: "";
+  left: 0.875rem;
+  position: absolute;
+  top: 2.25rem;
+}
+
+li.docs-step:last-child::after {
+  display: none;
+}
+
+.docs-step > h3:first-child {
+  line-height: 1.75rem;
+  margin-top: 0;
+}
+
+/* Docs tables: framed, unlike the blog's flat rule-only tables. The wrapper
+ * carries the hairline box and radius (it already scrolls horizontally),
+ * the header row sits on fill, and columns are divided by hairlines. */
+.docs-prose .blog-table-wrap {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-edge);
+  border-radius: 12px;
+}
+
+.docs-prose table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.docs-prose th {
+  background: var(--color-fill);
+  border-bottom: 0.5px solid var(--color-edge);
+  padding: 0.625rem 1rem;
+}
+
+.docs-prose td {
+  padding: 0.625rem 1rem;
+}
+
+.docs-prose th + th,
+.docs-prose td + td {
+  border-left: 0.5px solid var(--color-edge);
+}
+
+.docs-prose tr:last-child td {
+  border-bottom: 0;
+}
+
+/* API reference field list: one row per body field, child attributes behind
+ * a toggle in a framed sub-list, so depth is explicit and pages start
+ * compact. */
+.docs-api-fields {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-edge);
+  border-radius: 12px;
+  margin: 0.5rem 0 0;
+  overflow: hidden; /* clips the hash-target wash to the rounded frame */
+  padding: 0 1rem;
+}
+
+.docs-api-field {
+  border-bottom: 0.5px solid var(--color-edge);
+  padding: 0.75rem 0;
+}
+
+.docs-api-field:last-child {
+  border-bottom: 0;
+}
+
+.docs-api-field-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.blog-prose .docs-api-field-name {
+  background: transparent;
+  border-radius: 0;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0;
+}
+
+.docs-api-field-type {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.blog-prose .docs-api-field-desc {
+  color: var(--color-ink-body);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  margin: 0.25rem 0 0;
+}
+
+.docs-api-field-toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.docs-api-field-toggle:hover {
+  color: var(--color-ink);
+}
+
+.docs-api-field-toggle:focus-visible {
+  outline: 1px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.docs-api-field-toggle svg {
+  transition: transform 0.2s;
+}
+
+.docs-api-field-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+.docs-api-field-children {
+  background: var(--color-fill);
+  border: 0.5px solid var(--color-edge);
+  border-radius: 12px;
+  margin: 0.75rem 0 0.25rem;
+  overflow: hidden;
+  padding: 0 1rem;
+}
+
+.docs-api-field-children .docs-api-field-children {
+  background: var(--color-surface);
+}
+
+/* API reference anchors: a link glyph that shows on hover next to operation
+ * headings, field names and parameter names, and a soft accent wash on
+ * whatever the URL hash points at. */
+.docs-api-anchor-icon {
+  color: var(--color-ink-faint);
+  display: inline-block;
+  height: 0.875rem;
+  margin-left: 0.375rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  vertical-align: -0.0625em;
+  width: 0.875rem;
+}
+
+.blog-prose .docs-api-anchor {
+  text-decoration: none;
+}
+
+.docs-api-op > h2 .docs-api-anchor-icon {
+  height: 1.125rem;
+  margin-left: 0.5rem;
+  width: 1.125rem;
+}
+
+.docs-api-op > h3 .docs-api-anchor-icon {
+  height: 1rem;
+  margin-left: 0.375rem;
+  width: 1rem;
+}
+
+.docs-api-op > h2:hover .docs-api-anchor-icon,
+.docs-api-op > h3:hover .docs-api-anchor-icon,
+.docs-api-field-head:hover .docs-api-anchor-icon,
+.docs-api-name:hover .docs-api-anchor-icon,
+a:focus-visible > .docs-api-anchor-icon {
+  opacity: 1;
+}
+
+.blog-prose a.docs-api-field-name,
+.blog-prose a.docs-api-row-anchor {
+  color: inherit;
+  text-decoration: none;
+}
+
+.docs-api-field,
+.docs-api-table tr {
+  scroll-margin-top: 6rem;
+}
+
+/* Fields inside collapsed parents mount after navigation, when :target has
+ * already been evaluated, so the list also flags the hash target itself. */
+.docs-api-field:target,
+.docs-api-field[data-targeted="true"] {
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+  margin: 0 -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.docs-api-table tr:target td {
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+}
+
+/* API reference: one section per operation, separated by hairlines. */
+.docs-api-op {
+  border-top: 0.5px solid var(--color-edge);
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+}
+
+.docs-api-op:first-of-type {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.docs-api-op > h2 {
+  margin-top: 0;
+}
+
+.docs-api-endpoint {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin: 0.75rem 0 1.125rem;
+}
+
+.blog-prose .docs-api-path {
+  background: transparent;
+  border-radius: 0;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  padding: 0;
+}
+
+/* Auth pill beside the path: outlined, sans, a small lock glyph. */
+.docs-api-auth {
+  align-items: center;
+  border: 0.5px solid var(--color-edge-strong);
+  border-radius: 9999px;
+  color: var(--color-ink-muted);
+  display: inline-flex;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  gap: 0.3rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem 0.25rem 0.4rem;
+}
+
+/* Permission pill after the auth pill: the same outline, the registry key
+ * in mono. It links to the vocabulary page; the self-service variant is a
+ * plain span. */
+.docs-api-permission,
+.blog-prose a.docs-api-permission {
+  align-items: center;
+  border: 0.5px solid var(--color-edge-strong);
+  border-radius: 9999px;
+  color: var(--color-ink-muted);
+  display: inline-flex;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  gap: 0.3rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  text-decoration: none;
+}
+
+.blog-prose a.docs-api-permission:hover {
+  border-color: var(--color-ink-muted);
+  color: var(--color-ink);
+}
+
+.blog-prose .docs-api-permission code {
+  background: transparent;
+  border-radius: 0;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  padding: 0;
+}
+
+/* Edition badge beside the operation title: a filled purple tint marks a
+ * route only the hosted edition mounts. Sans and small so it reads as a
+ * label, not as part of the heading. */
+.docs-api-edition {
+  align-items: center;
+  background: var(--color-tint-purple);
+  border-radius: 9999px;
+  color: var(--color-on-tint);
+  display: inline-flex;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  margin-left: 0.6rem;
+  padding: 0.3rem 0.55rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* The vocabulary page: a dangerous marker beside the key, and the list of
+ * operations that require it. */
+.docs-api-dangerous {
+  border: 0.5px solid var(--color-deny-strong);
+  border-radius: 9999px;
+  color: var(--color-deny-strong);
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.docs-api-used-by {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.blog-prose a.docs-api-used-by-link {
+  align-items: center;
+  color: var(--color-ink-muted);
+  display: inline-flex;
+  gap: 0.375rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.blog-prose a.docs-api-used-by-link:hover {
+  color: var(--color-ink);
+}
+
+.blog-prose a.docs-api-used-by-link code {
+  background: transparent;
+  border-radius: 0;
+  color: inherit;
+  font-size: 0.75rem;
+  padding: 0;
+}
+
+.docs-api-label {
+  color: var(--color-ink-faint);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  margin: 1.75rem 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.docs-api-label-note {
+  color: var(--color-ink-faint);
+  margin-left: 0.625rem;
+  opacity: 0.7;
+}
+
+.docs-api-label + .blog-table-wrap,
+.docs-api-label + .docs-code {
+  margin-top: 0.5rem;
+}
+
+/* Subsection headings inside an operation sit closer to what follows. */
+.docs-api-op > h3 {
+  margin: 2rem 0 0.75rem;
+}
+
+.docs-api-op > h3 + .docs-api-label {
+  margin-top: 0;
+}
+
+.docs-api-op > h3 + .docs-code {
+  margin-top: 0.75rem;
+}
+
+.docs-api-table td {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.docs-api-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.docs-api-required {
+  color: var(--color-ink-faint);
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.docs-api-type {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.docs-api-enum {
+  color: var(--color-ink-muted);
+  margin-top: 0.25rem;
+}
+
+/* Named schema references link to the Schemas page. */
+.blog-prose a.docs-api-type-ref {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.blog-prose a.docs-api-type-ref:hover {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.blog-prose .docs-api-schema-name {
+  background: transparent;
+  border-radius: 0;
+  color: var(--color-ink);
+  font-size: 1.375rem;
+  padding: 0;
+}
+
+.blog-prose .docs-api-note {
+  color: var(--color-ink-muted);
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+}
+
+@layer components {
+  /* Pulses the Approve/Deny buttons inside an unmodified ApprovalCard while
+   * the homepage demo waits for the visitor's decision. With the comment box
+   * hidden, the pending footer contains exactly those two buttons. */
+  .demo-pulse-actions button {
+    animation: demo-attention 1.8s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .demo-pulse-actions button {
+      animation: none;
+    }
+  }
+}

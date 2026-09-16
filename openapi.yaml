@@ -1,0 +1,1051 @@
+openapi: 3.1.0
+info:
+  title: Agent Approval Protocol
+  version: 1.0.0
+  description: |
+    The AAP version 1 wire contract. This file defines the objects, field types,
+    authentication, operations and responses used by adapters and providers.
+    The accompanying docs define lifecycle and execution requirements.
+
+    All operations under paths are required to be implemented by providers.
+    Providers supporting asynchronous mode must also send the webhooks defined
+    here. Webhook operations are implemented by receiving services.
+servers:
+  - url: /
+    description: Replace with the provider's configured AAP base URL.
+tags:
+  - name: Instances
+    description: Provision, retrieve, update and delete instances.
+  - name: Requests
+    description: Request approval for a tool call and retrieve its outcome.
+  - name: Webhooks
+    description: Verify receivers and notify them of terminal approval requests.
+security:
+  - InstanceCredential: []
+paths:
+  /v1/instances:
+    post:
+      operationId: provisionInstance
+      tags: [Instances]
+      summary: Provision an instance
+      description: |
+        Creates an instance within the provisioner token's scope and returns
+        its identity and credential. An instance credential cannot call this
+        operation. Providers may also offer other credential issuance paths.
+
+        Retries with the same idempotency key and input return the original
+        instance and issued credential, without creating another instance or
+        renewing the credential. Keys are scoped to the provisioner and operation.
+        Reusing a key with different input returns an idempotency conflict.
+
+        Optional delivery configures a webhook for the instance. The provisioner
+        supplies a separate signing secret already installed on the receiver.
+        Verification must succeed before creation commits or a credential is
+        issued. Failure returns 422 with code webhook_verification_failed and
+        creates no instance. Unsafe or unsupported delivery configuration returns
+        400. The signing secret is never returned. Successful retries do not
+        repeat verification. Replaying creation after instance deletion returns
+        409 with code instance_deleted and must not recreate the instance.
+
+        The provider must retain the key and original result for at least seven
+        days (168 hours) after instance creation. Retries do not extend this period.
+        Failed verification can be attempted again with the same key and input.
+        Concurrent same-key attempts must be coalesced and must not commit twice.
+      security:
+        - ProvisionerToken: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProvisionInstanceRequest'
+            examples:
+              polling:
+                value:
+                  instance_name: codex-chris-laptop
+              webhook:
+                $ref: '#/components/examples/ConfigureWebhook'
+      responses:
+        '201':
+          description: The newly created instance and its issued credential.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisionInstanceResponse'
+              examples:
+                provisioned:
+                  $ref: '#/components/examples/ProvisionedInstance'
+        '200':
+          description: The instance and credential from an earlier submission with the same key.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisionInstanceResponse'
+              examples:
+                replayed:
+                  $ref: '#/components/examples/ProvisionedInstance'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/WebhookVerificationFailed' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/instances/{id}:
+    parameters:
+      - $ref: '#/components/parameters/InstanceID'
+    get:
+      operationId: getInstance
+      tags: [Instances]
+      summary: Retrieve an instance
+      description: |
+        Returns the current instance within the provisioner token's scope.
+        Credentials and webhook signing secrets are never included.
+        Deleted instances return 404.
+      security:
+        - ProvisionerToken: []
+      responses:
+        '200': { $ref: '#/components/responses/Instance' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+    patch:
+      operationId: updateInstance
+      tags: [Instances]
+      summary: Update an instance
+      description: |
+        Updates fields within the provisioner token's scope. Omitted fields are
+        unchanged. A supplied delivery object replaces the entire configuration,
+        including its secret, after verification. A failed verification returns
+        422 with code webhook_verification_failed and changes nothing, including
+        the name. Null delivery removes the receiver and ends outstanding delivery.
+
+        Once committed, future attempts for all queued notifications use the new
+        URL and secret, including those for older requests. Notification IDs,
+        bodies and retry deadlines do not change. An attempt already in flight
+        can still reach the old receiver. Replacing delivery does not replay
+        notifications whose delivery has already ended. Deletion must take
+        precedence over an update still being verified.
+
+        Idempotency keys are scoped to the provisioner, instance ID and operation.
+        Same-key, same-input retries return the original successful response
+        without repeating verification or reapplying the update. Changed input
+        returns 409. Retain the key and original result for at least seven days
+        after the update commits. Retrying does not renew that period.
+        A replay against a deleted instance returns 404 and cannot restore it.
+        Failed verification can be attempted again with the same key and input.
+        Concurrent same-key attempts must be coalesced and must not commit twice.
+      security:
+        - ProvisionerToken: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateInstanceRequest' }
+            examples:
+              replaceReceiver:
+                $ref: '#/components/examples/ConfigureWebhook'
+              rename:
+                value:
+                  instance_name: codex-chris-desktop
+      responses:
+        '200': { $ref: '#/components/responses/Instance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/WebhookVerificationFailed' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+    delete:
+      operationId: deleteInstance
+      tags: [Instances]
+      summary: Delete an instance
+      description: |
+        Retires an instance within the provisioner token's scope. Revokes all its
+        credentials, cancels its pending requests and ends all webhook delivery.
+        Existing terminal decisions stay unchanged. No cancellation notifications
+        are sent for this operation. Attempts already in flight may still arrive.
+        Deletion does not stop tool execution that has already begun.
+
+        The provider must serialize deletion with request creation, decisions and
+        configuration updates so no pending work or active credential is left
+        behind. Request and idempotency retention still apply. The provider keeps
+        a deletion record for at least seven days; repeated deletion returns 204
+        whilst that record is retained. Unknown IDs return 404. No idempotency key
+        is required. This operation never recreates an instance.
+      security:
+        - ProvisionerToken: []
+      responses:
+        '204':
+          description: The instance has been deleted, including on repeated deletion.
+          headers:
+            X-Request-ID: { $ref: '#/components/headers/RequestID' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/requests:
+    post:
+      operationId: createApprovalRequest
+      tags: [Requests]
+      summary: Create an approval request
+      description: |
+        Submits one proposed tool call. The provider derives instance identity
+        from the credential. The response may already contain a terminal decision.
+
+        An idempotency key identifies one execution attempt. Repeating the same
+        input with the same key returns the existing request in its current state.
+        Reusing the key with different input returns an idempotency conflict.
+        Keys are scoped to the authenticated instance and operation.
+
+        The provider must retain the request and key whilst the request is pending
+        and for at least seven days (168 hours) after it becomes terminal, measured
+        from decision.decided_at. If the request is retained longer, its key must
+        be retained for the same period. For a request with a notification,
+        retain both until at least 24 hours after delivery is acknowledged or
+        retries end, if that is later. Submission retries do not extend retention.
+
+        Delivery is inherited from the instance and cannot be supplied on a
+        request. Recording a terminal outcome and its notification must be
+        durable together when delivery is configured, including immediate
+        decisions. Replaying creation does not create another notification.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApprovalRequest'
+            examples:
+              refund:
+                $ref: '#/components/examples/CreateRefundRequest'
+      responses:
+        '201':
+          description: The new request, pending or already terminal.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+              examples:
+                pending:
+                  $ref: '#/components/examples/PendingRequest'
+                approved:
+                  $ref: '#/components/examples/ApprovedRequest'
+        '200':
+          $ref: '#/components/responses/ApprovalRequest'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/requests/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ApprovalRequestID'
+    get:
+      operationId: getApprovalRequest
+      tags: [Requests]
+      summary: Retrieve an approval request
+      description: |
+        Returns the current request. With wait, holds the response until the
+        request becomes terminal or the wait ends. A completed wait can return
+        a pending request. Polling does not extend the approval deadline.
+      parameters:
+        - name: wait
+          in: query
+          description: |
+            How long to wait for a terminal state. Capped at 30 seconds.
+            Omitting this parameter returns immediately.
+          schema:
+            $ref: '#/components/schemas/Duration'
+          example: 30s
+      responses:
+        '200': { $ref: '#/components/responses/ApprovalRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+    delete:
+      operationId: cancelApprovalRequest
+      tags: [Requests]
+      summary: Cancel an approval request
+      description: |
+        Withdraws a pending request. Only its creating instance may call this
+        operation. Deleting the instance also cancels its pending requests.
+        Repeating cancellation returns the same cancelled request. No idempotency
+        key is needed. An approved, denied or expired request is unchanged and
+        returns 409 with code already_terminal. Cancellation ends active long polls.
+      responses:
+        '200':
+          description: The cancelled request, including on repeated cancellation.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelledApprovalRequest'
+              examples:
+                cancelled:
+                  $ref: '#/components/examples/CancelledRequest'
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+webhooks:
+  verifyReceiver:
+    post:
+      operationId: verifyWebhookReceiver
+      tags: [Webhooks]
+      summary: Verify a proposed receiver
+      description: |
+        Sent to the exact configured URL before creating an instance or replacing
+        its delivery configuration. Signed with the proposed secret. The receiver
+        must verify the signature and expected registration before echoing the
+        challenge. Only a 200 response with the matching challenge within 10
+        seconds succeeds. A bare 2xx response is insufficient. Redirects are not
+        followed. One attempt per provisioning or update attempt; this is not
+        retried on the notification schedule. Failures leave no active new
+        configuration. Registration retries must be rate limited and coalesced.
+        The instance ID may be reserved before creation, but is not yet usable.
+        registration_id echoes delivery.registration_id from the proposed
+        configuration. The receiver uses it to select a preconfigured secret,
+        then verifies the original body bytes before trusting the instance ID
+        or answering the challenge. Unknown registrations must be rejected.
+      security:
+        - WebhookSignature: []
+      parameters:
+        - $ref: '#/components/parameters/WebhookID'
+        - $ref: '#/components/parameters/WebhookTimestamp'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WebhookVerification' }
+            examples:
+              challenge: { $ref: '#/components/examples/WebhookVerification' }
+      responses:
+        '200':
+          description: The receiver accepts this registration and echoes its challenge.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WebhookVerificationResponse' }
+              example:
+                challenge: 2edc34d7-cc57-44b1-8705-2fa608d3224a
+        '400':
+          description: The verification message is malformed.
+        '401':
+          description: The signature or delivery timestamp is invalid.
+        '403':
+          description: The receiver does not accept this registration.
+        '429':
+          description: The receiver is rate limited; verification fails for this attempt.
+  requestResolved:
+    post:
+      operationId: deliverRequestResolved
+      tags: [Webhooks]
+      summary: Notify a receiver of a terminal request
+      description: |
+        Sent to the instance's current verified URL. This is a notification only;
+        retrieve the decision through the authenticated approval API. The message
+        ID and body stay fixed across retries and receiver updates. Each attempt
+        has a fresh delivery timestamp and signature. webhook-id equals body.id.
+
+        Any 2xx acknowledges durable receipt, not execution. The receiver must
+        verify the signature, save or queue the notification, and deduplicate
+        before arranging resumption. Duplicates already saved receive 2xx too.
+        The provider retries failures with exponential backoff and jitter until
+        acknowledgement or seven days (168 hours) after decision.decided_at.
+        There must be at most one outstanding attempt per event.
+        Each attempt has a timeout of at most 10 seconds and must end by that
+        deadline. Respect Retry-After on 429 and 503 within the retry window.
+        Do not follow redirects. Removal of delivery or deletion of the instance
+        ends retries. Approval expiry does not end notification delivery.
+
+        Retain the request, creation idempotency key and notification until the
+        later of seven days after the decision or 24 hours after delivery ends.
+        If delivery is removed whilst an attempt is in flight, the grace period
+        starts after that attempt finishes. Receivers retain duplicate tracking
+        through the retry window and grace period; eight days after event creation
+        covers both. Retention does not preserve access for revoked credentials.
+        Replacing the receiver does not restart the delivery window.
+      security:
+        - WebhookSignature: []
+      parameters:
+        - $ref: '#/components/parameters/WebhookID'
+        - $ref: '#/components/parameters/WebhookTimestamp'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RequestResolvedEvent' }
+            examples:
+              resolved: { $ref: '#/components/examples/RequestResolvedEvent' }
+      responses:
+        '2XX':
+          description: Signature verified and receipt durably recorded. Any response body is ignored.
+        '400':
+          description: The notification is malformed.
+        '401':
+          description: The signature or delivery timestamp is invalid.
+        '429':
+          description: Reduce delivery rate to this destination and respect Retry-After.
+          headers:
+            Retry-After: { $ref: '#/components/headers/RetryAfter' }
+        '503':
+          description: The receiver is temporarily unavailable. Respect Retry-After.
+          headers:
+            Retry-After: { $ref: '#/components/headers/RetryAfter' }
+components:
+  securitySchemes:
+    InstanceCredential:
+      type: http
+      scheme: bearer
+      description: An opaque credential bound to exactly one instance. Cannot manage instances.
+    ProvisionerToken:
+      type: http
+      scheme: bearer
+      description: An opaque token permitting instance management within its assigned scope. Cannot make approval requests.
+    WebhookSignature:
+      type: apiKey
+      in: header
+      name: webhook-signature
+      description: |
+        Standard Webhooks v1 HMAC-SHA256 authentication. Remove whsec_ from the
+        configured signing_secret and base64-decode it to obtain the key bytes.
+        Sign the UTF-8 bytes of webhook-id, a period, webhook-timestamp, a period,
+        and the exact transmitted body bytes. Send v1, followed by the base64
+        digest. No instance credential or provisioner token is sent to receivers.
+        Verify using a constant-time comparison and the locally configured key.
+        Reject attempt timestamps more than five minutes from the receiver's
+        clock. The header can contain space-separated signatures; a valid v1
+        signature is required. Never trust a secret supplied in the message.
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        An opaque key generated before the first submission and retained across
+        retries. Same-key retries must have the same parsed input field values.
+        JSON whitespace and object key order do not affect equality.
+
+        Approval keys are retained throughout the pending state and for at least
+        seven days after the terminal decision, or as long as the request is
+        retained if longer, including the 24-hour notification delivery grace
+        period. Provisioning keys and their original results are
+        retained for at least seven days after instance creation. Seven days means
+        168 hours. Update keys and their original results are retained for at
+        least seven days after the update commits. Submission retries do not
+        extend retention. Once a key has been discarded,
+        reusing it may create a new request or instance, or apply an update again.
+        Callers must not rely on
+        retries beyond these periods unless the provider guarantees longer retention.
+      schema:
+        type: string
+        minLength: 1
+      example: 4dc635f0-9423-4a98-99cc-33d2168fcbb2
+    ApprovalRequestID:
+      name: id
+      in: path
+      required: true
+      description: The approval request's provider-assigned ID.
+      schema:
+        $ref: '#/components/schemas/Identifier'
+    InstanceID:
+      name: id
+      in: path
+      required: true
+      description: The instance's provider-assigned ID.
+      schema: { $ref: '#/components/schemas/Identifier' }
+    WebhookID:
+      name: webhook-id
+      in: header
+      required: true
+      description: The message ID, equal to body.id. Stable across notification retries.
+      schema: { $ref: '#/components/schemas/Identifier' }
+    WebhookTimestamp:
+      name: webhook-timestamp
+      in: header
+      required: true
+      description: Delivery attempt time as Unix seconds, as required by Standard Webhooks.
+      schema:
+        type: string
+        pattern: '^[0-9]+$'
+  headers:
+    RequestID:
+      required: true
+      description: Identifies this HTTP exchange. Matches error.request_id on errors.
+      schema:
+        $ref: '#/components/schemas/Identifier'
+    RetryAfter:
+      description: The delay before retrying, in seconds or as an HTTP date.
+      schema:
+        type: string
+      example: '5'
+  schemas:
+    Identifier:
+      type: string
+      format: uuid
+    Timestamp:
+      type: string
+      format: date-time
+      pattern: 'Z$'
+      description: An RFC 3339 timestamp in UTC, ending in Z.
+      examples: ['2026-09-16T12:00:00Z']
+    Duration:
+      type: string
+      pattern: '^[1-9][0-9]*(s|m|h)$'
+      description: A positive whole number of seconds, minutes or hours, with its unit.
+      examples: [30s, 30m, 24h]
+    ToolName:
+      type: string
+      minLength: 1
+      description: The name identifying the intercepted tool.
+      examples: [issue_refund]
+    ToolArguments:
+      type: object
+      additionalProperties: true
+      description: The exact tool arguments. Their keys and nested JSON values retain their original spelling and types.
+    AgentReasoning:
+      type: string
+      description: The agent's explanation, presented as a claim from the agent.
+    RuntimeContext:
+      type: object
+      additionalProperties: true
+      description: Runtime information observed by the adapter. Does not establish identity.
+    CreateApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [tool, arguments, timeout]
+      properties:
+        tool: { $ref: '#/components/schemas/ToolName' }
+        arguments: { $ref: '#/components/schemas/ToolArguments' }
+        timeout: { $ref: '#/components/schemas/Duration' }
+        agent_reasoning: { $ref: '#/components/schemas/AgentReasoning' }
+        context: { $ref: '#/components/schemas/RuntimeContext' }
+    ApprovalStatus:
+      type: string
+      enum: [pending, approved, denied, expired, cancelled]
+    DecisionStatus:
+      type: string
+      enum: [approved, denied, expired, cancelled]
+    Decision:
+      type: object
+      additionalProperties: false
+      description: |
+        The immutable outcome of a request. An approved decision includes a fixed
+        expires_at set by the provider, later than decided_at. The adapter must
+        start the approved call before expires_at. This limits when execution may
+        start, not when it must finish. Reading or replaying the decision does not
+        extend its validity. Passing expires_at does not change the recorded
+        approved status into expired. Other outcomes have no expires_at.
+      required: [status, decided_at]
+      properties:
+        status: { $ref: '#/components/schemas/DecisionStatus' }
+        note:
+          type: string
+          description: Additional information. Does not change the approved arguments or authorize other calls.
+        decided_at: { $ref: '#/components/schemas/Timestamp' }
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: |
+            Required for approved decisions and absent for other outcomes.
+            At or after this time, the adapter must not start the call using this
+            approval. The provider chooses the validity period. A new execution
+            attempt after expiry requires a new approval request and idempotency key.
+      oneOf:
+        - title: Approval
+          required: [expires_at]
+          properties:
+            status: { const: approved }
+        - title: Other outcome
+          properties:
+            status: { enum: [denied, expired, cancelled] }
+            expires_at: false
+    ApprovalRequest:
+      type: object
+      additionalProperties: false
+      description: |
+        The stored request and its current state. Pending requests have no
+        decision. Terminal requests have a decision matching their status.
+        Submitted fields are immutable. timeout remains the requested window;
+        deadline_at records the window accepted by the provider for reaching a
+        decision. An approved call must start before decision.expires_at.
+      required: [id, tool, arguments, timeout, status, created_at, deadline_at]
+      properties:
+        id: { $ref: '#/components/schemas/Identifier' }
+        tool: { $ref: '#/components/schemas/ToolName' }
+        arguments: { $ref: '#/components/schemas/ToolArguments' }
+        timeout: { $ref: '#/components/schemas/Duration' }
+        agent_reasoning: { $ref: '#/components/schemas/AgentReasoning' }
+        context: { $ref: '#/components/schemas/RuntimeContext' }
+        status: { $ref: '#/components/schemas/ApprovalStatus' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        deadline_at: { $ref: '#/components/schemas/Timestamp' }
+        decision: { $ref: '#/components/schemas/Decision' }
+      oneOf:
+        - title: Pending
+          properties:
+            status: { const: pending }
+            decision: false
+        - title: Approved
+          required: [decision]
+          properties:
+            status: { const: approved }
+            decision:
+              properties:
+                status: { const: approved }
+        - title: Denied
+          required: [decision]
+          properties:
+            status: { const: denied }
+            decision:
+              properties:
+                status: { const: denied }
+        - title: Expired
+          required: [decision]
+          properties:
+            status: { const: expired }
+            decision:
+              properties:
+                status: { const: expired }
+        - title: Cancelled
+          required: [decision]
+          properties:
+            status: { const: cancelled }
+            decision:
+              properties:
+                status: { const: cancelled }
+    CancelledApprovalRequest:
+      allOf:
+        - $ref: '#/components/schemas/ApprovalRequest'
+        - type: object
+          properties:
+            status: { const: cancelled }
+    ProvisionInstanceRequest:
+      type: object
+      additionalProperties: false
+      description: Submit an empty object when neither a name nor delivery is supplied.
+      properties:
+        instance_name:
+          type: string
+          minLength: 1
+          description: A recognisable name for the instance. The provider assigns one if omitted.
+          examples: [codex-chris-laptop]
+        delivery: { $ref: '#/components/schemas/WebhookDeliveryInput' }
+    UpdateInstanceRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        instance_name:
+          type: string
+          minLength: 1
+        delivery:
+          description: Omit to keep delivery unchanged, replace with a complete object, or use null to remove it.
+          oneOf:
+            - $ref: '#/components/schemas/WebhookDeliveryInput'
+            - type: 'null'
+    WebhookURL:
+      type: string
+      format: uri
+      pattern: '^https://[^/?#@\s]+([/?][^#\s]*)?$'
+      description: |
+        The exact HTTPS receiver URL. Userinfo and fragments are forbidden.
+        The provider must validate syntax and destination addresses before every
+        connection, including verification and retries. Reject loopback, private,
+        link-local, metadata and other non-public addresses, including IPv6.
+        DNS changes must not bypass these checks. Do not follow redirects.
+    WebhookSigningSecret:
+      type: string
+      writeOnly: true
+      pattern: '^whsec_[A-Za-z0-9+/]{42}[AEIMQUYcgkosw048]=$'
+      description: |
+        Standard Webhooks secret containing exactly 32 cryptographically random
+        bytes, encoded as canonical padded base64 and prefixed with whsec_.
+        Generated by the provisioner and installed on the receiver before the
+        request. Use a separate secret per instance; never reuse an API credential.
+        The secret is never returned in a response or exposed to the agent.
+    WebhookRegistrationID:
+      allOf:
+        - $ref: '#/components/schemas/Identifier'
+      description: |
+        A provisioner-generated UUID identifying an expected configuration on
+        the receiver before the provider assigns an instance ID. Install its
+        association with the signing secret on the receiver before provisioning
+        or updating. Reuse it on retries of the same submission; generate a new
+        value for a replacement configuration. It is a lookup hint, not a secret
+        or proof of authenticity. The provider echoes it in verification messages.
+    WebhookDeliveryInput:
+      type: object
+      additionalProperties: false
+      required: [type, url, registration_id, signing_secret]
+      description: |
+        A complete proposed delivery configuration. Both initial setup and
+        replacement require receiver verification. Only webhook is defined;
+        future transports can use another type without changing the event.
+        Registration and delivery must be rate limited per provisioning account
+        and destination across instances, including aggregate host and address
+        limits. Bound concurrency and request and response sizes. Document the
+        provider's limits and apply them to verification and retries too.
+      properties:
+        type:
+          type: string
+          const: webhook
+        url: { $ref: '#/components/schemas/WebhookURL' }
+        registration_id: { $ref: '#/components/schemas/WebhookRegistrationID' }
+        signing_secret: { $ref: '#/components/schemas/WebhookSigningSecret' }
+    WebhookDelivery:
+      type: object
+      additionalProperties: false
+      required: [type, url, registration_id]
+      description: The active verified configuration. Never contains the signing secret.
+      properties:
+        type:
+          type: string
+          const: webhook
+        url: { $ref: '#/components/schemas/WebhookURL' }
+        registration_id: { $ref: '#/components/schemas/WebhookRegistrationID' }
+    Instance:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id: { $ref: '#/components/schemas/Identifier' }
+        name:
+          type: string
+          minLength: 1
+          description: The name assigned by the provider. A name is not proof of identity.
+        delivery:
+          $ref: '#/components/schemas/WebhookDelivery'
+          description: Absent when no receiver is configured. Instance reads never return credentials or signing secrets.
+    IssuedCredential:
+      type: object
+      additionalProperties: false
+      required: [token]
+      properties:
+        token:
+          type: string
+          minLength: 1
+          description: The opaque bearer credential bound to the returned instance. Treat as a secret.
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: When the credential expires. Absent if no expiry is scheduled. Revocation may occur earlier.
+    ProvisionInstanceResponse:
+      type: object
+      additionalProperties: false
+      required: [instance, credential]
+      properties:
+        instance: { $ref: '#/components/schemas/Instance' }
+        credential: { $ref: '#/components/schemas/IssuedCredential' }
+    RequestResolvedEvent:
+      type: object
+      additionalProperties: false
+      required: [id, type, instance_id, request_id, created_at]
+      description: |
+        A transport-independent notification of a terminal request, generated
+        for approved, denied, expired and cancelled outcomes. created_at equals
+        decision.decided_at. The provider creates one immutable event per request
+        that becomes terminal whilst delivery is configured, except during
+        instance deletion. It contains no decision, tool arguments or credentials.
+        Fetch the authoritative request through the authenticated API.
+      properties:
+        id: { $ref: '#/components/schemas/Identifier' }
+        type:
+          type: string
+          const: request.resolved
+        instance_id: { $ref: '#/components/schemas/Identifier' }
+        request_id: { $ref: '#/components/schemas/Identifier' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+    WebhookVerification:
+      type: object
+      additionalProperties: false
+      required: [id, type, registration_id, instance_id, created_at, challenge]
+      properties:
+        id: { $ref: '#/components/schemas/Identifier' }
+        type:
+          type: string
+          const: webhook.verification
+        registration_id: { $ref: '#/components/schemas/WebhookRegistrationID' }
+        instance_id: { $ref: '#/components/schemas/Identifier' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        challenge:
+          $ref: '#/components/schemas/Identifier'
+          description: A fresh unpredictable UUID challenge bound to this configuration attempt.
+    WebhookVerificationResponse:
+      type: object
+      additionalProperties: false
+      required: [challenge]
+      properties:
+        challenge:
+          $ref: '#/components/schemas/Identifier'
+          description: The exact challenge from the verified, expected registration message.
+    ErrorType:
+      type: string
+      enum: [invalid_request, authentication, authorization, not_found, conflict, rate_limit, dependency, internal]
+    Error:
+      type: object
+      additionalProperties: false
+      required: [type, code, message, request_id]
+      properties:
+        type: { $ref: '#/components/schemas/ErrorType' }
+        code:
+          type: string
+          pattern: '^[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+          description: A machine-readable reason, such as idempotency_conflict or already_terminal.
+        message:
+          type: string
+          minLength: 1
+          description: A safe explanation without credentials, stack traces or internal details.
+        param:
+          type: string
+          minLength: 1
+          description: The invalid input field, when applicable.
+        request_id: { $ref: '#/components/schemas/Identifier' }
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error: { $ref: '#/components/schemas/Error' }
+  responses:
+    Instance:
+      description: The instance configuration, or the original result on an update replay. Secrets are excluded.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Instance' }
+          examples:
+            webhook: { $ref: '#/components/examples/InstanceWithWebhook' }
+    WebhookVerificationFailed:
+      description: The proposed receiver failed verification. No instance or configuration change is committed.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error:
+              type: invalid_request
+              code: webhook_verification_failed
+              message: The webhook receiver could not be verified.
+              param: delivery
+              request_id: 1184dfc5-0e86-4f88-9b68-882b1dc60467
+    ApprovalRequest:
+      description: The request in its current state, including on an idempotent replay.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApprovalRequest'
+          examples:
+            pending:
+              $ref: '#/components/examples/PendingRequest'
+            approved:
+              $ref: '#/components/examples/ApprovedRequest'
+    BadRequest:
+      description: |
+        The request is malformed or a field is invalid. Code invalid_webhook_url
+        identifies an unsafe or malformed receiver URL. Code
+        unsupported_delivery_type identifies an unsupported transport, including
+        webhook when the provider supports only synchronous mode.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthenticated:
+      description: The credential is missing, expired, revoked or otherwise invalid.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: The credential does not permit the operation or access to this resource.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: The resource is unavailable to the caller.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Conflict:
+      description: |
+        The operation conflicts with existing state. Code idempotency_conflict
+        means the key was used with different input. Code already_terminal means
+        the request was approved, denied or expired before cancellation.
+        Code instance_deleted means a provisioning replay refers to a deleted instance.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error:
+              type: conflict
+              code: idempotency_conflict
+              message: The idempotency key was already used for a different request.
+              request_id: 1184dfc5-0e86-4f88-9b68-882b1dc60467
+    RateLimited:
+      description: The caller must reduce its request rate. Respect Retry-After when present.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    InternalError:
+      description: The provider could not complete the operation. This does not permit tool execution.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unavailable:
+      description: The provider is temporarily unable to serve the operation.
+      headers:
+        X-Request-ID: { $ref: '#/components/headers/RequestID' }
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+  examples:
+    ConfigureWebhook:
+      summary: Configure a receiver with an illustrative secret, never use this secret in a deployment
+      value:
+        delivery:
+          type: webhook
+          url: https://harness.example.com/aap/events
+          registration_id: 8246931c-4ce0-4c15-a94a-e9c078ad06e2
+          signing_secret: whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+    InstanceWithWebhook:
+      summary: An instance with a verified receiver
+      value:
+        id: b29a43a7-1949-4b9f-9d61-b7ae66f85d31
+        name: codex-chris-laptop
+        delivery:
+          type: webhook
+          url: https://harness.example.com/aap/events
+          registration_id: 8246931c-4ce0-4c15-a94a-e9c078ad06e2
+    WebhookVerification:
+      summary: A signed receiver verification message
+      value:
+        id: c9bb5281-f9a5-4660-b27e-0b1cbbad81b6
+        type: webhook.verification
+        registration_id: 8246931c-4ce0-4c15-a94a-e9c078ad06e2
+        instance_id: b29a43a7-1949-4b9f-9d61-b7ae66f85d31
+        created_at: '2026-09-16T11:59:00Z'
+        challenge: 2edc34d7-cc57-44b1-8705-2fa608d3224a
+    RequestResolvedEvent:
+      summary: A notification that a decision is available
+      value:
+        id: f4b96ac4-404d-4f6a-9a03-a0565edc4922
+        type: request.resolved
+        instance_id: b29a43a7-1949-4b9f-9d61-b7ae66f85d31
+        request_id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
+        created_at: '2026-09-16T12:02:00Z'
+    CreateRefundRequest:
+      summary: Request approval for a refund
+      value:
+        tool: issue_refund
+        arguments:
+          payment_id: payment_123
+          amount: 4900
+          currency: GBP
+        timeout: 30m
+    PendingRequest:
+      summary: Awaiting a decision
+      value:
+        id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
+        tool: issue_refund
+        arguments:
+          payment_id: payment_123
+          amount: 4900
+          currency: GBP
+        timeout: 30m
+        status: pending
+        created_at: '2026-09-16T12:00:00Z'
+        deadline_at: '2026-09-16T12:30:00Z'
+    ApprovedRequest:
+      summary: Approved by the provider
+      value:
+        id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
+        tool: issue_refund
+        arguments:
+          payment_id: payment_123
+          amount: 4900
+          currency: GBP
+        timeout: 30m
+        status: approved
+        created_at: '2026-09-16T12:00:00Z'
+        deadline_at: '2026-09-16T12:30:00Z'
+        decision:
+          status: approved
+          note: The duplicate charge has been confirmed.
+          decided_at: '2026-09-16T12:02:00Z'
+          expires_at: '2026-09-16T12:07:00Z'
+    CancelledRequest:
+      summary: Withdrawn by the requesting instance
+      value:
+        id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
+        tool: issue_refund
+        arguments:
+          payment_id: payment_123
+          amount: 4900
+          currency: GBP
+        timeout: 30m
+        status: cancelled
+        created_at: '2026-09-16T12:00:00Z'
+        deadline_at: '2026-09-16T12:30:00Z'
+        decision:
+          status: cancelled
+          decided_at: '2026-09-16T12:02:00Z'
+    ProvisionedInstance:
+      summary: An instance and its issued credential
+      value:
+        instance:
+          id: b29a43a7-1949-4b9f-9d61-b7ae66f85d31
+          name: codex-chris-laptop
+        credential:
+          token: example-instance-credential
+          expires_at: '2026-09-17T12:00:00Z'
