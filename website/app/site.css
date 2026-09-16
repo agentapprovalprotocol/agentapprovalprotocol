@@ -93,16 +93,18 @@ button, input { font: inherit; }
   .docs-main { max-width: 850px; }
 }
 @media (max-width: 767px) {
-  .docs-rail { position: sticky; top: 0; width: 100%; height: auto; padding: 0 24px; border-right: 0; border-bottom: .5px solid var(--color-edge); }
+  /* Share the border-box height so fractional hairlines cannot leave a gap. */
+  :root { --docs-mobile-rail-height: 109px; }
+  .docs-rail { position: sticky; top: 0; width: 100%; height: var(--docs-mobile-rail-height); padding: 0 24px; border-right: 0; border-bottom: .5px solid var(--color-edge); }
   .docs-brand-row { min-height: 60px; }
   .site-logo { width: 128px; height: 48px; }
   .docs-menu-toggle { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; cursor: pointer; color: var(--color-ink-muted); }
   .docs-menu-toggle svg { width: 20px; height: 20px; }
   .docs-rail > .search-trigger { height: 36px; margin-bottom: 12px; }
   .docs-rail-navigation { display: none; }
-  .docs-rail-navigation[data-open="true"] { display: flex; position: absolute; inset: 100% 0 auto; height: calc(100dvh - 109px); padding: 24px 24px 0; border-bottom: .5px solid var(--color-edge); background: var(--color-canvas); }
+  .docs-rail-navigation[data-open="true"] { display: flex; position: absolute; inset: 100% 0 auto; height: calc(100dvh - var(--docs-mobile-rail-height)); padding: 24px 24px 0; border-bottom: .5px solid var(--color-edge); background: var(--color-canvas); }
   .docs-workspace { margin-left: 0; }
-  .docs-topbar { top: 109px; height: 48px; padding: 0 24px; }
+  .docs-topbar { top: var(--docs-mobile-rail-height); height: 48px; padding: 0 24px; }
   .docs-section-tabs { gap: 24px; }
   .docs-version { font-size: 11px; }
   .docs-main { padding: 28px 24px 56px; }
