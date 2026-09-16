@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { site } from "@/site.config";
+import { VersionSelect } from "./version-select";
 
 export function SiteNav() {
   const reference = usePathname().startsWith("/docs/reference/");
@@ -11,6 +11,6 @@ export function SiteNav() {
       <Link href="/docs/specification/overview" aria-current={!reference ? "page" : undefined}>Documentation</Link>
       <Link href="/docs/reference/overview" aria-current={reference ? "page" : undefined}>API reference</Link>
     </nav>
-    <span className="docs-version">Version {site.version}</span>
+    <VersionSelect />
   </header>;
 }

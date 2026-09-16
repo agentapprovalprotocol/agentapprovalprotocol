@@ -1,7 +1,7 @@
 import { HighlightedCode } from "../code-block";
 import { FieldList } from "./field-list";
 import { TypeLabel } from "./type-label";
-import { Inline } from "./inline";
+import { Description } from "./description";
 import { resolve, schemaFields, schemaRules, typeParts, type Schema } from "@/lib/openapi";
 
 export function SchemaDetails({ schema, id }: { schema: Schema; id: string }) {
@@ -10,7 +10,7 @@ export function SchemaDetails({ schema, id }: { schema: Schema; id: string }) {
   const fields = schemaFields(schema);
   const variants = resolved.oneOf ?? resolved.anyOf;
   return <>
-    {resolved.description && <p><Inline text={resolved.description} /></p>}
+    {resolved.description && <Description text={resolved.description} />}
     {fields.length ? <FieldList fields={fields} anchorPrefix={id} /> : <p><TypeLabel parts={typeParts(resolved)} /></p>}
     {variants && <div className="schema-variants">
       <p>{resolved.oneOf ? "Exactly one of these variants must match:" : "At least one of these variants must match:"}</p>
