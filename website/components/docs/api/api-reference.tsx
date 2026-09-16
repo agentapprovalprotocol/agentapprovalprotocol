@@ -4,6 +4,7 @@ import { SchemaDetails } from "./schema-details";
 import { MethodPill } from "./method-pill";
 import { AnchorIcon } from "./anchor-icon";
 import { Inline } from "./inline";
+import { Description } from "./description";
 import { TypeLabel } from "./type-label";
 import { typeParts, type ApiGroup, type ApiSchema } from "@/lib/openapi";
 
@@ -29,7 +30,7 @@ export function ApiReference({ group }: { group: ApiGroup }) {
     </>}
     <h3 id={`${op.id}-responses`}>Responses</h3>
     <div className="blog-table-wrap"><table className="docs-api-table"><thead><tr><th>Status</th><th>Meaning</th><th>Body</th></tr></thead><tbody>
-      {op.responses.map((response) => <tr key={response.status}><td><code>{response.status}</code></td><td><Inline text={response.description} /></td><td><TypeLabel parts={response.schema ? typeParts(response.schema) : [{ text: "No body" }]} /></td></tr>)}
+      {op.responses.map((response) => <tr key={response.status}><td><code>{response.status}</code></td><td><Description text={response.description} /></td><td><TypeLabel parts={response.schema ? typeParts(response.schema) : [{ text: "No body" }]} /></td></tr>)}
     </tbody></table></div>
     {op.responses.filter((response) => Number(response.status) < 300).map((response) => <div key={response.status} className="api-response">
       <h4>{response.status} response</h4>

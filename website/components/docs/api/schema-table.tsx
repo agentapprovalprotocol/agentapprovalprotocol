@@ -1,6 +1,6 @@
 import type { SchemaRow } from "@/lib/openapi";
 import { AnchorIcon } from "./anchor-icon";
-import { Inline } from "./inline";
+import { Description } from "./description";
 import { TypeLabel } from "./type-label";
 
 /* Flat table for parameters: the framed docs table look. Bodies use the
@@ -54,7 +54,7 @@ export function SchemaTable({
                 <TypeLabel parts={row.type} />
               </td>
               <td>
-                {row.description && <Inline text={row.description} />}
+                {row.description && <Description text={row.description} />}
                 {row.enumValues && (
                   <div className="docs-api-enum">
                     One of{" "}

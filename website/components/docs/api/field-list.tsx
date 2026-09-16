@@ -3,7 +3,7 @@
 import * as React from "react";
 import type { SchemaField } from "@/lib/openapi";
 import { AnchorIcon } from "./anchor-icon";
-import { Inline } from "./inline";
+import { Description } from "./description";
 import { TypeLabel } from "./type-label";
 
 /* Body fields as a list: name, type, required marker, description. Fields
@@ -72,7 +72,7 @@ function Field({ field, prefix }: { field: SchemaField; prefix: string }) {
         {!field.required && field.conditional && <span className="docs-api-required">conditional</span>}
       </div>
       {field.description && (
-        <p className="docs-api-field-desc"><Inline text={field.description} /></p>
+        <Description className="docs-api-field-desc" text={field.description} />
       )}
       {field.enumValues && (
         <p className="docs-api-field-desc docs-api-enum">

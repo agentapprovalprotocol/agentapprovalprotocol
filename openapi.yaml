@@ -456,21 +456,11 @@ components:
       in: header
       required: true
       description: |
-        An opaque key generated before the first submission and retained across
-        retries. Same-key retries must have the same parsed input field values.
-        JSON whitespace and object key order do not affect equality.
+        An opaque key for safely retrying this operation. Generate it before the
+        first submission and reuse it only with the same input.
 
-        Approval keys are retained throughout the pending state and for at least
-        seven days after the terminal decision, or as long as the request is
-        retained if longer, including the 24-hour notification delivery grace
-        period. Provisioning keys and their original results are
-        retained for at least seven days after instance creation. Seven days means
-        168 hours. Update keys and their original results are retained for at
-        least seven days after the update commits. Submission retries do not
-        extend retention. Once a key has been discarded,
-        reusing it may create a new request or instance, or apply an update again.
-        Callers must not rely on
-        retries beyond these periods unless the provider guarantees longer retention.
+        See [idempotency and retries](https://agentapprovalprotocol.io/docs/specification/http#idempotency-and-retries)
+        and [retention periods](https://agentapprovalprotocol.io/docs/specification/http#retention).
       schema:
         type: string
         minLength: 1

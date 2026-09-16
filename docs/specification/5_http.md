@@ -242,6 +242,8 @@ If the provider sends `Retry-After`, the adapter must respect it or stop waiting
 
 ### Retention
 
+Seven days means 168 hours.
+
 The provider must retain an approval request and its idempotency key whilst the request is pending and for at least seven days after it becomes terminal.
 The seven days start at `decision.decided_at`.
 For a request with a notification, retention must also extend until at least 24 hours after delivery is acknowledged or retries end, whichever ends delivery.

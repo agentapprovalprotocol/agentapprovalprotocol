@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { extractHeadings, type TocItem } from "./content";
 import { getApiGroups, getApiSchemas, repositoryRoot, type ApiGroup, type ApiSchema } from "./openapi";
-import { site } from "@/site.config";
 
 export const specificationPages = [
   ["overview", "1_overview.md", "Overview", "Approve agent tool calls through a shared, open protocol."],
@@ -26,7 +25,7 @@ export type DocPage = DocMeta & { toc: TocItem[] } & (
 
 export function getDocsNav(): DocsNavSection[] {
   return [
-    { title: `Specification · v${site.version}`, pages: specificationPages.map(([slug, , title, description]) => ({ slug: `specification/${slug}`, section: "Specification", title, description })) },
+    { title: "Specification", pages: specificationPages.map(([slug, , title, description]) => ({ slug: `specification/${slug}`, section: "Specification", title, description })) },
     { title: "API reference", pages: [
       { slug: "reference/overview", section: "API reference", title: "Overview", description: "Connect to an approval provider, submit a tool call and receive a decision." },
       ...getApiGroups().map((group) => ({ slug: `reference/${group.slug}`, section: "API reference", title: group.title, description: group.description })),

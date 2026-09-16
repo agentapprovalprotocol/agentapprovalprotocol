@@ -1,19 +1,27 @@
 import { Fragment } from "react";
+import { site } from "@/site.config";
 
-/* Renders the inline code spans of a spec description. OpenAPI descriptions
- * are CommonMark, and the reference uses one construct from it: backticks
- * around a field, header, or value. Everything else stays plain text. */
+/* Supports code spans and inline Markdown links in OpenAPI descriptions.
+ * Other markup stays plain text. Canonical site links stay on the current host
+ * so local previews and deployed documentation navigate the same way. */
 export function Inline({ text }: { text: string }) {
-  const parts = text.split(/(`[^`]*`)/);
+  const parts = text.split(/(`[^`]*`|\[[^\]]+\]\([^\s)]+\))/);
   return (
     <>
-      {parts.map((part, i) =>
-        part.startsWith("`") && part.endsWith("`") && part.length > 1 ? (
-          <code key={i}>{part.slice(1, -1)}</code>
-        ) : (
-          <Fragment key={i}>{part}</Fragment>
-        ),
-      )}
+      {parts.map((part, i) => {
+        if (part.startsWith("`") && part.endsWith("`") && part.length > 1) {
+          return <code key={i}>{part.slice(1, -1)}</code>;
+        }
+        const link = part.match(/^\[([^\]]+)\]\(([^\s)]+)\)$/);
+        if (link) {
+          const href = link[2].startsWith(`${site.url}/`) ? link[2].slice(site.url.length) : link[2];
+          const label = <Inline text={link[1]} />;
+          return /^(https?:\/\/|mailto:|\/(?!\/)|#)/i.test(href)
+            ? <a key={i} href={href}>{label}</a>
+            : <Fragment key={i}>{label}</Fragment>;
+        }
+        return <Fragment key={i}>{part}</Fragment>;
+      })}
     </>
   );
 }
