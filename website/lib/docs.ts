@@ -28,6 +28,7 @@ export function getDocsNav(): DocsNavSection[] {
   return [
     { title: `Specification · v${site.version}`, pages: specificationPages.map(([slug, , title, description]) => ({ slug: `specification/${slug}`, section: "Specification", title, description })) },
     { title: "API reference", pages: [
+      { slug: "reference/overview", section: "API reference", title: "Overview", description: "Connect to an approval provider, submit a tool call and receive a decision." },
       ...getApiGroups().map((group) => ({ slug: `reference/${group.slug}`, section: "API reference", title: group.title, description: group.description })),
       { slug: "reference/schemas", section: "API reference", title: "Schemas", description: "The objects, types and constraints defined by the OpenAPI contract." },
     ] },
@@ -39,10 +40,14 @@ export function getAllDocs(): DocMeta[] { return getDocsNav().flatMap((section) 
 export function getDoc(slug: string): DocPage | null {
   const meta = getAllDocs().find((entry) => entry.slug === slug);
   if (!meta) return null;
-  if (slug.startsWith("specification/")) {
-    const entry = specificationPages.find(([name]) => slug === `specification/${name}`)!;
-    const source = `docs/specification/${entry[1]}`;
-    const content = fs.readFileSync(path.join(repositoryRoot, source), "utf8").replace(/^# .+\r?\n+/, "");
+  const markdownFile = slug === "reference/overview" ? "api_overview.md" : specificationPages.find(([name]) => slug === `specification/${name}`)?.[1];
+  if (markdownFile) {
+    const source = `docs/specification/${markdownFile}`;
+    let content = fs.readFileSync(path.join(repositoryRoot, source), "utf8").replace(/^# .+\r?\n+/, "");
+    if (slug === "reference/overview") {
+      const pages = getAllDocs().filter((page) => page.section === meta.section && page.slug !== slug);
+      content += `\n## Explore the reference\n\n| Section | Description |\n| --- | --- |\n${pages.map((page) => `| [${page.title}](/docs/${page.slug}) | ${page.description} |`).join("\n")}\n`;
+    }
     return { ...meta, kind: "markdown", content, source, toc: extractHeadings(content) };
   }
   if (slug === "reference/schemas") {

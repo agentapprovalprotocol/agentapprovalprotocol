@@ -71,6 +71,7 @@ button, input { font: inherit; }
 .docs-api-endpoint { flex-wrap: wrap; }
 .docs-api-path { overflow-wrap: anywhere; }
 .docs-prose .docs-code { max-width: 100%; }
+.docs-prose :not(pre) > code { overflow-wrap: anywhere; }
 .docs-prose h2, .docs-prose h3, .docs-api-field { scroll-margin-top: 110px; }
 @media (max-width: 1199px) {
   .docs-page-grid { grid-template-columns: minmax(0, 1fr); }
