@@ -10,18 +10,18 @@ The adapters below are open-source AAP adapters maintained by AAP itself. These 
 
 ## Choose an adapter
 
-| Adapter | Integration | Coverage |
-| --- | --- | --- |
-| [Claude Code](claude-code.md) | `PreToolUse` command hook | Built-in tools and MCP tool calls. |
-| [Codex](codex.md) | Command hooks | Built-in tools and MCP tool calls; guided setup installs `PreToolUse`. |
-| [OpenClaw](openclaw.md) | Native Gateway plugin | Calls passing through `before_tool_call`, including MCP tools. |
-| [Pi](pi.md) | Native extension | Model-proposed calls passing through `tool_call`. |
-| [Hermes Agent](hermes.md) | `pre_tool_call` shell hook | Built-in tools and MCP tool calls. |
-| [DeepSeek Harness](deepseek.md) | Claude Code hooks bridge | Calls passing through the selected profile's tool execution hooks. |
-| [MCP wrapper](mcp-wrapper.md) | Local stdio proxy | Tool calls to one wrapped stdio or remote HTTP MCP server. |
-| [MCP gateway](mcp-gateway.md) | Remote HTTP MCP server | Tool calls to registered downstream MCP servers. |
+| Adapter | Supported modes | Integration | Coverage |
+| --- | --- | --- | --- |
+| [Claude Code](claude-code.md) | Synchronous | `PreToolUse` command hook | Built-in tools and MCP tool calls. |
+| [Codex](codex.md) | Synchronous | Command hooks | Built-in tools and MCP tool calls; guided setup installs `PreToolUse`. |
+| [OpenClaw](openclaw.md) | Synchronous | Native Gateway plugin | Calls passing through `before_tool_call`, including MCP tools. |
+| [Pi](pi.md) | Synchronous | Native extension | Model-proposed calls passing through `tool_call`. |
+| [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | Built-in tools and MCP tool calls. |
+| [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | Calls passing through the selected profile's tool execution hooks. |
+| [MCP wrapper](mcp-wrapper.md) | Synchronous | Local stdio proxy | Tool calls to one wrapped stdio or remote HTTP MCP server. |
+| [MCP gateway](mcp-gateway.md) | Synchronous | Remote HTTP MCP server | Tool calls to registered downstream MCP servers. |
 
-The current integrations use [synchronous approval](../specification/6_sync.md): the intercepted call stays open whilst the adapter polls. An asynchronous JavaScript callback or background goroutine still follows this mode. None of these guides sets up AAP's durable webhook-based suspension and resumption.
+The current integrations use [synchronous approval](../specification/6_sync.md): the intercepted call stays open whilst the adapter polls. An asynchronous JavaScript callback or background goroutine still follows this mode. AAP's [asynchronous mode](../specification/7_async.md), which durably suspends execution and resumes after a webhook notification, is not currently supported by these adapters.
 
 Runtime hooks cover calls that pass through the runtime. The wrapper covers its MCP connection. The gateway can also hold downstream credentials, so access to a protected service can be controlled away from the agent's machine. See [enforcement limits](../specification/8_security.md#enforcement-limits) when choosing where to place approval.
 
