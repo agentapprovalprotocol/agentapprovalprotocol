@@ -8,24 +8,28 @@
  * Fonts: Inter for interface and editorial text, Roboto Mono for machine
  * content, and Georgia for display text.
  * Webfonts are committed in /public/fonts; see the README there for licensing.
- * If one is missing the fallback stacks below render instead.
+ * The root layout preloads these files so they can arrive before first paint.
+ * Keep display optional: if a font is late or unavailable, retain the fallback
+ * for this view instead of swapping it in and moving already-visible content.
+ * Private family names prevent installed desktop fonts from taking over after
+ * an optional webfont misses its loading window.
  * ------------------------------------------------------------------------- */
 
 @font-face {
-  font-family: "Inter 92";
+  font-family: "AAP Inter 92";
   src: url("/fonts/Inter-400-700.woff2") format("woff2");
   font-weight: 400 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   size-adjust: 92%;
 }
 
 @font-face {
-  font-family: "Roboto Mono";
+  font-family: "AAP Roboto Mono";
   src: url("/fonts/RobotoMono-400-500.woff2") format("woff2");
   font-weight: 400 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 
@@ -102,9 +106,9 @@
   --color-on-tint-moss: var(--color-porcelain-grey);
 
   /* Typography */
-  --font-sans: "Inter 92", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "AAP Inter 92", ui-sans-serif, system-ui, sans-serif;
   /* Reserved for code, commands, paths, identifiers, and payload values. */
-  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo,
+  --font-mono: "AAP Roboto Mono", ui-monospace, SFMono-Regular, Menlo,
     monospace;
   --font-serif: Georgia, "Times New Roman", serif;
 

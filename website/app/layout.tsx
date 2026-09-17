@@ -17,7 +17,25 @@ export const viewport: Viewport = { themeColor: [{ media: "(prefers-color-scheme
 const themeScript = `(function(){try{var p=localStorage.getItem('aap-theme');var t=p==='dark'||p==='light'?p:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body>
+  return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><head>
+    {/* Start the fonts used above the fold before the stylesheet is parsed.
+        Keep these URLs aligned with the font faces in globals.css. */}
+    <link
+      rel="preload"
+      href="/fonts/Inter-400-700.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/RobotoMono-400-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+    />
+    <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+  </head><body>
     <ThemeProvider><a href="#main-content" className="skip-link">Skip to content</a>
       <DocsSidebar nav={getDocsNav()} />
       <div className="docs-workspace"><SiteNav><GitHubButton /></SiteNav><main id="main-content" className="docs-main">{children}</main></div>
