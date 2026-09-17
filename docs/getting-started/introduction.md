@@ -22,7 +22,7 @@ flowchart LR
     Adapter -->|Approved call| Tool
 ```
 
-The provider can ask a human, apply a policy or combine several steps. AAP defines the exchange with the adapter; the provider chooses how review works.
+The provider can ask a human, apply a policy or combine several steps. AAP defines how adapter and providers must behave and the information exchange between them.
 
 ## When to use AAP
 
