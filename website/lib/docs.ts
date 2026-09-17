@@ -32,6 +32,15 @@ const documentationPages = [
   { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
   { slug: "docs/concepts/adapter", area: "docs", section: "Core concepts", title: "Adapter", description: "Connect tool calls to an approval provider and enforce its decisions before execution.", source: "docs/concepts/adapter.md" },
   { slug: "docs/concepts/provider", area: "docs", section: "Core concepts", title: "Provider", description: "Review proposed tool calls and record decisions for adapters to enforce.", source: "docs/concepts/provider.md" },
+  { slug: "docs/adapters/overview", area: "docs", section: "Adapters", title: "Adapters overview", sidebarTitle: "Overview", description: "Choose an adapter and connect it to an approval provider.", source: "docs/adapters/overview.md" },
+  { slug: "docs/adapters/claude-code", area: "docs", section: "Adapters", title: "Claude Code", description: "Request approval through Claude Code's tool hooks.", source: "docs/adapters/claude-code.md" },
+  { slug: "docs/adapters/codex", area: "docs", section: "Adapters", title: "Codex", description: "Connect Codex command hooks to an approval provider.", source: "docs/adapters/codex.md" },
+  { slug: "docs/adapters/openclaw", area: "docs", section: "Adapters", title: "OpenClaw", description: "Review OpenClaw tool calls through a native Gateway plugin.", source: "docs/adapters/openclaw.md" },
+  { slug: "docs/adapters/pi", area: "docs", section: "Adapters", title: "Pi", description: "Hold Pi tool calls for approval through a native extension.", source: "docs/adapters/pi.md" },
+  { slug: "docs/adapters/hermes", area: "docs", section: "Adapters", title: "Hermes Agent", description: "Connect Hermes shell hooks to an approval provider.", source: "docs/adapters/hermes.md" },
+  { slug: "docs/adapters/deepseek", area: "docs", section: "Adapters", title: "DeepSeek Harness", description: "Request approval from DeepSeek Harness through its hooks bridge.", source: "docs/adapters/deepseek.md" },
+  { slug: "docs/adapters/mcp-wrapper", area: "docs", section: "Adapters", title: "MCP wrapper", description: "Add approval to an MCP server through a local proxy.", source: "docs/adapters/mcp-wrapper.md" },
+  { slug: "docs/adapters/mcp-gateway", area: "docs", section: "Adapters", title: "MCP gateway", description: "Centralize MCP access and keep downstream credentials at the gateway.", source: "docs/adapters/mcp-gateway.md" },
 ] satisfies (DocMeta & { source: string })[];
 
 const markdownPages = [
@@ -42,7 +51,7 @@ const markdownPages = [
 
 export function getDocsNav(area?: DocsArea): DocsNavSection[] {
   const sections: DocsNavSection[] = [
-    ...["Get started", "Core concepts"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
+    ...["Get started", "Core concepts", "Adapters"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
     { area: "specification", title: "Protocol", pages: markdownPages.filter((page) => page.section === "Protocol") },
     { area: "specification", title: "API reference", pages: [
       markdownPages.find((page) => page.slug === "specification/reference/overview")!,
