@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { extractHeadings, type TocItem } from "./content";
-import { getApiGroups, getApiSchemas, repositoryRoot, type ApiGroup, type ApiSchema } from "./openapi";
+import { getApiGroups, getApiSchemas, repositoryRoot, specPath, type ApiGroup, type ApiSchema } from "./openapi";
 
 export const specificationPages = [
   ["overview", "1_overview.md", "Overview", "Approve agent tool calls through a shared, open protocol."],
@@ -21,7 +21,8 @@ export interface DocsNavSection { area: DocsArea; title: string; pages: DocMeta[
 export type DocPage = DocMeta & { toc: TocItem[] } & (
   { kind: "markdown"; content: string; source: string } |
   { kind: "api"; group: ApiGroup } |
-  { kind: "schemas"; schemas: ApiSchema[] }
+  { kind: "schemas"; schemas: ApiSchema[] } |
+  { kind: "openapi"; content: string }
 );
 
 const documentationPages = [
@@ -46,6 +47,7 @@ export function getDocsNav(area?: DocsArea): DocsNavSection[] {
       markdownPages.find((page) => page.slug === "specification/reference/overview")!,
       ...getApiGroups().map((group) => ({ slug: `specification/reference/${group.slug}`, area: "specification" as const, section: "API reference", title: group.title, description: group.description })),
       { slug: "specification/reference/schemas", area: "specification", section: "API reference", title: "Schemas", description: "The objects, types and constraints defined by the OpenAPI contract." },
+      { slug: "specification/reference/openapi", area: "specification", section: "API reference", title: "OpenAPI schema", description: "Read or download the complete OpenAPI contract for AAP." },
     ] },
   ];
   return area ? sections.filter((section) => section.area === area) : sections;
@@ -62,6 +64,9 @@ export function getAdjacentDocs(doc: DocMeta) {
 export function getDoc(slug: string): DocPage | null {
   const meta = getAllDocs().find((entry) => entry.slug === slug);
   if (!meta) return null;
+  if (slug === "specification/reference/openapi") {
+    return { ...meta, kind: "openapi", content: fs.readFileSync(specPath, "utf8"), toc: [] };
+  }
   const source = markdownPages.find((page) => page.slug === slug)?.source;
   if (source) {
     let content = fs.readFileSync(path.join(repositoryRoot, source), "utf8").replace(/^# .+\r?\n+/, "");
@@ -83,7 +88,7 @@ export function resolveDocLink(href: string, source: string): string {
   if (/^(https?:|mailto:|#|\/)/.test(href)) return href;
   const [file, anchor] = href.split("#");
   const target = path.posix.normalize(path.posix.join(path.posix.dirname(source), file));
-  if (target === "openapi.yaml") return `/openapi.yaml${anchor ? `#${anchor}` : ""}`;
+  if (target === "openapi.yaml") return `/specification/reference/openapi${anchor ? `#${anchor}` : ""}`;
   const entry = markdownPages.find((page) => page.source === target);
   if (!entry) throw new Error(`Unmapped documentation link in ${source}: ${href}`);
   return `/${entry.slug}${anchor ? `#${anchor}` : ""}`;
@@ -91,6 +96,7 @@ export function resolveDocLink(href: string, source: string): string {
 
 export function markdownFor(doc: DocPage): string {
   const header = `# ${doc.title}\n\n${doc.description}\n\n`;
+  if (doc.kind === "openapi") return `${header}[Download YAML](/openapi.yaml)\n\n\`\`\`yaml\n${doc.content}\n\`\`\`\n`;
   if (doc.kind === "markdown") return header + doc.content.replace(/\]\(([^)]+)\)/g, (_, href: string) => `](${resolveDocLink(href, doc.source)})`);
   if (doc.kind === "schemas") return header + doc.schemas.map(({ name, schema }) => `## ${name}\n\n${schema.description ?? ""}\n\n\`\`\`json\n${JSON.stringify(schema, null, 2)}\n\`\`\``).join("\n\n");
   return header + doc.group.operations.map((op) => [
@@ -103,6 +109,6 @@ export function markdownFor(doc: DocPage): string {
       ...response.headers.map((header) => `- \`${header.name}\`${header.required ? " (required)" : ""}: ${header.description ?? ""}`),
       ...response.examples.map((example) => `\`\`\`json\n${JSON.stringify(example.value, null, 2)}\n\`\`\``),
     ]),
-    "See [Schemas](/specification/reference/schemas) and [OpenAPI](/openapi.yaml) for all fields and constraints.",
+    "See [Schemas](/specification/reference/schemas) and [OpenAPI](/specification/reference/openapi) for all fields and constraints.",
   ].join("\n\n")).join("\n\n");
 }
