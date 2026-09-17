@@ -1,134 +1,96 @@
-# Agent Approval Protocol
+---
+lastModified: 2026-09-17
+---
 
-AAP is an open protocol for approving agent tool calls. An adapter intercepts a call, asks an approval provider whether it may run, and enforces the decision before execution.
+<p align="center">
+  <a href="https://agentapprovalprotocol.io">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="website/public/brand/aap-lockup-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="website/public/brand/aap-lockup-light.svg">
+      <img src="website/public/brand/aap-lockup-light.svg" alt="AAP" width="320" height="120">
+    </picture>
+  </a>
+</p>
 
-This repository owns the version 1 specification, its OpenAPI contract, the Go adapter library and CLI, and the Next.js documentation website.
+<h1 align="center">Agent Approval Protocol</h1>
 
-- [Read the documentation](docs/getting-started/introduction.md)
-- [Read the specification](docs/specification/1_overview.md)
-- [Specification contents](docs/specification/0_structure.md)
-- [OpenAPI contract](openapi.yaml)
-- [Website](https://agentapprovalprotocol.io)
+<p align="center">
+  An open protocol for approving agent actions before they happen.
+</p>
 
-## Repository layout
+<p align="center">
+  <a href="https://github.com/agentapprovalprotocol/agentapprovalprotocol"><img src="https://img.shields.io/badge/Star_on_GitHub-0a0d17?style=flat-square&amp;logo=github&amp;logoColor=white" alt="Star on GitHub"></a>
+  <a href="docs/adapters/cli.md"><img src="https://img.shields.io/badge/CLI-macOS_%7C_Linux-0a0d17?style=flat-square" alt="CLI: macOS and Linux"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-0a0d17?style=flat-square" alt="License: Apache 2.0"></a>
+</p>
 
-- `docs/getting-started/` and `docs/concepts/`: introductory documentation and core concepts.
-- `docs/specification/`: the canonical Markdown specification.
-- `openapi.yaml`: the canonical objects, types and HTTP operations.
-- `adapters/` and `cli/`: importable Go adapter lifecycle and command dispatch; `cmd/aap/` is the standalone executable.
-- `internal/`: shared AAP client, runtime installers, hook handlers and embedded plugin assets.
-- `website/`: the Next.js documentation site. It reads the specification and schema directly, without maintaining a second copy.
+<p align="center">
+  <a href="#get-started">Get started</a> ·
+  <a href="https://agentapprovalprotocol.io">Documentation</a> ·
+  <a href="docs/specification/1_overview.md">Specification</a> ·
+  <a href="https://github.com/agentapprovalprotocol/agentapprovalprotocol/issues">Report an issue</a>
+</p>
 
-## Adapter library and CLI
+Agents can write code, issue refunds, send messages and change production systems. Giving them that access means deciding which actions they can take on their own and which need approval.
 
-The Go library installs and runs adapters for Claude Code, Codex, OpenClaw, Pi, Hermes and DeepSeek. It has no withHuman dependency. An instance token and a complete AAP base URL are the only required installation inputs.
+**Agent Approval Protocol (AAP)** gives agents a common way to request approval before a tool call runs. An adapter connects the software running your agent to an approval provider, which can apply a policy, ask a person to review the action, or combine both.
 
-Install the standalone binary for macOS or Linux (amd64 and arm64):
+## One place for approvals across your agents
+
+A coding agent on a developer's laptop, a support agent on an application server and an operations agent on a cloud VM can all use the same approval provider. Your team can manage approval policies, review requests and keep a record of decisions in one place.
+
+The provider can let routine actions proceed automatically and hold riskier ones for review. For example, it might approve looking up a customer's order immediately, but require a person to approve a refund.
+
+Because AAP is an open protocol, you can choose your agents and approval provider independently. Use an existing provider or build one for your own review process. The same protocol connects them.
+
+## How it works
+
+1. **The agent proposes an action.** It calls a tool through the software running it.
+2. **The adapter requests approval.** It captures the exact tool and arguments and holds the call before it runs.
+3. **The provider decides.** It reviews the request and returns an outcome. The adapter allows the call only when it has a valid approval.
+
+```mermaid
+flowchart LR
+    accTitle: Approval before a tool call runs
+    accDescr: An adapter intercepts the agent's tool call and requests a decision from an approval provider. Only a valid approval allows the call to reach the tool.
+    Agent -->|Tool call| Adapter[AAP adapter]
+    Adapter -->|Approval request| Provider[Approval provider]
+    Provider -->|Decision| Adapter
+    Adapter -->|Approved call| Tool
+```
+
+For a refund, approval covers the exact payment, amount and currency, for one execution attempt. Changing the amount requires a new approval. If the request is denied, expires or approval cannot be confirmed, the adapter blocks the call.
+
+The agent receives the tool's result or an explanation of why the call did not run. The adapter handles the approval process on its behalf. See [the approval flow](docs/concepts/approval-flow.md) for more.
+
+An adapter controls only the tool calls that pass through it. Your agent's existing permissions still apply, and other paths to the same service need their own controls. See [adapter coverage and limits](docs/concepts/adapter.md#where-the-adapter-runs).
+
+## Get started
+
+Choose an [approval provider](docs/providers/overview.md) and get an instance token and its complete AAP URL. Then install the AAP CLI on the machine running your agent. It supports macOS and Linux on arm64 and amd64.
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 ```
 
-The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If prompted, reopen your terminal or run the printed command before continuing. See [installer options](docs/adapters/cli.md#installer-options) for custom paths and manual shell setup.
+If prompted, reopen your terminal. Follow the setup guide for your agent:
 
-```sh
-aap adapters
-aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
-aap status claude-code
-aap uninstall claude-code
-```
+[Claude Code](docs/adapters/claude-code.md) · [Codex](docs/adapters/codex.md) · [OpenClaw](docs/adapters/openclaw.md) · [Pi](docs/adapters/pi.md) · [Hermes Agent](docs/adapters/hermes.md) · [DeepSeek Harness](docs/adapters/deepseek.md)
 
-For source builds, use Go 1.25 or later and run `make adapters-build`. See [CLI releases](deployment/cli/README.md) for publishing to R2.
+Each guide explains how to connect your provider, check that approvals work and understand your agent's coverage and waiting limits. Most current adapters keep the agent running while approval is pending. AAP also defines a mode for agents that can suspend work and resume after a decision.
 
-`--tool-glob 'create_*'` optionally limits coverage to normalized AAP tool names. Without a filter, every intercepted call is submitted. The base URL includes any provider path prefix; the client appends `/v1/requests`.
+See the [CLI guide](docs/adapters/cli.md) for direct downloads, updates, changing credentials and removal.
 
-A Go application can import installation directly:
+## Build with AAP
 
-```go
-adapter, err := adapters.Lookup("claude-code")
-if err != nil {
-    return err
-}
-result, err := adapter.Install(instanceToken, aapBaseURL)
-// Optional: adapter.Install(instanceToken, aapBaseURL, adapters.WithToolGlob("create_*"))
-```
+The [version 1 specification](docs/specification/1_overview.md) defines how adapters and providers work together. The [OpenAPI contract](openapi.yaml) describes the HTTP API. Use these to add approval support to your agent or implement a provider.
 
-Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Installers record the current executable's absolute path, so an importing CLI must also route `hook <adapter>` to `adapters.RunHook(ctx, key, stdin, stdout)`, or use the dispatcher in `github.com/agentapprovalprotocol/agentapprovalprotocol/cli`. No separate `aap` executable is needed when embedding. See the [AAP CLI guide](docs/adapters/cli.md) for configuration, embedding and lifecycle behavior.
+The adapters are also available as a [Go library](docs/adapters/cli.md#use-as-a-go-library). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
 
-```sh
-make adapters-test
-make adapters-build
-```
+## Contribute
 
-The tests use isolated homes and a local test provider. They do not install hooks into your real runtimes. CI runs the Go race tests, vet, binary build and native plugin tests on macOS and Linux.
-
-## Development
-
-Use Node.js 24 LTS and npm. Run commands from the repository root:
-
-```sh
-npm ci
-npm run dev
-```
-
-The development server runs at <http://127.0.0.1:3018>.
-
-```sh
-npm test
-npm run check
-make api-lint
-npm run build
-```
-
-Stop the development server before making a production build. Run `npm start` to inspect the production build locally.
-
-With that production server running, use `AAP_TEST_BASE_URL=http://127.0.0.1:3018 npm test` to also run the Markdown content negotiation HTTP checks.
-
-The install step applies `patches/next+16.3.5.patch` to preserve custom `Vary` fields in HTML responses. This works around [Next.js issue #85999](https://github.com/vercel/next.js/issues/85999). When upgrading Next.js, rerun the production HTTP checks and remove the patch once the framework preserves these fields itself.
-
-## Documentation
-
-Documentation at `/docs` introduces AAP and explains how to build with it. Specification at `/specification` contains the protocol requirements and generated API reference. Each area has its own sidebar and page sequence. The previous `/docs/specification/*` and `/docs/reference/*` URLs redirect to their new locations.
-
-Edit the Markdown files in `docs/` and keep relative links usable on GitHub. Keep normative requirements in `docs/specification/` and practical guides in the other documentation directories. The site resolves source links to the correct area. Fenced Mermaid diagrams render on the website and remain readable in the source.
-
-Update `openapi.yaml` first when changing the wire contract. The website generates instance, request, webhook and schema reference pages from that file, including authentication, examples, response headers and conditional fields. The complete source is rendered at `/specification/reference/openapi`, with a YAML download served at `/openapi.yaml`.
-
-Site identity lives in `website/site.config.ts`. Page metadata and source-file mappings live in `website/lib/doc-pages.ts`, and `website/lib/docs.ts` assembles the navigation and content. Each page has a Markdown endpoint, and `/llms.txt` lists them.
-
-Agents can request the same Markdown directly from documentation, specification and API reference page URLs using `Accept: text/markdown`:
-
-```sh
-curl -H 'Accept: text/markdown' https://agentapprovalprotocol.io/specification/overview
-```
-
-For `GET` and `HEAD`, the site serves the existing `/index.md` representation with `Content-Type: text/markdown; charset=utf-8` without redirecting the request. Negotiation follows the [Accept Markdown guidance](https://acceptmarkdown.com/guides/accept-parsing): the most specific matching media range determines each format's quality, and the format with the higher quality wins. Explicit Markdown wins equal-weight ties with HTML, as this site's chosen default. Missing `Accept` and unrestricted wildcards default to HTML; a wildcard can select Markdown if HTML is rejected or less preferred. UTF-8 media parameters are supported.
-
-When neither format is acceptable, the site returns `406 Not Acceptable`, lists the available formats and sets `Cache-Control: no-store`. An empty `Accept` list, unsupported types such as `application/pdf`, or rejection of both formats produce `406`. A lone `text/markdown;q=0` also produces `406` because it accepts no other representation; add `text/html` or `*/*` to allow HTML. This follows the guide's negotiation algorithm and [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-12.5.1).
-
-Responses include `Vary: Accept` alongside other variation headers so caches distinguish the formats. HTML pages advertise their Markdown alternate with `<link rel="alternate" type="text/markdown">`. Direct `/index.md` URLs remain available regardless of the `Accept` header. Negotiation applies to published document URLs; missing pages retain their `404`, and Next.js navigation requests keep their framework response format.
-
-## Deployment
-
-Create a Vercel project connected to `agentapprovalprotocol/agentapprovalprotocol`:
-
-1. Select the Next.js framework and set the Root Directory to `website`.
-2. Enable inclusion of source files outside the Root Directory. The build needs the repository's `docs/` and `openapi.yaml`.
-3. Use Node.js 24 and install dependencies with npm using the root workspace lockfile.
-4. Use `main` as the production branch and enable branch previews.
-5. Add `agentapprovalprotocol.io` as the production domain and apply the DNS records Vercel provides.
-
-No provider credentials or environment variables are required to build the documentation. Hosting setup is managed separately from this repository.
+Help improve the protocol, add an adapter or make the docs clearer. [Open an issue](https://github.com/agentapprovalprotocol/agentapprovalprotocol/issues) to discuss a change, or see the [contributor guide](CONTRIBUTING.md) to get started.
 
 ## License
 
-Unless otherwise noted, this repository's code, OpenAPI contract, specification and documentation are licensed under the [Apache License 2.0](LICENSE).
-
-Third-party materials retain their own licenses and notices, including [Inter](website/public/fonts/Inter-LICENSE.txt) and [Roboto Mono](website/public/fonts/RobotoMono-LICENSE.txt), which use the SIL Open Font License 1.1.
-
-## Origin
-
-The specification was extracted from the `aap/` directory in [withHuman](https://github.com/withHumanAI/withHuman), merged in PR #385 at commit `bee0e8d72a767379063342cfccdeaf88aa1e9f4b`.
-The website reuses and adapts withHuman's documentation components. Inter and Roboto Mono retain their included OFL license notices. Proprietary fonts and withHuman product assets are not included.
-
-The six runtime adapters were extracted from the withHuman CLI. Provider enrollment and onboarding tool discovery are outside this library.
+[Apache 2.0](LICENSE). Code, specification and documentation are open source. See [third-party notices](CONTRIBUTING.md#license-and-third-party-notices) for included assets.
