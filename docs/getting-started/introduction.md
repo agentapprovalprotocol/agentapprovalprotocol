@@ -6,7 +6,7 @@ For example, an agent helping a customer may propose a refund. An adapter interc
 
 ## How it works
 
-Three parts work together:
+AAP is very simple and has 3 main parts.
 
 | Part | Responsibility |
 | --- | --- |
