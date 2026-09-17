@@ -27,10 +27,7 @@ export type DocPage = DocMeta & { toc: TocItem[] } & (
 
 const documentationPages = [
   { slug: "docs/getting-started/introduction", area: "docs", section: "Get started", title: "What is Agent Approval Protocol (AAP)?", sidebarTitle: "What is AAP?", description: "Give agents a way to ask for approval before their tools take action.", source: "docs/getting-started/introduction.md" },
-  { slug: "docs/getting-started/quickstart", area: "docs", section: "Get started", title: "Quickstart", description: "Submit your first approval request and follow it to a decision.", source: "docs/getting-started/quickstart.md" },
   { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
-  { slug: "docs/guides/build-an-adapter", area: "docs", section: "Build with AAP", title: "Build an adapter", description: "Connect an agent harness to an approval provider at the tool execution boundary.", source: "docs/guides/build-an-adapter.md" },
-  { slug: "docs/guides/build-a-provider", area: "docs", section: "Build with AAP", title: "Build a provider", description: "Accept proposed tool calls and make approval decisions available to adapters.", source: "docs/guides/build-a-provider.md" },
 ] satisfies (DocMeta & { source: string })[];
 
 const markdownPages = [
@@ -41,7 +38,7 @@ const markdownPages = [
 
 export function getDocsNav(area?: DocsArea): DocsNavSection[] {
   const sections: DocsNavSection[] = [
-    ...["Get started", "Core concepts", "Build with AAP"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
+    ...["Get started", "Core concepts"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
     { area: "specification", title: "Protocol", pages: markdownPages.filter((page) => page.section === "Protocol") },
     { area: "specification", title: "API reference", pages: [
       markdownPages.find((page) => page.slug === "specification/reference/overview")!,

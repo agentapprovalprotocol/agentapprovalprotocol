@@ -50,8 +50,8 @@ test("all authored relative links and fragments map to real pages or the schema"
 test("documentation and specification have separate navigation and page sequences", () => {
   const docs = getAllDocs("docs");
   const specification = getAllDocs("specification");
-  assert.ok(docs.some((doc) => doc.title === "Quickstart"));
-  assert.ok(docs.some((doc) => doc.title === "Build an adapter"));
+  assert.ok(docs.some((doc) => doc.slug === "docs/getting-started/introduction"));
+  assert.ok(docs.some((doc) => doc.slug === "docs/concepts/approval-flow"));
   assert.ok(specification.some((doc) => doc.section === "API reference"));
   assert.equal(getAllDocs().length, docs.length + specification.length);
   for (const area of ["docs", "specification"] as const) {
@@ -69,8 +69,8 @@ test("documentation and specification have separate navigation and page sequence
 });
 
 test("source-relative links work within and between both content areas", () => {
-  assert.equal(resolveDocLink("quickstart.md", "docs/getting-started/introduction.md"), "/docs/getting-started/quickstart");
-  assert.equal(resolveDocLink("../specification/8_security.md#adapter-requirements", "docs/guides/build-an-adapter.md"), "/specification/security#adapter-requirements");
+  assert.equal(resolveDocLink("../concepts/approval-flow.md", "docs/getting-started/introduction.md"), "/docs/concepts/approval-flow");
+  assert.equal(resolveDocLink("../specification/8_security.md#adapter-requirements", "docs/concepts/approval-flow.md"), "/specification/security#adapter-requirements");
   assert.equal(resolveDocLink("../getting-started/introduction.md", "docs/specification/1_overview.md"), "/docs/getting-started/introduction");
   assert.throws(() => resolveDocLink("missing.md", "docs/getting-started/introduction.md"), /Unmapped documentation link/);
 });

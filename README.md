@@ -12,7 +12,7 @@ This repository owns the version 1 specification, its OpenAPI contract and the N
 
 ## Repository layout
 
-- `docs/getting-started/`, `docs/concepts/` and `docs/guides/`: introductory documentation and implementation guides.
+- `docs/getting-started/` and `docs/concepts/`: introductory documentation and core concepts.
 - `docs/specification/`: the canonical Markdown specification.
 - `openapi.yaml`: the canonical objects, types and HTTP operations.
 - `website/`: the Next.js documentation site. It reads the specification and schema directly, without maintaining a second copy.

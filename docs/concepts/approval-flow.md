@@ -45,4 +45,4 @@ Approval covers the submitted tool, its exact arguments and one execution attemp
 
 The adapter or harness tracks whether the tool has already run. An approval record alone cannot answer that question.
 
-Continue with [Build an adapter](../guides/build-an-adapter.md), or read the normative [request lifecycle](../specification/4_requests.md).
+Read the normative [request lifecycle](../specification/4_requests.md) for the complete requirements.

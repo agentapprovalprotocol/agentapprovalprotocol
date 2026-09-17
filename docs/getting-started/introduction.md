@@ -41,12 +41,9 @@ There are a few benefits of using AAP.
 The most common use case is to run the tool calls of all agents through your AAP provider, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
 This gives you a centralized location to view all actions every agent has ever taken across all your infrastucture.
 
-## Start building
+## Getting started
 
-- Follow the [quickstart](quickstart.md) to submit a request and retrieve a decision.
-- Read [the approval flow](../concepts/approval-flow.md) to understand identities, outcomes and execution modes.
-- [Build an adapter](../guides/build-an-adapter.md) to connect an agent harness.
-- [Build a provider](../guides/build-a-provider.md) to supply approval decisions.
+Read [the approval flow](../concepts/approval-flow.md) to understand identities, outcomes and execution modes.
 
 ## Read the specification
 
