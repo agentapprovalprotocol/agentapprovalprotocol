@@ -6,6 +6,8 @@ lastModified: 2026-09-17
 
 The Pi adapter uses a native extension registered on `tool_call` to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
 
+Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/pi.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/pi.go), [native extension](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/plugins/assets/pi/index.js).
+
 ## Install
 
 Install the [AAP CLI](overview.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:

@@ -6,6 +6,8 @@ lastModified: 2026-09-17
 
 The OpenClaw adapter uses a native plugin registered on `before_tool_call` to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
 
+Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/openclaw.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/openclaw.go), [native plugin](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/plugins/assets/openclaw/index.js).
+
 ## Install
 
 Install the [AAP CLI](overview.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
