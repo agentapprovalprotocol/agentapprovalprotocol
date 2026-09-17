@@ -27,8 +27,11 @@ Install the standalone binary for macOS or Linux (amd64 and arm64):
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-aap version
+```
+
+The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If prompted, reopen your terminal or run the printed command before continuing. See [installer options](docs/adapters/overview.md#installer-options) for custom paths and manual shell setup.
+
+```sh
 aap adapters
 aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 aap status claude-code
