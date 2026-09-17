@@ -9,3 +9,5 @@ test-results/
 playwright-report/
 /aap
 /bin/
+/dist/
+/.wrangler/

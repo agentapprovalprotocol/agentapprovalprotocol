@@ -8,7 +8,7 @@ The Codex adapter uses a `PreToolUse` command hook to request approval before a 
 
 ## Install
 
-Build and place the [AAP CLI](overview.md#install-the-cli) at a stable location. Obtain an instance token and complete AAP base URL from your provider, then run:
+Install the [AAP CLI](overview.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
 
 ```sh
 aap install codex --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"

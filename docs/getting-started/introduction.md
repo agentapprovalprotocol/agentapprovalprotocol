@@ -76,6 +76,16 @@ Security, developer and ops teams can use the same provider to review requests a
 
 ## Getting started
 
+Choose an [approval provider](../providers/overview.md), then install the AAP binary on the machine running your agent:
+
+```sh
+curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+aap adapters
+```
+
+Obtain your instance token and complete AAP base URL from the provider. Follow the [adapter setup guide](../adapters/overview.md#install-an-adapter) to connect your runtime and test both approval and denial.
+
 Read [the approval flow](../concepts/approval-flow.md) to understand identities, outcomes and execution modes.
 
 ## Read the specification
