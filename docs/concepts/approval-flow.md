@@ -47,18 +47,15 @@ See [identity and authentication](../specification/3_identity.md) for the creden
 
 ## Modes
 
-AAP aims to support approvals that take hours or longer. This is because approvals may involve a human review and humans can take a long time to respond to a request.
-This naturally lends itself to an async architecture where if an agent is waiting for a request, it terminates and then is woken up when an approval is granted.
+AAP supports approvals that take hours or longer. Human review can take time, so asynchronous mode lets the harness save the pending call, suspend execution and resume after a decision.
 
-However, many existing harnesses expect a tool call to return its result before execution continues. Supporting suspension and resumption requires work from harness creators.
-So to get the project moving without getting all harness providers to opt in, AAP has two modes: Asynchronous and Synchronous.
+Many harnesses expect a tool call to return its result before execution continues. AAP supports two modes to accommodate both kinds of harness:
 
 | Mode | How it works | Fits a harness that… |
 | --- | --- | --- |
 | Synchronous | The adapter keeps the call open and polls for a decision. | Can wait within the tool call's time limit. |
 | Asynchronous | The adapter saves execution state, suspends work and resumes after a notification. | Can suspend and resume the same execution attempt. |
 
-What this means in practice is that most adapters are currently written to support synchronous waiting for now.
-Ideally as the project gets traction and support from harness providers, we can transition to asynchronous waiting.
+Most adapters use synchronous waiting. Check your [adapter's setup guide](../adapters/overview.md) for its supported behavior and waiting limits.
 
 Read [synchronous mode](../specification/6_sync.md) and [asynchronous mode](../specification/7_async.md) for their complete contracts.

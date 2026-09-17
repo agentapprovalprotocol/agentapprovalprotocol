@@ -706,8 +706,8 @@ components:
       required: [type, url, registration_id, signing_secret]
       description: |
         A complete proposed delivery configuration. Both initial setup and
-        replacement require receiver verification. Only webhook is defined;
-        future transports can use another type without changing the event.
+        replacement require receiver verification. Only webhook delivery is
+        defined. The event is independent of the transport.
         Registration and delivery must be rate limited per provisioning account
         and destination across instances, including aggregate host and address
         limits. Bound concurrency and request and response sizes. Document the

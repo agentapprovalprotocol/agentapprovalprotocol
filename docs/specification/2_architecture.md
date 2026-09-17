@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-09-17
 ---
 
 # Architecture and Modes
@@ -33,7 +33,7 @@ It may also require a human review and take much longer.
 
 ## Modes
 
-AAP aims to support approvals that take hours or longer.
+AAP supports approvals that take hours or longer.
 This is because approvals may involve a human review.
 Humans can take a long time to respond to a request.
 We all sleep.

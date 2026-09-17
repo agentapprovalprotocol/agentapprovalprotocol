@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-09-17
 ---
 
 # Structure
@@ -8,7 +8,6 @@ This specification explains what AAP is, what an approval means and how an adapt
 It then describes how the agent waits for the result.
 
 This specification defines version 1 of the Agent Approval Protocol (AAP).
-Open questions are marked in the relevant sections.
 
 1. [Overview](1_overview.md): what the protocol is for, its design goals and the basic tool call flow.
 2. [Architecture and modes](2_architecture.md): the agent, adapter and provider, and how synchronous and asynchronous execution differ.

@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-09-17
 ---
 
 # Specification
@@ -12,7 +12,7 @@ The hesitation is earned.
 Agents make mistakes, just like humans.
 The answer is not to stop agents from taking consequential actions, the answer is to govern these actions.
 
-[Agent Approval Protocol](https://agentapprovalprotocol.io) (AAP) is an open protocol that aims to allow governance of these actions.
+[Agent Approval Protocol](https://agentapprovalprotocol.io) (AAP) is an open protocol for governing these actions.
 Concretely, AAP allows agent tool calls to be gated behind an approval process.
 
 This specification defines the protocol requirements for AAP version 1.
@@ -78,7 +78,7 @@ sequenceDiagram
 ```
 
 At a conceptual level that is the entire protocol.
-Further sections will define exactly how this works in practice.
+The following sections define exactly how this works in practice.
 
 ## Scope
 
