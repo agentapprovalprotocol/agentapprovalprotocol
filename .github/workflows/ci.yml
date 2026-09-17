@@ -22,6 +22,7 @@ jobs:
       - run: npm run check
       - run: make api-lint
       - run: npm run build
+      - run: npm run test:docs-http
 
   adapters:
     runs-on: ${{ matrix.os }}

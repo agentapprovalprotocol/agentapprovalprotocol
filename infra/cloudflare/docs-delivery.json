@@ -1,0 +1,35 @@
+{
+  "host": "agentapprovalprotocol.io",
+  "zoneId": "31fbdf7d2ea1e175dcb922de7b729f64",
+  "phases": {
+    "http_response_headers_transform": [
+      {
+        "ref": "docs_delivery_vary",
+        "description": "Preserve HTML, Markdown and Next.js navigation response variants for documentation",
+        "expression": "(http.host eq \"agentapprovalprotocol.io\" and ((http.request.uri.path eq \"/docs\" or starts_with(http.request.uri.path, \"/docs/\")) or (http.request.uri.path eq \"/specification\" or starts_with(http.request.uri.path, \"/specification/\"))))",
+        "action": "rewrite",
+        "action_parameters": {
+          "headers": {
+            "vary": {
+              "operation": "add",
+              "value": "Accept, Purpose, Sec-Purpose, RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch"
+            }
+          }
+        },
+        "enabled": true
+      }
+    ],
+    "http_request_cache_settings": [
+      {
+        "ref": "docs_delivery_cache_bypass",
+        "description": "Keep negotiated documentation out of Cloudflare cache",
+        "expression": "(http.host eq \"agentapprovalprotocol.io\" and ((http.request.uri.path eq \"/docs\" or starts_with(http.request.uri.path, \"/docs/\")) or (http.request.uri.path eq \"/specification\" or starts_with(http.request.uri.path, \"/specification/\"))))",
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "enabled": true
+      }
+    ]
+  }
+}

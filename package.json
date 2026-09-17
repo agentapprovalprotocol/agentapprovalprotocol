@@ -11,7 +11,9 @@
     "start": "npm run start --workspace website",
     "check": "npm run check --workspace website",
     "test": "npm run test --workspace website",
-    "api-lint": "redocly lint openapi.yaml --config redocly.yaml"
+    "api-lint": "redocly lint openapi.yaml --config redocly.yaml",
+    "test:docs-live": "npm run test:docs-live --workspace website",
+    "test:docs-http": "npm run test:docs-http --workspace website"
   },
   "devDependencies": {
     "@redocly/cli": "2.40.0"

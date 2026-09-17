@@ -82,7 +82,7 @@ npm run build
 
 Stop the development server before making a production build. Run `npm start` to inspect the production build locally.
 
-With that production server running, use `AAP_TEST_BASE_URL=http://127.0.0.1:3018 npm test` to also run the Markdown content negotiation HTTP checks.
+Run `npm run test:docs-http` after the build to start a temporary production server, check all published HTML and Markdown pages, and stop it automatically. To check a deployed site instead, run `AAP_TEST_BASE_URL=https://agentapprovalprotocol.io npm run test:docs-live`. The live command requires an explicit target and fails if it is missing.
 
 The install step applies `patches/next+16.3.5.patch` to preserve custom `Vary` fields in HTML responses. This works around [Next.js issue #85999](https://github.com/vercel/next.js/issues/85999). When upgrading Next.js, rerun the production HTTP checks and remove the patch once the framework preserves these fields itself.
 
@@ -118,7 +118,7 @@ Create a Vercel project connected to `agentapprovalprotocol/agentapprovalprotoco
 4. Use `main` as the production branch and enable branch previews.
 5. Add `agentapprovalprotocol.io` as the production domain and apply the DNS records Vercel provides.
 
-No provider credentials or environment variables are required to build the documentation. Hosting setup is managed separately from this repository.
+No provider credentials or environment variables are required to build the documentation. The [Cloudflare docs delivery configuration](infra/cloudflare/README.md) records the production cache and response-header rules and provides a read-only drift check. The Production docs delivery workflow runs the HTTP suite against the public domain after successful production deployments and supports manual runs.
 
 ## License
 

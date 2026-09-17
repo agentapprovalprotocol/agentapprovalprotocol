@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import fs from "node:fs";
 import { getAllDocs } from "../lib/docs";
+import { specPath } from "../lib/openapi";
 
 // Run against a production server with AAP_TEST_BASE_URL=http://127.0.0.1:3018 npm test.
 const baseUrl = process.env.AAP_TEST_BASE_URL;
@@ -8,7 +10,7 @@ const options = { skip: !baseUrl };
 function fetchPage(path: string, accept = "text/markdown", init: RequestInit = {}) {
   const headers = new Headers(init.headers);
   headers.set("accept", accept);
-  return fetch(new URL(path, baseUrl), { ...init, headers });
+  return fetch(new URL(path, baseUrl), { signal: AbortSignal.timeout(20_000), ...init, headers });
 }
 
 function assertVary(response: Response) {
@@ -22,6 +24,11 @@ function assertVary(response: Response) {
 
 test("HTTP: every document negotiates the exact existing Markdown representation", options, async () => {
   for (const { slug } of getAllDocs()) {
+    const html = await fetchPage(`/${slug}`, "text/html");
+    assert.equal(html.status, 200, slug);
+    assert.match(html.headers.get("content-type") ?? "", /^text\/html\b/, slug);
+    assertVary(html);
+    assert.match(await html.text(), /<!DOCTYPE html>/i, slug);
     const direct = await fetchPage(`/${slug}/index.md`, "text/html");
     const negotiated = await fetchPage(`/${slug}?source=agent&value=a%2Fb`, "text/markdown", { redirect: "manual" });
     assert.equal(direct.status, 200, slug);
@@ -32,6 +39,18 @@ test("HTTP: every document negotiates the exact existing Markdown representation
     assertVary(negotiated);
     assert.equal(await negotiated.text(), await direct.text(), slug);
   }
+});
+
+test("HTTP: the OpenAPI download matches its source and documented representation", options, async () => {
+  const download = await fetchPage("/openapi.yaml");
+  assert.equal(download.status, 200);
+  assert.equal(download.headers.get("content-type"), "application/yaml; charset=utf-8");
+  assert.equal(download.headers.get("content-disposition"), 'attachment; filename="openapi.yaml"');
+  const source = fs.readFileSync(specPath, "utf8");
+  assert.equal(await download.text(), source);
+  const markdown = await fetchPage("/specification/reference/openapi");
+  assert.equal(markdown.status, 200);
+  assert.ok((await markdown.text()).includes(source));
 });
 
 test("HTTP: repeated requests to one URL keep HTML and Markdown variants separate", options, async () => {
