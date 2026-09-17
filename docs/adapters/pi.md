@@ -16,9 +16,11 @@ aap install pi --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approv
 
 Start a new Pi session to load the adapter.
 
+If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Then start a new agent session.
+
 ## What to expect
 
-By default, every tool call goes to your provider for approval. Requests can wait up to an hour for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+By default, every tool call goes to your provider for approval. Requests can wait up to one week for a decision. Your provider may set a shorter deadline. Keep the agent session running while approval is pending. A denied or expired request blocks the call, as does a failure to confirm approval.
 
 If the tool inputs change while you are reviewing them, AAP blocks the call. If AAP cannot start or reach your provider, the call is also blocked.
 

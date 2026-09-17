@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook deepseek",
-            "timeout": 600
+            "timeout": 604860
           }
         ]
       }

@@ -21,8 +21,9 @@ func (openClaw) configPath(env Env) string {
 	return filepath.Join(env.Home, ".openclaw", "openclaw.json")
 }
 
-// openClawApprovalTimeoutMs is the approval window the plugin registers.
-const openClawApprovalTimeoutMs = 3_600_000
+// The Go hook subtracts 30 seconds from this ceiling, leaving a full week
+// for approval. The plugin adds a further process watchdog margin.
+const openClawApprovalTimeoutMs = 7*24*60*60*1000 + 30_000
 
 const openClawRestartNote = "Restart the OpenClaw Gateway so it loads the AAP plugin."
 

@@ -7,7 +7,7 @@ matcher = '.*'
 
 [[hooks.PreToolUse.hooks]]
 command = 'AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook codex'
-timeout = 600
+timeout = 604860
 type = 'command'
 
 [hooks.state]

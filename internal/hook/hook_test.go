@@ -34,6 +34,13 @@ func TestSixRuntimeHooks(t *testing.T) {
 				t.Fatalf("approval %s: %v", out.String(), err)
 			}
 			in := p.Inputs()[0]
+			wantTimeout := "604800s"
+			if key == "hermes" {
+				wantTimeout = "270s"
+			}
+			if in.Timeout != wantTimeout {
+				t.Fatalf("approval timeout = %s, want %s", in.Timeout, wantTimeout)
+			}
 			if in.Tool != "create_refund" || in.Context["mcp_server"] != "stripe" || in.Context["runtime"] != key || in.Arguments["amount"] != json.Number("9007199254740993") {
 				t.Fatalf("submission %+v", in)
 			}
@@ -59,6 +66,38 @@ func TestSixRuntimeHooks(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+func TestPluginApprovalWindows(t *testing.T) {
+	for _, key := range []string{"pi", "openclaw"} {
+		for _, tc := range []struct {
+			name    string
+			ceiling int64
+			want    string
+		}{
+			{"week", 604830000, "604800s"},
+			{"custom", 60000, "30s"},
+		} {
+			t.Run(key+"/"+tc.name, func(t *testing.T) {
+				p := testprovider.New(t)
+				var input map[string]any
+				if err := aap.Decode(payload(key, "tool"), &input); err != nil {
+					t.Fatal(err)
+				}
+				input["timeout_ms"] = tc.ceiling
+				raw, err := json.Marshal(input)
+				if err != nil {
+					t.Fatal(err)
+				}
+				var out bytes.Buffer
+				if err := Run(context.Background(), key, p.Client(t), raw, &out); err != nil || denied(out.String()) {
+					t.Fatalf("approval %s: %v", out.String(), err)
+				}
+				if got := p.Inputs()[0].Timeout; got != tc.want {
+					t.Fatalf("approval timeout = %s, want %s", got, tc.want)
+				}
+			})
+		}
 	}
 }
 func TestOpenClawServerNormalization(t *testing.T) {

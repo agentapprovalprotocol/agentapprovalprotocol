@@ -16,9 +16,11 @@ aap install claude-code --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https
 
 Start a new Claude Code session to use the adapter.
 
+If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Then start a new agent session.
+
 ## What to expect
 
-By default, every tool call goes to your provider for approval. Requests can wait up to five minutes for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+By default, every tool call goes to your provider for approval. Requests can wait up to one week for a decision. Your provider may set a shorter deadline. Keep the agent session running while approval is pending. A denied or expired request blocks the call, as does a failure to confirm approval.
 
 Claude Code's own permissions still apply, so an AAP approval may be followed by a local permission prompt. Your provider may also receive a short excerpt of the agent's explanation for the proposed action.
 

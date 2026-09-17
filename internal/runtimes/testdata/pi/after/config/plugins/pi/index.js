@@ -17,7 +17,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 
-const DEFAULT_APPROVAL_TIMEOUT_MS = 3_600_000;
+// The Go hook subtracts 30 seconds, leaving a full week for approval.
+const DEFAULT_APPROVAL_TIMEOUT_MS = 7 * 24 * 60 * 60 * 1000 + 30_000;
 const PROCESS_MARGIN_MS = 60_000;
 const MAX_APPROVAL_TIMEOUT_MS = 2_147_483_647 - PROCESS_MARGIN_MS;
 const MAX_OUTPUT_BYTES = 64 * 1024;
