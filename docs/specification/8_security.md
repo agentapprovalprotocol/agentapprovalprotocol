@@ -47,7 +47,7 @@ Providers must apply the [webhook abuse controls](7_async.md#abuse-prevention) t
 
 Tool arguments may themselves contain sensitive information.
 An adapter must not silently remove or replace arguments whilst claiming that the submitted payload is the complete call.
-AAP version 1 does not define a standard representation for redacted arguments.
+AAP version 1 does not define a representation or approval semantics for redacted arguments.
 
 ## Enforcement Limits
 

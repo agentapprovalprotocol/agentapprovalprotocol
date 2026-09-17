@@ -41,7 +41,7 @@ The install step applies `patches/next+16.3.5.patch` to preserve custom `Vary` f
 
 ## Adapter development
 
-Adapter code targets Go 1.25 or later on macOS and Linux. Keep the library independent of provider enrollment and product code. After changing Go code or native plugins, run:
+Adapter code targets Go 1.25 or later on macOS and Linux. Keep the library provider-independent. After changing Go code or native plugins, run:
 
 ```sh
 make adapters-test
@@ -106,10 +106,3 @@ No provider credentials or environment variables are required to build the docum
 Unless otherwise noted, this repository's code, OpenAPI contract, specification and documentation are licensed under the [Apache License 2.0](LICENSE).
 
 Third-party materials retain their own licenses and notices, including [Inter](website/public/fonts/Inter-LICENSE.txt) and [Roboto Mono](website/public/fonts/RobotoMono-LICENSE.txt), which use the SIL Open Font License 1.1.
-
-## Origin
-
-The specification was extracted from the `aap/` directory in [withHuman](https://github.com/withHumanAI/withHuman), merged in PR #385 at commit `bee0e8d72a767379063342cfccdeaf88aa1e9f4b`.
-The website reuses and adapts withHuman's documentation components. Inter and Roboto Mono retain their included OFL license notices. Proprietary fonts and withHuman product assets are not included.
-
-The six runtime adapters were extracted from the withHuman CLI. Provider enrollment and onboarding tool discovery are outside this library.

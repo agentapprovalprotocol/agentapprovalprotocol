@@ -33,22 +33,16 @@ It may also require a human review and take much longer.
 
 ## Modes
 
-AAP supports approvals that take hours or longer.
-This is because approvals may involve a human review.
-Humans can take a long time to respond to a request.
-We all sleep.
+Human review can take hours or longer.
+AAP supports synchronous and asynchronous modes to accommodate different harness capabilities.
 
-Supporting this requirement lends itself to an asynchronous architecture.
-The harness saves the pending tool call and suspends execution.
+In asynchronous mode, the harness saves the pending tool call and suspends execution.
 When a decision is available, it resumes execution and the adapter applies the result.
 
 This means the agent process does not need to remain running whilst waiting for approval.
 The pending call can also survive a process restart, provided the harness has saved enough state to resume it.
 
-However, many existing harnesses expect a tool call to return its result before execution continues.
-Supporting suspension and resumption requires work from harness creators.
-
-As a result, AAP also supports a synchronous mode.
+Synchronous mode supports harnesses that wait for a tool call to return before continuing execution.
 The adapter holds the tool call open, submits an approval request and polls the provider until a decision is available.
 
 Both modes use the same [requests and decisions](4_requests.md).

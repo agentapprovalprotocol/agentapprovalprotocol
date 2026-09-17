@@ -47,15 +47,13 @@ See [identity and authentication](../specification/3_identity.md) for the creden
 
 ## Modes
 
-AAP supports approvals that take hours or longer. Human review can take time, so asynchronous mode lets the harness save the pending call, suspend execution and resume after a decision.
-
-Many harnesses expect a tool call to return its result before execution continues. AAP supports two modes to accommodate both kinds of harness:
+Human review can take hours or longer. AAP supports two ways to wait for a decision, depending on whether the harness can suspend and resume execution.
 
 | Mode | How it works | Fits a harness that… |
 | --- | --- | --- |
 | Synchronous | The adapter keeps the call open and polls for a decision. | Can wait within the tool call's time limit. |
 | Asynchronous | The adapter saves execution state, suspends work and resumes after a notification. | Can suspend and resume the same execution attempt. |
 
-Most adapters use synchronous waiting. Check your [adapter's setup guide](../adapters/overview.md) for its supported behavior and waiting limits.
+Check your [adapter's guide](../adapters/overview.md) for its waiting behavior and time limits.
 
 Read [synchronous mode](../specification/6_sync.md) and [asynchronous mode](../specification/7_async.md) for their complete contracts.
