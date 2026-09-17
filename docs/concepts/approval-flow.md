@@ -4,7 +4,7 @@ lastModified: 2026-09-17
 
 # The approval flow
 
-AAP separates proposing an action, deciding whether it is allowed and executing it. The adapter connects these steps at the point where a tool would run.
+AAP separates proposing an action, deciding whether it is allowed and executing it. The [adapter](adapter.md) connects these steps at the point where a tool would run, asking the [provider](provider.md) whether the call may proceed.
 
 ## Tool call flow
 

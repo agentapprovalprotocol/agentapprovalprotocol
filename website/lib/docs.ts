@@ -30,6 +30,8 @@ export type DocPage = DocMeta & { toc: TocItem[] } & (
 const documentationPages = [
   { slug: "docs/getting-started/introduction", area: "docs", section: "Get started", title: "What is Agent Approval Protocol (AAP)?", sidebarTitle: "What is AAP?", description: "Give agents a way to ask for approval before their tools take action.", source: "docs/getting-started/introduction.md" },
   { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
+  { slug: "docs/concepts/adapter", area: "docs", section: "Core concepts", title: "Adapter", description: "Connect tool calls to an approval provider and enforce its decisions before execution.", source: "docs/concepts/adapter.md" },
+  { slug: "docs/concepts/provider", area: "docs", section: "Core concepts", title: "Provider", description: "Review proposed tool calls and record decisions for adapters to enforce.", source: "docs/concepts/provider.md" },
 ] satisfies (DocMeta & { source: string })[];
 
 const markdownPages = [
