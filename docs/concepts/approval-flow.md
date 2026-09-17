@@ -45,7 +45,12 @@ A provisioner creates and manages instances. Each instance receives a credential
 
 See [identity and authentication](../specification/3_identity.md) for the credential requirements.
 
-## Choose how to wait
+## Modes
+
+AAP aims to support approvals that take hours or longer. This is because approvals may involve a human review and humans can take a long time to respond to a request.
+This naturally lends itself to an async architecture where if an agent is waiting for a request, it terminates and then is woken up when an approval is granted.
+However, many existing harnesses expect a tool call to return its result before execution continues. Supporting suspension and resumption requires work from harness creators.
+So to get the project moving without getting all harness providers to opt in, AAP has two modes: Asynchronous and Synchronous.
 
 | Mode | How it works | Fits a harness that… |
 | --- | --- | --- |
