@@ -19,10 +19,10 @@ This list is expanding all the time and if you'd like to contribute an AAP adapt
 | [Pi](pi.md) | Synchronous | Native extension | Model-proposed calls passing through `tool_call`. |
 | [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | Built-in tools and MCP tool calls. |
 | [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | Calls passing through the configured profile's bridge. |
-| [MCP wrapper](mcp-wrapper.md) | Synchronous | Local stdio proxy | Tool calls to one wrapped stdio or remote HTTP MCP server. |
+| [MCP wrapper](mcp-wrapper.md) | Planned | Local MCP proxy | Not included in the current release. |
 | [MCP gateway](mcp-gateway.md) | Synchronous | Remote HTTP MCP server | Tool calls to registered downstream MCP servers. |
 
-The [MCP wrapper](mcp-wrapper.md) and [MCP gateway](mcp-gateway.md) remain separate withHuman implementations. They are not included in this CLI.
+The [MCP wrapper](mcp-wrapper.md) is deferred. The [MCP gateway](mcp-gateway.md) is a separate provider deployment. Neither is installed by `aap`.
 
 The current integrations use [synchronous approval](../specification/6_sync.md): the intercepted call stays open whilst the adapter polls. An asynchronous JavaScript callback or background goroutine still follows this mode. AAP's [asynchronous mode](../specification/7_async.md), which durably suspends execution and resumes after a webhook notification, is not currently supported by these adapters.
 
@@ -30,14 +30,47 @@ Runtime hooks cover calls that pass through the runtime. The wrapper covers its 
 
 ## Install the CLI
 
-With Go 1.25 or later, build from the repository root:
+Download the standalone `aap` binary for macOS or Linux, on amd64 or arm64:
 
 ```sh
-go build -o bin/aap ./cmd/aap
-./bin/aap version
+curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+aap version
 ```
 
-Put the executable at a stable location on your `PATH` before installing adapters. Installers record its absolute path. The current target platforms are macOS and Linux. Runtime applications must already be installed and configured.
+The installer checks the download against the release's SHA-256 checksums and installs to `~/.local/bin/aap`. Add that directory to your shell's startup configuration so it remains on `PATH`. It does not require Go or install an adapter until you run `aap install`.
+
+Keep the binary at a stable absolute path: installed hooks record that path. Runtime applications must already be installed and configured.
+
+To choose a different directory or pin a version, download the installer and set its options:
+
+```sh
+curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh -o /tmp/install-aap.sh
+AAP_INSTALL_DIR="$HOME/.local/bin" AAP_CLI_VERSION=0.1.0 sh /tmp/install-aap.sh
+```
+
+`AAP_CLI_BASE` selects a download mirror. Rerun the installer to update the executable in place, then start fresh runtime sessions or restart the runtime's plugin host. Existing adapter credentials and configuration stay in their configuration directory.
+
+You can also download release 0.1.0 directly:
+
+| Platform | Binary |
+| --- | --- |
+| macOS, Apple silicon | [aap-darwin-arm64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-darwin-arm64) |
+| macOS, Intel | [aap-darwin-amd64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-darwin-amd64) |
+| Linux, arm64 | [aap-linux-arm64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-linux-arm64) |
+| Linux, amd64 | [aap-linux-amd64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-linux-amd64) |
+
+Verify direct downloads against [SHA256SUMS](https://downloads.agentapprovalprotocol.io/cli/0.1.0/SHA256SUMS), make the binary executable and name it `aap` in your chosen installation directory.
+
+### Build from source
+
+With Go 1.25 or later, run from the repository root:
+
+```sh
+mkdir -p "$HOME/.local/bin"
+go build -o "$HOME/.local/bin/aap" ./cmd/aap
+aap version
+```
 
 ## Install an adapter
 

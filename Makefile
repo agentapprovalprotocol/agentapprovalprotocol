@@ -20,6 +20,7 @@ adapters-test:
 	go test -race ./...
 	go vet ./...
 	node --test internal/plugins/plugins.test.mjs
+	node --test deployment/cli/*.test.mjs
 
 adapters-build:
 	go build -o bin/aap ./cmd/aap
