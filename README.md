@@ -23,15 +23,19 @@ This repository owns the version 1 specification, its OpenAPI contract, the Go a
 
 The Go library installs and runs adapters for Claude Code, Codex, OpenClaw, Pi, Hermes and DeepSeek. It has no withHuman dependency. An instance token and a complete AAP base URL are the only required installation inputs.
 
-Build with Go 1.25 or later:
+Install the standalone binary for macOS or Linux (amd64 and arm64):
 
 ```sh
-go build -o bin/aap ./cmd/aap
-./bin/aap adapters
-./bin/aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
-./bin/aap status claude-code
-./bin/aap uninstall claude-code
+curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+aap version
+aap adapters
+aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap status claude-code
+aap uninstall claude-code
 ```
+
+For source builds, use Go 1.25 or later and run `make adapters-build`. See [CLI releases](deployment/cli/README.md) for publishing to R2.
 
 `--tool-glob 'create_*'` optionally limits coverage to normalized AAP tool names. Without a filter, every intercepted call is submitted. The base URL includes any provider path prefix; the client appends `/v1/requests`.
 

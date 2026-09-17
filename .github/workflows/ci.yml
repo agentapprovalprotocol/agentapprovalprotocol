@@ -41,3 +41,6 @@ jobs:
       - run: go vet ./...
       - run: go build -o "$RUNNER_TEMP/aap" ./cmd/aap
       - run: node --test internal/plugins/plugins.test.mjs
+      - run: node --test deployment/cli/*.test.mjs
+      - run: sh -n deployment/cli/install.sh scripts/build-release.sh scripts/publish-release.sh
+      - run: sh scripts/build-release.sh 0.0.0 "$RUNNER_TEMP/aap-release"
