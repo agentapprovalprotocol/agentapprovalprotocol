@@ -14,13 +14,7 @@ Download the standalone `aap` binary for macOS or Linux, on amd64 or arm64:
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 ```
 
-The installer verifies the release's SHA-256 checksum, installs to `~/.local/bin/aap` and prints the installed version. Go and administrator access are not required.
-
-If the directory is missing from `PATH`, the installer adds it to your Bash, Zsh or Fish startup configuration. Reopen your terminal to use `aap`, or run the command printed by the installer to use it in the current terminal. Other shells need manual PATH setup.
-
 Next, [install an adapter](#install-an-adapter) to connect your runtime to an approval provider.
-
-Keep the binary at a stable absolute path: installed hooks record that path. Runtime applications must already be installed and configured.
 
 ### Installer options
 
