@@ -4,7 +4,7 @@ lastModified: 2026-09-17
 
 # AAP CLI
 
-Use the `aap` CLI to install and manage [AAP adapters](overview.md). It connects your runtime to an existing AAP provider using an instance token and the provider's AAP base URL.
+Use the `aap` CLI to install and manage first party [AAP adapters](overview.md). 
 
 ## Install the CLI
 
