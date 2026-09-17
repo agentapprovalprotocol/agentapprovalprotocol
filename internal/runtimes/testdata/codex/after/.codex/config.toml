@@ -1,0 +1,33 @@
+approval_policy = 'on-request'
+model = 'gpt-5-codex'
+
+[hooks]
+[[hooks.PreToolUse]]
+matcher = '.*'
+
+[[hooks.PreToolUse.hooks]]
+command = 'AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook codex'
+timeout = 600
+type = 'command'
+
+[hooks.state]
+[hooks.state.'{{HOME}}/.codex/config.toml:pre_tool_use:0:0']
+trusted_hash = 'sha256:{{TRUST_HASH}}'
+
+[mcp_servers]
+[mcp_servers.github]
+args = ['stdio']
+command = 'github-mcp'
+
+[mcp_servers.github.env]
+GITHUB_TOKEN = 'ghp_x'
+
+[mcp_servers.parked]
+command = 'parked-mcp'
+enabled = false
+
+[mcp_servers.remote]
+url = 'https://remote.example.com/mcp'
+
+[mcp_servers.remote.http_headers]
+Authorization = 'Bearer r'

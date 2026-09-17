@@ -26,11 +26,20 @@ For a child server, the wrapper forwards stdio traffic in both directions. For a
 
 The wrapper emits progress notifications every ten seconds when the client supplied a progress token. Whether that extends the call's lifetime depends on the client's timeout behavior.
 
+## Install its CLI
+
+The MCP wrapper remains in withHuman and is not shipped by `aap`. Install its CLI separately:
+
+```sh
+curl -fsSL https://downloads.withhuman.ai/install.sh | sh
+withhuman version
+```
+
 ## Set up with withHuman
 
 ### 1. Prepare the connection
 
-Install the [withHuman CLI](overview.md#install-the-cli). Start with an MCP server that already works in your agent's client, and keep its existing command, arguments, environment and authentication settings available.
+Install the withHuman CLI. Start with an MCP server that already works in your agent's client, and keep its existing command, arguments, environment and authentication settings available.
 
 ### 2. Enroll an instance
 
@@ -88,6 +97,6 @@ The wrapper only sees tools on its MCP connection. Shell commands, other servers
 
 The HTTP bridge does not open a standing GET stream, so server-initiated requests such as sampling and elicitation are not supported through that channel. It also does not manage downstream OAuth sign-in or refresh. Without a progress token, the wrapper cannot send keepalives whilst approval waits.
 
-The current wrapper has no per-call cancellation tracking; its approval wait relies on the provider's deadline. The shared [implementation limits](overview.md#current-implementation-limits) also apply.
+The current wrapper has no per-call cancellation tracking; its approval wait relies on the provider's deadline. This withHuman implementation does not yet enforce `decision.expires_at` or track approval consumption to prevent every execution replay. These gaps remain outside the six extracted runtime adapters.
 
 To remove it, restore the MCP client's original server entry and restart the connection. Revoke the wrapper's instance credential in withHuman when it is no longer needed.

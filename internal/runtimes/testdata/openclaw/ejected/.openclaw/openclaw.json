@@ -1,0 +1,24 @@
+{
+  "gateway": {
+    "port": 18789
+  },
+  "plugins": {
+    "allow": [
+      "memory-core"
+    ],
+    "entries": {
+      "memory-core": {
+        "enabled": true
+      }
+    },
+    "load": {
+      "paths": []
+    }
+  },
+  "mcpServers": {
+    "fixture": {
+      "command": "fixture-mcp"
+    }
+  },
+  "theme": "dark"
+}

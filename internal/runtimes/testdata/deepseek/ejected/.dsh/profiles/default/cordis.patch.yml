@@ -1,0 +1,4 @@
+- id: sandbox
+  name: '@deepseek-ai/dsh-sandbox'
+- id: telemetry
+  name: '@deepseek-ai/dsh-telemetry'

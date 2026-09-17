@@ -4,74 +4,39 @@ lastModified: 2026-09-17
 
 # DeepSeek Harness
 
-The DeepSeek Harness adapter connects `dsh` to an approval provider through the harness's Claude Code hooks bridge. It targets the DeepSeek agent harness, rather than any application that happens to use a DeepSeek model.
+The DeepSeek Harness adapter uses the harness's Claude Code hooks bridge to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
 
-## What it supports
+## Install
 
-| Capability | Current behavior |
-| --- | --- |
-| Interception | The `@deepseek-ai/dsh-hooks-claude-code` bridge at `tools/pre-execute`. |
-| Tools | Calls reaching the bridge, including built-ins such as `bash`, `run_code`, `write` and `edit`. |
-| Waiting | Synchronous polling with a five-minute approval window and a 600-second hook registration. |
-| Profile scope | The profile where setup mounts the bridge. |
-| MCP discovery | Best-effort discovery from common configuration files; the harness's MCP configuration layout is not verified by this installer. |
+Build and place the [AAP CLI](overview.md#install-the-cli) at a stable location. Obtain an instance token and complete AAP base URL from your provider, then run:
+
+```sh
+aap install deepseek --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap status deepseek
+```
+
+Installation configures the selected profile's `cordis.patch.yml`, with `hooks.json` under the AAP configuration directory. Run `dsh` under the profile named in the installation notes. The installer selects `default` when present, otherwise the sole profile, otherwise creates `default`. `DSH_HOME` is honored.
+
+Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](overview.md#optional-tool-filter) before narrowing coverage.
 
 ## How it works
 
-DeepSeek Harness uses a plugin pipeline for tool execution. Its Claude Code hooks bridge reads a `hooks.json`, starts `withhuman hook deepseek --agent deepseek` and translates the returned hook decision back into the harness's allow, deny or ask behavior.
+The installer mounts `@deepseek-ai/dsh-hooks-claude-code` as the `aap` bridge. Calls use the Claude Code hook payload and response format, with `deepseek` recorded as the runtime. Approval preserves the harness's local guards and sandbox checks.
 
-The adapter uses the Claude Code hook payload shape but identifies the runtime as `deepseek`. Approval lets the harness continue through its own sandbox and local approval checks. Denial or a failed provider exchange returns an explicit deny result.
+The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
 
-The bridge supplies no transcript path, so this adapter does not extract agent reasoning from a transcript.
+## Verify and remove
 
-## Set up with withHuman
-
-### 1. Prepare the harness
-
-Install the [withHuman CLI](overview.md#install-the-cli) and DeepSeek Harness with its Claude Code hooks bridge available. Have `dsh` on your `PATH`.
-
-If you use a custom harness home, set `DSH_HOME` before running setup. Otherwise the installer uses `~/.dsh`.
-
-### 2. Install the profile integration
-
-Open `/welcome` on your withHuman deployment and run its setup command:
+Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
 
 ```sh
-withhuman setup --url "https://withhuman.example.com" --code "SETUP_CODE"
+aap uninstall deepseek
 ```
 
-Use the origin and code from your page. Select **DeepSeek Harness**, then select **bash** for human review.
-
-Setup writes `deepseek/hooks.json` under the withHuman configuration directory and mounts the bridge through the chosen profile's `cordis.patch.yml`. The hook uses the catch-all matcher `.*`.
-
-The installer prefers the `default` profile if it exists. Otherwise it uses the only profile when there is exactly one, or creates `default`. Read the printed profile path and use that profile when starting `dsh`.
-
-### 3. Check the installation
-
-```sh
-withhuman status --agent deepseek
-```
-
-Start a fresh harness session with the profile setup modified. Confirm the bridge loads and the registered CLI path still exists.
-
-### 4. Try an approval
-
-Under that profile, run:
-
-```sh
-dsh -p "Run this shell command and show me the output: echo hello from withHuman"
-```
-
-Approve the request in withHuman, then repeat with a denial. Both tests should create requests attributed to DeepSeek Harness.
+Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
 
 ## Limits and troubleshooting
 
-The bridge can let a call proceed if it cannot start the hook process. Keep the installed CLI at the registered path and test that requests reach withHuman before relying on this integration. A provider failure after the adapter starts is mapped to an explicit denial.
+The request window is five minutes inside a 600-second hook timeout. The existing bridge can let a tool proceed if it cannot start the hook process. Keep the executable at its registered path and verify that calls reach the provider. Once started, the adapter denies malformed calls and failed provider exchanges. No transcript reasoning is supplied by the bridge.
 
-A different harness profile may have no bridge installed. Missing MCP discovery results also do not establish that a server has no tools; discovery is best effort. The shared [implementation limits](overview.md#current-implementation-limits) apply.
-
-To remove the recorded integration:
-
-```sh
-withhuman eject --agent deepseek
-```
+The [shared enforcement limits](overview.md#approval-enforcement-and-limits) and [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.

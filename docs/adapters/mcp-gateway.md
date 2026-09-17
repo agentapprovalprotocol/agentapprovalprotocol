@@ -81,7 +81,7 @@ Approve it and confirm the downstream result. Repeat with a denial and confirm t
 
 The current gateway supports tool listing and calls. Resources, prompts, sampling and elicitation passthrough are outside its current scope. Sessions are held in memory, so the current deployment expects one gateway replica.
 
-Within a session, repeated calls with identical tool arguments can reuse an earlier decision because the gateway does not yet track each execution attempt separately. The shared [implementation limits](overview.md#current-implementation-limits), including approval expiry enforcement, also apply.
+Within a session, repeated calls with identical tool arguments can reuse an earlier decision because the gateway does not yet track each execution attempt separately. This withHuman implementation also lacks approval-expiry enforcement. The gateway remains outside the six extracted runtime adapters.
 
 If no tools appear, check the downstream credential, the active server revision and the agent's organization. A missing **Gateway** surface can mean the deployment has not enabled it or your account lacks gateway access.
 

@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "search": { "command": "search-mcp", "args": ["--fast"] }
+  }
+}

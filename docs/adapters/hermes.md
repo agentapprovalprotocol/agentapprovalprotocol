@@ -4,75 +4,39 @@ lastModified: 2026-09-17
 
 # Hermes Agent
 
-The Hermes adapter uses the native `pre_tool_call` shell hook. It sends the proposed call to the provider and returns a directive that either blocks the tool or preserves the approved arguments for execution.
+The Hermes Agent adapter uses the native `pre_tool_call` shell hook to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
 
-## What it supports
+## Install
 
-| Capability | Current behavior |
-| --- | --- |
-| Tools | Hooked built-in calls such as `terminal`, `process`, `execute_code`, `patch` and `write_file`, plus MCP calls. |
-| Installation | A shell hook in `~/.hermes/config.yaml`. |
-| Waiting | Synchronous polling with a 270-second approval window. |
-| Runtime timeouts | A 300-second shell-hook timeout and an outer callback timeout of at least 330 seconds. |
-| Failure handling | `fail_closed: true`, with explicit block responses for invalid hook input or failed approval requests. |
+Build and place the [AAP CLI](overview.md#install-the-cli) at a stable location. Obtain an instance token and complete AAP base URL from your provider, then run:
+
+```sh
+aap install hermes --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap status hermes
+```
+
+Installation configures `~/.hermes/config.yaml`. Accept Hermes's one-time hook consent, or start once with `hermes --accept-hooks chat`. Inspect `hermes hooks list` after installation.
+
+Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](overview.md#optional-tool-filter) before narrowing coverage.
 
 ## How it works
 
-Hermes writes the tool event to `withhuman hook hermes --agent hermes`. The adapter submits the exact arguments and the available session, task, turn and call identifiers. MCP names are normalized and their server alias is carried in context.
+Installation puts AAP last in `hooks.pre_tool_call`, enables `fail_closed` and sets a sufficient callback timeout. Approval returns an identity modification containing the reviewed arguments. MCP names normalize before filtering; session, task, turn and call identifiers are included when available.
 
-An approval returns `action: modify` with the complete reviewed argument object. This preserves the arguments whilst allowing Hermes's own guardrails to continue. Other outcomes return `action: block` and a message.
+The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
 
-Hook order matters: withHuman must be the last `pre_tool_call` hook. Hermes combines modifications in registration order, so the adapter returns its reviewed arguments after earlier hooks have returned theirs. Setup installs it last.
+## Verify and remove
 
-## Set up with withHuman
-
-### 1. Prepare Hermes
-
-Install the [withHuman CLI](overview.md#install-the-cli) and a Hermes build that supports `pre_tool_call` shell hooks. Have `hermes` available on your `PATH`.
-
-### 2. Install the hook
-
-Open `/welcome` on your withHuman deployment and run the command provided there:
+Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
 
 ```sh
-withhuman setup --url "https://withhuman.example.com" --code "SETUP_CODE"
+aap uninstall hermes
 ```
 
-Replace the example origin and code. Select **Hermes Agent**, then select **terminal** for human review.
-
-Setup adds the hook as the final entry in `hooks.pre_tool_call` and raises `plugins.hook_callback_timeout` when needed. It sets the hook's timeout and `fail_closed` behavior automatically.
-
-### 3. Accept the hook
-
-Start Hermes and accept its one-time consent to run the new shell hook. You can also start once with:
-
-```sh
-hermes --accept-hooks chat
-```
-
-Inspect the active hooks and stored integration:
-
-```sh
-hermes hooks list
-withhuman status --agent hermes
-```
-
-### 4. Try an approval
-
-```sh
-hermes chat -q "Run this shell command and show me the output: echo hello from withHuman"
-```
-
-Approve the request in withHuman and check the result. Repeat with a denial to confirm that the tool is blocked. Complete the review within the 270-second request window.
+Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
 
 ## Limits and troubleshooting
 
-If the hook never runs, check Hermes's hook consent and the active hook list. Keep withHuman last when adding other `pre_tool_call` hooks. The current adapter rejects payloads without a session ID, tool-call ID or argument object.
+AAP must remain the last `pre_tool_call` hook because Hermes merges hook modifications in registration order. The request window is 270 seconds inside a 300-second hook ceiling, with a 330-second callback timeout. Missing session or call identifiers and malformed argument objects block execution.
 
-The decision window leaves time for the provider's expiry response before Hermes stops the hook. Increasing an outer timeout alone does not change the adapter's 270-second request window. See the shared [implementation limits](overview.md#current-implementation-limits).
-
-To remove the local integration:
-
-```sh
-withhuman eject --agent hermes
-```
+The [shared enforcement limits](overview.md#approval-enforcement-and-limits) and [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.

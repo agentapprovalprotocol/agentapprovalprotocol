@@ -4,74 +4,39 @@ lastModified: 2026-09-17
 
 # OpenClaw
 
-The OpenClaw adapter is a native plugin loaded by the OpenClaw Gateway. It intercepts tool calls through `before_tool_call`, asks the provider for a decision and returns the outcome to OpenClaw.
+The OpenClaw adapter uses a native plugin registered on `before_tool_call` to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
 
-## What it supports
+## Install
 
-| Capability | Current behavior |
-| --- | --- |
-| Tools | Built-in calls such as `exec`, `write`, `edit`, `browser` and `message`, plus MCP calls passing through the hook. |
-| Installation | A local plugin registered in `~/.openclaw/openclaw.json`. |
-| Waiting | Synchronous approval, with a one-hour configured window by default. The provider request ends 30 seconds earlier. |
-| Failure handling | The plugin blocks when it cannot obtain a usable verdict, including a missing adapter process or an aborted call. |
-| Local permissions | OpenClaw's execution approvals and tool policy continue to apply. |
+Build and place the [AAP CLI](overview.md#install-the-cli) at a stable location. Obtain an instance token and complete AAP base URL from your provider, then run:
+
+```sh
+aap install openclaw --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap status openclaw
+```
+
+Installation configures `~/.openclaw/openclaw.json`. Restart the OpenClaw Gateway after installation so it loads the plugin. This is OpenClaw's own Gateway, not the separate AAP MCP gateway.
+
+Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](overview.md#optional-tool-filter) before narrowing coverage.
 
 ## How it works
 
-The plugin receives the tool event and starts `withhuman hook openclaw --agent openclaw`. It passes the tool name, parameters, call and session identifiers, and its configured timeout to the CLI. The CLI creates an approval request and polls for its outcome.
+The installer writes the plugin under AAP's `plugins/openclaw` directory and registers it as `aap` in the runtime configuration. The plugin invokes the installing executable, snapshots arguments and returns the reviewed parameters after approval. MCP names such as `stripe__create_refund` normalize to `create_refund`.
 
-For MCP names in the form `<server>__<tool>`, the adapter submits the tool name and carries the server alias separately in context. An approval lets OpenClaw continue. A denial returns `block: true` with a reason that OpenClaw gives back to the agent.
+The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
 
-The plugin raises the hook's timeout to allow time for review. It uses the `approvalTimeoutMs` setting and gives its child process an additional margin to finish. This keeps the OpenClaw process running whilst it waits.
+## Verify and remove
 
-## Set up with withHuman
-
-### 1. Prepare OpenClaw
-
-Install the [withHuman CLI](overview.md#install-the-cli) on the machine running the OpenClaw Gateway. OpenClaw needs to be installed and configured there.
-
-### 2. Register the plugin
-
-Open `/welcome` on your withHuman deployment and run the setup command it provides:
+Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
 
 ```sh
-withhuman setup --url "https://withhuman.example.com" --code "SETUP_CODE"
+aap uninstall openclaw
 ```
 
-Substitute your own origin and code. Select **OpenClaw**, then select **exec** for human review to exercise the test below.
-
-Setup writes the plugin under the withHuman configuration directory at `plugins/openclaw`. It adds the plugin to `plugins.allow` and `plugins.load.paths`, and sets `plugins.entries.withhuman` with the CLI path, credential name and timeout.
-
-If your OpenClaw configuration uses JSON5 comments or syntax, setup prints a snippet for you to merge manually. Complete that step before testing, preserving your existing plugin entries.
-
-### 3. Restart the OpenClaw Gateway
-
-Restart the OpenClaw Gateway using your normal service or application controls so it loads the plugin, then inspect the installation:
-
-```sh
-withhuman status --agent openclaw
-```
-
-This is OpenClaw's own Gateway process. The separate [AAP MCP gateway](mcp-gateway.md) is a different integration.
-
-### 4. Try an approval
-
-```sh
-openclaw agent --message "Run this shell command and show me the output: echo hello from withHuman"
-```
-
-Approve the request in withHuman, then repeat the test with a denial. A denied call should return the reason to the agent without executing the command.
+Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
 
 ## Limits and troubleshooting
 
-The plugin handles calls that reach its hook. Later plugins and other execution paths can affect the enforcement boundary; see the shared [implementation limits](overview.md#current-implementation-limits).
+Strict JSON configuration is edited automatically. JSON5 configurations receive a manual snippet and an incomplete result; merge it without replacing other plugin entries, or convert the file to strict JSON and rerun installation for automatic verification. The default wait is one hour, with margins for cancellation and process shutdown. Missing executables, invalid output and expired approvals block the call. Later plugins may still alter parameters, so inspect their order and behavior.
 
-The default `approvalTimeoutMs` is `3600000`. Configure it under `plugins.entries.withhuman.config` when a different wait is needed, then restart the Gateway. A longer timeout still requires the running session to remain available.
-
-To remove an automatically installed integration:
-
-```sh
-withhuman eject --agent openclaw
-```
-
-If you added the JSON5 registration manually, remove those entries manually as well, then restart the Gateway.
+The [shared enforcement limits](overview.md#approval-enforcement-and-limits) and [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.

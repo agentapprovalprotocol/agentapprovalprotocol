@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": ["Bash(git status)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [{ "type": "command", "command": "prettier --write" }]
+      }
+    ]
+  },
+  "model": "opus"
+}

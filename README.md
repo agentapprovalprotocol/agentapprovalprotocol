@@ -2,7 +2,7 @@
 
 AAP is an open protocol for approving agent tool calls. An adapter intercepts a call, asks an approval provider whether it may run, and enforces the decision before execution.
 
-This repository owns the version 1 specification, its OpenAPI contract and the Next.js documentation website.
+This repository owns the version 1 specification, its OpenAPI contract, the Go adapter library and CLI, and the Next.js documentation website.
 
 - [Read the documentation](docs/getting-started/introduction.md)
 - [Read the specification](docs/specification/1_overview.md)
@@ -15,7 +15,45 @@ This repository owns the version 1 specification, its OpenAPI contract and the N
 - `docs/getting-started/` and `docs/concepts/`: introductory documentation and core concepts.
 - `docs/specification/`: the canonical Markdown specification.
 - `openapi.yaml`: the canonical objects, types and HTTP operations.
+- `adapters/` and `cli/`: importable Go adapter lifecycle and command dispatch; `cmd/aap/` is the standalone executable.
+- `internal/`: shared AAP client, runtime installers, hook handlers and embedded plugin assets.
 - `website/`: the Next.js documentation site. It reads the specification and schema directly, without maintaining a second copy.
+
+## Adapter library and CLI
+
+The Go library installs and runs adapters for Claude Code, Codex, OpenClaw, Pi, Hermes and DeepSeek. It has no withHuman dependency. An instance token and a complete AAP base URL are the only required installation inputs.
+
+Build with Go 1.25 or later:
+
+```sh
+go build -o bin/aap ./cmd/aap
+./bin/aap adapters
+./bin/aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+./bin/aap status claude-code
+./bin/aap uninstall claude-code
+```
+
+`--tool-glob 'create_*'` optionally limits coverage to normalized AAP tool names. Without a filter, every intercepted call is submitted. The base URL includes any provider path prefix; the client appends `/v1/requests`.
+
+A Go application can import installation directly:
+
+```go
+adapter, err := adapters.Lookup("claude-code")
+if err != nil {
+    return err
+}
+result, err := adapter.Install(instanceToken, aapBaseURL)
+// Optional: adapter.Install(instanceToken, aapBaseURL, adapters.WithToolGlob("create_*"))
+```
+
+Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Installers record the current executable's absolute path, so an importing CLI must also route `hook <adapter>` to `adapters.RunHook(ctx, key, stdin, stdout)`, or use the dispatcher in `github.com/agentapprovalprotocol/agentapprovalprotocol/cli`. No separate `aap` executable is needed when embedding. See the [adapter guide](docs/adapters/overview.md) for configuration, limitations and lifecycle behavior.
+
+```sh
+make adapters-test
+make adapters-build
+```
+
+The tests use isolated homes and a local test provider. They do not install hooks into your real runtimes. CI runs the Go race tests, vet, binary build and native plugin tests on macOS and Linux.
 
 ## Development
 
@@ -79,3 +117,5 @@ No provider credentials or environment variables are required to build the docum
 
 The specification was extracted from the `aap/` directory in [withHuman](https://github.com/withHumanAI/withHuman), merged in PR #385 at commit `bee0e8d72a767379063342cfccdeaf88aa1e9f4b`.
 The website reuses and adapts withHuman's documentation components. Inter and Roboto Mono retain their included OFL license notices. Proprietary fonts and withHuman product assets are not included.
+
+The six runtime adapters were extracted from the withHuman CLI. Provider enrollment, onboarding tool discovery, the MCP wrapper and the remote gateway are outside this library.

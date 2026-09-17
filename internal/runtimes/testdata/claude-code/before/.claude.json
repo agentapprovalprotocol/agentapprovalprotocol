@@ -1,0 +1,22 @@
+{
+  "numStartups": 12,
+  "mcpServers": {
+    "stripe": {
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp"],
+      "env": { "STRIPE_KEY": "sk_test" }
+    },
+    "docs": {
+      "type": "http",
+      "url": "https://docs.example.com/mcp",
+      "headers": { "Authorization": "Bearer t" }
+    }
+  },
+  "projects": {
+    "/work/app": {
+      "mcpServers": {
+        "linear": { "command": "linear-mcp" }
+      }
+    }
+  }
+}

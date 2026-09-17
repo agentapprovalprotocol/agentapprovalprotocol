@@ -1,0 +1,6 @@
+- id: sandbox
+  name: '@deepseek-ai/dsh-sandbox'
+- id: aap
+  name: '@deepseek-ai/dsh-hooks-claude-code'
+  config:
+    configPath: {{CONFIG}}/deepseek/hooks.json

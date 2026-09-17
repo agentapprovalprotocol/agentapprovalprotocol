@@ -4,22 +4,24 @@ lastModified: 2026-09-17
 
 # Adapters overview
 
-An [adapter](../concepts/adapter.md) connects an agent runtime to an approval provider. It captures a proposed tool call, asks whether it may run and translates the outcome back into the runtime's own hook, extension or tool response.
+An [adapter](../concepts/adapter.md) captures a proposed tool call, asks an approval provider whether it may run and translates the outcome back into the runtime's hook or extension response.
 
-The adapters below are open-source AAP adapters maintained by AAP itself. These guides describe their current implementations in withHuman and use withHuman as the example provider. Installation currently uses the withHuman CLI or gateway; standalone adapter packages are still to come.
+This repository maintains a provider-independent Go library and an `aap` CLI for six runtimes. Each adapter installs itself using an existing instance token and the provider's complete AAP base URL. Creating the instance and obtaining its token are the provisioner's responsibility.
 
 ## Choose an adapter
 
 | Adapter | Supported modes | Integration | Coverage |
 | --- | --- | --- | --- |
 | [Claude Code](claude-code.md) | Synchronous | `PreToolUse` command hook | Built-in tools and MCP tool calls. |
-| [Codex](codex.md) | Synchronous | Command hooks | Built-in tools and MCP tool calls; guided setup installs `PreToolUse`. |
+| [Codex](codex.md) | Synchronous | `PreToolUse` command hook | Built-in tools and MCP calls in builds supporting command hooks. |
 | [OpenClaw](openclaw.md) | Synchronous | Native Gateway plugin | Calls passing through `before_tool_call`, including MCP tools. |
 | [Pi](pi.md) | Synchronous | Native extension | Model-proposed calls passing through `tool_call`. |
 | [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | Built-in tools and MCP tool calls. |
-| [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | Calls passing through the selected profile's tool execution hooks. |
+| [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | Calls passing through the configured profile's bridge. |
 | [MCP wrapper](mcp-wrapper.md) | Synchronous | Local stdio proxy | Tool calls to one wrapped stdio or remote HTTP MCP server. |
 | [MCP gateway](mcp-gateway.md) | Synchronous | Remote HTTP MCP server | Tool calls to registered downstream MCP servers. |
+
+The [MCP wrapper](mcp-wrapper.md) and [MCP gateway](mcp-gateway.md) remain separate withHuman implementations. They are not included in this CLI.
 
 The current integrations use [synchronous approval](../specification/6_sync.md): the intercepted call stays open whilst the adapter polls. An asynchronous JavaScript callback or background goroutine still follows this mode. AAP's [asynchronous mode](../specification/7_async.md), which durably suspends execution and resumes after a webhook notification, is not currently supported by these adapters.
 
@@ -27,45 +29,75 @@ Runtime hooks cover calls that pass through the runtime. The wrapper covers its 
 
 ## Install the CLI
 
-For the six runtime adapters and the MCP wrapper, install the `withhuman` CLI on the machine that runs the agent. The standard distribution provides macOS and Linux binaries for Intel/AMD and Arm machines:
+With Go 1.25 or later, build from the repository root:
 
 ```sh
-curl -fsSL https://downloads.withhuman.ai/install.sh | sh
-withhuman version
+go build -o bin/aap ./cmd/aap
+./bin/aap version
 ```
 
-Use the installation command shown by your withHuman deployment if it supplies its own download location. The agent CLI and the withHuman server are separate binaries that can both be named `withhuman`; these examples use the CLI.
+Put the executable at a stable location on your `PATH` before installing adapters. Installers record its absolute path. The current target platforms are macOS and Linux. Runtime applications must already be installed and configured.
 
-## Set up with withHuman
+## Install an adapter
 
-The runtime guides use the same guided setup, followed by steps specific to each runtime.
-
-1. Sign in to your withHuman deployment with permission to connect agents, configure their approval pipelines and review the test request. Open `/welcome`, or follow the guided setup link from **Connect an agent**.
-2. Copy the setup command and run it from the project where you use the agent. This lets discovery see project-specific MCP configuration where supported.
-3. In **Choose agents**, select the runtime. In **Choose tools**, select the calls that should wait for a person. Setup creates the credentials, approval pipeline and local integration.
-4. Complete any manual steps printed by the CLI, then restart the runtime as directed by its guide.
-5. Run a harmless test call and approve it in withHuman. The guided flow also lets you configure notifications and test delivery to your reviewer.
-
-The setup command has this shape. Replace the example origin and `SETUP_CODE` with the values from your own page:
+Obtain an instance token and the AAP base URL from your provider or provisioner, then run:
 
 ```sh
-withhuman setup --url "https://withhuman.example.com" --code "SETUP_CODE"
+aap adapters
+aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap status claude-code
 ```
 
-Keep the CLI running whilst making the browser selections. A setup code is single use and expires after ten minutes; start a fresh setup if it has expired.
+The URL is the complete AAP root, including any path prefix. The example creates approval requests at `https://approvals.example.com/api/aap/v1/requests`. HTTPS is required except for local development on `localhost`, `127.0.0.1` or `::1`.
 
-The CLI hooks and wrapper submit each intercepted tool call. withHuman's approval pipeline can approve routine calls immediately and hold selected calls for review. The gateway additionally classifies calls against its configured gates before requesting approval.
+Installation does not enroll an instance, select provider policies or contact the provider. Follow the returned restart or runtime-consent notes, then make a harmless tool call. Approve it through your provider and repeat with a denial. `status` inspects local configuration; it does not prove provider reachability or that a running session has reloaded its hooks.
+
+## Optional tool filter
+
+Every intercepted call is submitted by default. To limit coverage:
+
+```sh
+aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap" --tool-glob 'create_*'
+```
+
+The filter uses case-sensitive Go `path.Match` syntax: `*`, `?` and character classes. A slash separates path segments for matching. Quote the pattern so the shell does not expand it. Empty or omitted patterns cover every tool; malformed patterns are rejected before installation changes anything.
+
+Matching happens after runtime-specific normalization. For example, `mcp__stripe__create_refund` becomes `create_refund`, so the same pattern can match tools from multiple MCP servers. Calls outside the filter continue through the runtime's normal local permission flow without contacting AAP.
 
 ## Credentials and maintenance
 
-Setup saves a separate instance credential for each selected runtime. The files live under `credentials/<runtime>.json` in the operating system's user configuration directory for `withhuman`. `WITHHUMAN_CONFIG_DIR` can override that directory. Installed hooks name their credential explicitly with `--agent`.
+AAP stores one installation per runtime under the operating system's user configuration directory plus `aap`. `AAP_CONFIG_DIR` selects a different root. Installed commands and plugins retain that root even if the launching runtime has a different environment.
 
-Use `withhuman status --agent <runtime>` to inspect an installation. `withhuman eject --agent <runtime>` removes the recorded local integration and, by default, its local credential file. Credential revocation on the provider is a separate action. The individual guides include commands with the correct runtime key.
+Tokens are stored in `credentials/<runtime>.json` with owner-only access. They are absent from installed hook commands, status output and plugin configuration. Reinstalling replaces the credential, URL and filter without adding duplicate hooks. Omitting a previously configured filter removes it.
 
-`withhuman init --agent <name> --url <origin>` enrolls an instance and stores its credential. It does not install a runtime hook. The [MCP wrapper](mcp-wrapper.md) uses this enrollment path because it is configured directly in an MCP client.
+```sh
+aap status
+aap uninstall claude-code
+```
 
-## Current implementation limits
+Uninstall reverses recorded edits and removes the local credential. It preserves unrelated configuration changes and user-added plugin files. Provider credential revocation is separate. Partial installations return an error and remain recorded so they can be removed. OpenClaw JSON5 configuration requires manual editing; it is reported as incomplete. Pi registration failures are also reported as incomplete.
 
-These implementations are prototypes being extracted from withHuman. Their shared clients use withHuman's `/api/aap/v1` endpoints and provider-specific enrollment and configuration. The standalone release will need to separate those provider details from the adapter's AAP exchange.
+## Use as a Go library
 
-The current clients do not yet enforce the specification's `decision.expires_at` check or track approval consumption to prevent every execution replay. Some integrations also rely on the runtime to keep approved arguments unchanged. Their pages describe the implemented behavior and specific limitations; the [adapter requirements](../specification/8_security.md#adapter-requirements) define the requirements for AAP conformance.
+Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`:
+
+```go
+adapter, err := adapters.Lookup("claude-code")
+if err != nil {
+    return err
+}
+result, err := adapter.Install(instanceToken, aapBaseURL,
+    adapters.WithToolGlob("create_*"))
+```
+
+`Install` has two required arguments and optional settings. `All`, `Manager.Detect`, `Adapter.Status` and `Adapter.Uninstall` provide the lifecycle operations. Installation results report completion, changed files and follow-up notes. An explicit `Environment` supports isolated tests and embedding with custom machine locations.
+
+Installed hooks invoke the importing executable. Its `hook <adapter>` command must delegate to `adapters.RunHook`, or it can use the dispatcher in the public `cli` package. `cli.Main` handles process signals and returns an exit code; `cli.Run` accepts an existing context. All provider provisioning and UI stay with the importing application.
+
+## Approval enforcement and limits
+
+All six integrations use [synchronous approval](../specification/6_sync.md). The client validates responses against the submitted call, enforces approval expiry and records approval consumption on disk before returning permission. Duplicate retrieval cannot grant the same approval twice, including concurrent hook processes. Storage failures block execution. A crash after consumption can lose permission to execute; it cannot make the approval reusable. Consumption records remain in the configuration directory across uninstall and credential replacement.
+
+Retries retain the same idempotency key for an execution attempt. If a runtime supplies no stable call ID, a new invocation asks for a fresh approval. On interruption or a local deadline, the adapter attempts to cancel a known pending request. A cancellation race cannot revive an abandoned call.
+
+Hooks cover only execution paths that reach them. Runtime consent, hook order, later middleware and local configuration can affect enforcement. Pi and OpenClaw snapshot arguments; Hermes returns the reviewed arguments and must remain the last hook. The individual guides describe remaining harness limitations. See the [adapter requirements](../specification/8_security.md#adapter-requirements) for the full contract.

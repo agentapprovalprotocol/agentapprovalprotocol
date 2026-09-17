@@ -7,3 +7,5 @@ out/
 website/next-env.d.ts
 test-results/
 playwright-report/
+/aap
+/bin/

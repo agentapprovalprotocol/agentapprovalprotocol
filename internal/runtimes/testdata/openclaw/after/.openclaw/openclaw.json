@@ -1,0 +1,34 @@
+{
+  "gateway": {
+    "port": 18789
+  },
+  "plugins": {
+    "allow": [
+      "memory-core",
+      "aap"
+    ],
+    "entries": {
+      "memory-core": {
+        "enabled": true
+      },
+      "aap": {
+        "enabled": true,
+        "config": {
+          "binary": "{{BINARY}}",
+          "configDir": "{{CONFIG}}",
+          "approvalTimeoutMs": 3600000
+        }
+      }
+    },
+    "load": {
+      "paths": [
+        "{{CONFIG}}/plugins/openclaw"
+      ]
+    }
+  },
+  "mcpServers": {
+    "fixture": {
+      "command": "fixture-mcp"
+    }
+  }
+}

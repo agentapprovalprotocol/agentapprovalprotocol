@@ -1,0 +1,24 @@
+approval_policy = 'on-request'
+model = 'gpt-5-codex'
+
+[mcp_servers]
+[mcp_servers.github]
+args = ['stdio']
+command = 'github-mcp'
+
+[mcp_servers.github.env]
+GITHUB_TOKEN = 'ghp_x'
+
+[mcp_servers.parked]
+command = 'parked-mcp'
+enabled = false
+
+[mcp_servers.remote]
+url = 'https://remote.example.com/mcp'
+
+[mcp_servers.remote.http_headers]
+Authorization = 'Bearer r'
+
+[profiles]
+[profiles.fast]
+model = 'gpt-5-mini'

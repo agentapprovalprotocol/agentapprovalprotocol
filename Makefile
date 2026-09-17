@@ -14,3 +14,12 @@ check:
 
 test:
 	npm test
+
+.PHONY: adapters-test adapters-build
+adapters-test:
+	go test -race ./...
+	go vet ./...
+	node --test internal/plugins/plugins.test.mjs
+
+adapters-build:
+	go build -o bin/aap ./cmd/aap

@@ -1,0 +1,7 @@
+// OpenClaw config (JSON5)
+{
+  gateway: { port: 18789 },
+  plugins: {
+    allow: ["memory-core"],
+  },
+}

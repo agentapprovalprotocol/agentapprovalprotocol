@@ -22,3 +22,22 @@ jobs:
       - run: npm run check
       - run: make api-lint
       - run: npm run build
+
+  adapters:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: go build -o "$RUNNER_TEMP/aap" ./cmd/aap
+      - run: node --test internal/plugins/plugins.test.mjs

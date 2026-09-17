@@ -1,0 +1,17 @@
+# Hermes Agent configuration
+model: hermes-4
+plugins:
+  hook_callback_timeout: 330 # default
+hooks:
+  pre_tool_call:
+    - command: "audit-log --pre"
+      timeout: 10
+    - command: AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook hermes
+      timeout: 300
+      fail_closed: true
+mcp_servers:
+  notes:
+    command: notes-mcp
+    args: [--stdio]
+    env:
+      NOTES_TOKEN: n
