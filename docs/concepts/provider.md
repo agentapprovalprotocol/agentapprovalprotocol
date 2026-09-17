@@ -10,11 +10,13 @@ A single provider can serve many agent instances across different harnesses. Thi
 
 ## How decisions are made
 
-A provider can apply a policy automatically, ask a human to review the request or combine several steps. For example, it might approve a routine lookup immediately and hold a refund for review.
+AAP does not specify what a provider may do to get an approval, this is a choice to be made by the provider itself. This flexibility allows different AAP providers to cater to different needs.
 
-AAP defines the request, the outcome and how they are exchanged. The provider chooses its review process and interface. Agent reasoning may help explain a request, but it remains a claim from the agent and cannot override the provider's approval rules.
+For example, A provider can apply a policy automatically, ask a human to review the request or combine several steps. It might approve a routine lookup immediately and hold a refund for review.
 
-The provider records permission to execute. The adapter enforces that permission, and the harness or adapter tracks whether execution has happened. An approval record alone does not establish that a tool ran.
+AAP defines the request, the outcome and how they are exchanged. The provider chooses its review process and interface.
+
+The provider records permission to execute. The adapter enforces that permission, and the harness or adapter tracks whether execution has happened.
 
 ## Instances and access
 
