@@ -9,7 +9,7 @@ An [adapter](../concepts/adapter.md) captures a proposed tool call, asks an appr
 AAP maintains a provider-independent Go library and an `aap` CLI for six common agent runtimes that are listed below.
 This list is expanding all the time and if you'd like to contribute an AAP adapter, please do!
 
-## First Part AAP Adapters
+## First Party AAP Adapters
 
 | Adapter | Supported modes | Integration | Coverage |
 | --- | --- | --- | --- |
