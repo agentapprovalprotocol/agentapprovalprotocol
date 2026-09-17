@@ -30,6 +30,8 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -42,5 +44,9 @@ jobs:
       - run: go build -o "$RUNNER_TEMP/aap" ./cmd/aap
       - run: node --test internal/plugins/plugins.test.mjs
       - run: node --test deployment/cli/*.test.mjs
-      - run: sh -n deployment/cli/install.sh scripts/build-release.sh scripts/publish-release.sh
-      - run: sh scripts/build-release.sh 0.0.0 "$RUNNER_TEMP/aap-release"
+      - run: sh -n deployment/cli/install.sh scripts/publish-release.sh
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          version: v2.18.2
+          args: check
+      - run: goreleaser release --snapshot --clean --skip=publish

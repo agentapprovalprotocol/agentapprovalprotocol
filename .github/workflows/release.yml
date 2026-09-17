@@ -43,7 +43,10 @@ jobs:
       - name: Test adapters and installer
         run: make adapters-test
       - name: Build all platforms
-        run: sh scripts/build-release.sh "$VERSION"
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: v2.18.2
+          args: release --clean --skip=publish
       - uses: actions/upload-artifact@v4
         with:
           name: aap-${{ env.VERSION }}

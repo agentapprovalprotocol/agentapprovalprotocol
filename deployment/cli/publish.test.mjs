@@ -16,16 +16,19 @@ async function fixture(t, { existing = '', fail = '' } = {}) {
   t.after(() => rm(dir, { recursive: true, force: true }));
   const out = path.join(dir, 'dist');
   const bin = path.join(dir, 'bin');
-  await mkdir(path.join(out, 'cli/0.1.0'), { recursive: true });
+  await mkdir(out);
   await mkdir(bin);
   const files = ['aap-darwin-amd64', 'aap-darwin-arm64', 'aap-linux-amd64', 'aap-linux-arm64'];
   const manifest = files.map(name => `${createHash('sha256').update(name).digest('hex')}  ${name}\n`).join('');
-  await writeFile(path.join(out, 'cli/0.1.0/SHA256SUMS'), manifest);
-  await writeFile(path.join(out, 'cli/0.1.0/version'), '0.1.0\n');
+  await writeFile(path.join(out, 'SHA256SUMS'), manifest);
+  await writeFile(path.join(out, 'metadata.json'), JSON.stringify({ version: '0.1.0' }));
+  const artifacts = [];
   for (const name of files) {
-    await writeFile(path.join(out, 'cli/0.1.0', name), name);
+    const binaryPath = path.join(out, name);
+    await writeFile(binaryPath, name);
+    artifacts.push({ type: 'Binary', name, path: binaryPath });
   }
-  await writeFile(path.join(out, 'install.sh'), '#!/bin/sh\n');
+  await writeFile(path.join(out, 'artifacts.json'), JSON.stringify(artifacts));
   const log = path.join(dir, 'log');
   await writeFile(log, '');
   await writeFile(path.join(bin, 'aws'), `#!/usr/bin/env node
@@ -43,7 +46,7 @@ if (args[0] === 's3api') {
 `, { mode: 0o755 });
   return {
     manifest,
-    corrupt: () => writeFile(path.join(out, 'cli/0.1.0/aap-linux-amd64'), 'corrupt'),
+    corrupt: () => writeFile(path.join(out, 'aap-linux-amd64'), 'corrupt'),
     run: () => exec('sh', [publisher, '0.1.0', out], { env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, R2_ACCOUNT_ID: 'test-account', R2_PUBLIC_BUCKET: 'test-bucket', TEST_LOG: log, TEST_EXISTING: existing === 'matching' ? manifest : existing, TEST_FAIL: fail } }),
     uploads: async () => (await readFile(log, 'utf8')).trim().split('\n').filter(Boolean).map(line => JSON.parse(line)).filter(args => args[0] === 's3' && !args[2].startsWith('s3://')),
   };

@@ -39,7 +39,8 @@ they are delivered through the same HTTPS origin as the binaries.
 
 The `Release CLI` GitHub Actions workflow runs for `vMAJOR.MINOR.PATCH` tags. It
 checks that the tagged commit is on `main`, tests adapters and the installer,
-cross-builds all four targets, retains an Actions artifact, and uploads to R2.
+uses GoReleaser to build all four targets and generate checksums, retains an
+Actions artifact, and uploads to R2.
 Use its manual dispatch with an existing tag to retry a failed release.
 
 After the PR checks pass and its changes land on `main`:
@@ -49,16 +50,25 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-Build the same files locally with Go 1.25 or later:
+GoReleaser 2.18.2 owns the build matrix, version injection, artifact names and
+SHA-256 checksum manifest in `.goreleaser.yaml`. Build a snapshot locally with
+Go 1.25 or later and GoReleaser:
 
 ```sh
-sh scripts/build-release.sh 0.1.0
+goreleaser check
+goreleaser release --snapshot --clean --skip=publish
 ```
 
-`dist/` is ignored. Run `node --test deployment/cli/*.test.mjs` for installer and
-publication tests. To upload locally, export the same R2 settings and credentials as CI and
-run `sh scripts/publish-release.sh 0.1.0`. This requires the AWS CLI. A repeated
-upload refuses to replace a published version with different checksums.
+`dist/` is ignored. For a real release, check out its tag and omit `--snapshot`.
+The upload script consumes GoReleaser's artifact metadata and checksums; it does
+not build binaries or calculate a separate release manifest. It keeps R2's
+immutable version check and the final latest-pointer update outside the build.
+
+Run `node --test deployment/cli/*.test.mjs` for installer and publication tests.
+To upload a tagged release locally, export the same R2 settings and credentials
+as CI and run `sh scripts/publish-release.sh 0.1.0`. This requires the AWS CLI
+and `jq`. Snapshot versions cannot be published. A repeated upload refuses to
+replace a published version with different checksums.
 
 ## Cloudflare and GitHub configuration
 
