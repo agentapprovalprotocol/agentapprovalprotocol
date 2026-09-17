@@ -73,10 +73,6 @@ Follow the setup guide for your agent:
 
 [Claude Code](https://agentapprovalprotocol.io/docs/adapters/claude-code) · [Codex](https://agentapprovalprotocol.io/docs/adapters/codex) · [OpenClaw](https://agentapprovalprotocol.io/docs/adapters/openclaw) · [Pi](https://agentapprovalprotocol.io/docs/adapters/pi) · [Hermes Agent](https://agentapprovalprotocol.io/docs/adapters/hermes) · [DeepSeek Harness](https://agentapprovalprotocol.io/docs/adapters/deepseek)
 
-Each guide explains how to connect your provider, check that approvals work and understand your agent's coverage and waiting limits. Most current adapters keep the agent running while approval is pending. AAP also defines a mode for agents that can suspend work and resume after a decision.
-
-See the [CLI guide](https://agentapprovalprotocol.io/docs/adapters/cli) for direct downloads, updates, changing credentials and removal.
-
 ## Build with AAP
 
 The [version 1 specification](https://agentapprovalprotocol.io/specification/overview) defines how adapters and providers work together. The [OpenAPI contract](https://agentapprovalprotocol.io/specification/reference/openapi) describes the HTTP API. Use these to add approval support to your agent or implement a provider.
