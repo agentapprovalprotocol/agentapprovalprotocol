@@ -113,6 +113,12 @@ Create a Vercel project connected to `agentapprovalprotocol/agentapprovalprotoco
 
 No provider credentials or environment variables are required to build the documentation. Hosting setup is managed separately from this repository.
 
+## License
+
+Unless otherwise noted, this repository's code, OpenAPI contract, specification and documentation are licensed under the [Apache License 2.0](LICENSE).
+
+Third-party materials retain their own licenses and notices, including [Inter](website/public/fonts/Inter-LICENSE.txt) and [Roboto Mono](website/public/fonts/RobotoMono-LICENSE.txt), which use the SIL Open Font License 1.1.
+
 ## Origin
 
 The specification was extracted from the `aap/` directory in [withHuman](https://github.com/withHumanAI/withHuman), merged in PR #385 at commit `bee0e8d72a767379063342cfccdeaf88aa1e9f4b`.

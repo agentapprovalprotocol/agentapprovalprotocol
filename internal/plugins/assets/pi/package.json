@@ -1,6 +1,7 @@
 {
   "name": "@aap/pi-extension",
   "version": "0.0.1",
+  "license": "Apache-2.0",
   "private": true,
   "description": "AAP approval gate for the Pi coding agent",
   "type": "module",

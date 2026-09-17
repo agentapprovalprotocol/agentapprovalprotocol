@@ -2,8 +2,7 @@ extends:
   - recommended
 
 rules:
-  # The protocol has not declared a license yet.
-  info-license: off
+  info-license: error
   no-invalid-media-type-examples: error
   no-invalid-schema-examples: error
   no-invalid-parameter-examples: error
