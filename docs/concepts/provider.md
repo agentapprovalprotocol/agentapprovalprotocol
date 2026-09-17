@@ -18,6 +18,18 @@ AAP defines the request, the outcome and how they are exchanged. The provider ch
 
 The provider records permission to execute. The adapter enforces that permission, and the harness or adapter tracks whether execution has happened.
 
+```mermaid
+flowchart TD
+    accTitle: Multiple adapters share an approval provider
+    accDescr: Adapters for different agent instances submit requests to one approval provider. The provider chooses its own review process, such as policy checks, human review or a combination, and records one terminal outcome per request. Each outcome is returned to the requesting adapter, which enforces it before execution.
+    First[Instance A adapter] --> Review
+    Second[Instance B adapter] --> Review
+    subgraph Provider[Approval provider]
+        Review[Provider's chosen review process] --> Outcome[Record one terminal outcome per request]
+    end
+    Outcome --> Enforce[Requesting adapter enforces the outcome]
+```
+
 ## Instances and access
 
 The provider assigns each [instance](../specification/3_identity.md) an identity and a credential. It derives the requesting instance's identity from that credential and authorizes access to its requests.

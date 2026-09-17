@@ -26,6 +26,21 @@ Before execution, the adapter validates the returned request and decision, check
 
 A pending request, denied outcome, invalid response or network failure does not permit execution. If execution is abandoned, the adapter attempts to cancel any pending request.
 
+```mermaid
+flowchart TD
+    accTitle: The adapter controls whether a tool call can execute
+    accDescr: The adapter captures the agent's exact tool call and requests a decision from the provider. It checks that approval matches the request, has not expired and has not already been used for execution. Only a valid approval lets the exact call run once. Otherwise the tool stays blocked, including whilst approval is pending.
+    Agent[Agent / harness] -->|Tool call| Capture
+    subgraph Adapter
+        Capture[Capture the exact call]
+        Check{Valid approval for this attempt?}
+    end
+    Capture -->|Approval request| Provider[Approval provider]
+    Provider -->|Outcome| Check
+    Check -->|Yes| Tool[Execute the exact call once]
+    Check -->|No| Blocked[Keep the tool blocked]
+```
+
 ## Waiting for a decision
 
 In [synchronous mode](../specification/6_sync.md), the adapter holds the tool call open and polls when the provider has not decided yet.
