@@ -18,7 +18,7 @@ See the specification's [enforcement limits](../specification/8_security.md#enfo
 
 ## What the adapter does
 
-The adapter captures the actual tool name and arguments, then submits them using an [instance credential](../specification/3_identity.md). Agent reasoning can accompany the request, but the submitted call needs to describe what will really execute.
+The adapter captures the actual tool name and arguments, then submits them using an [instance credential](../specification/3_identity.md).
 
 For example, if an agent proposes a refund, the adapter submits the payment ID, amount and currency from the intercepted call. Approval covers that exact refund and one execution attempt. Changing the amount requires a new request.
 
