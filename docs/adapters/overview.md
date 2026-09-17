@@ -6,7 +6,7 @@ lastModified: 2026-09-17
 
 An [adapter](../concepts/adapter.md) connects an agent runtime to an approval provider. It captures a proposed tool call, asks whether it may run and translates the outcome back into the runtime's own hook, extension or tool response.
 
-The adapters below are being prepared for release as open-source AAP adapters. These guides describe their current implementations in withHuman and use withHuman as the example provider. Installation currently uses the withHuman CLI or gateway; standalone adapter packages are still to come.
+The adapters below are open-source AAP adapters maintained by AAP itself. These guides describe their current implementations in withHuman and use withHuman as the example provider. Installation currently uses the withHuman CLI or gateway; standalone adapter packages are still to come.
 
 ## Choose an adapter
 
