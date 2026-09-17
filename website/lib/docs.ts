@@ -16,7 +16,7 @@ export const specificationPages = [
 ] as const;
 
 export type DocsArea = "docs" | "specification";
-export interface DocMeta { slug: string; area: DocsArea; section: string; title: string; description: string }
+export interface DocMeta { slug: string; area: DocsArea; section: string; title: string; sidebarTitle?: string; description: string }
 export interface DocsNavSection { area: DocsArea; title: string; pages: DocMeta[] }
 export type DocPage = DocMeta & { toc: TocItem[] } & (
   { kind: "markdown"; content: string; source: string } |
@@ -25,7 +25,7 @@ export type DocPage = DocMeta & { toc: TocItem[] } & (
 );
 
 const documentationPages = [
-  { slug: "docs/getting-started/introduction", area: "docs", section: "Get started", title: "What is AAP?", description: "Give agents a way to ask for approval before their tools take action.", source: "docs/getting-started/introduction.md" },
+  { slug: "docs/getting-started/introduction", area: "docs", section: "Get started", title: "What is Agent Approval Protocol (AAP)?", sidebarTitle: "What is AAP?", description: "Give agents a way to ask for approval before their tools take action.", source: "docs/getting-started/introduction.md" },
   { slug: "docs/getting-started/quickstart", area: "docs", section: "Get started", title: "Quickstart", description: "Submit your first approval request and follow it to a decision.", source: "docs/getting-started/quickstart.md" },
   { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
   { slug: "docs/guides/build-an-adapter", area: "docs", section: "Build with AAP", title: "Build an adapter", description: "Connect an agent harness to an approval provider at the tool execution boundary.", source: "docs/guides/build-an-adapter.md" },
