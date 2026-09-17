@@ -22,12 +22,6 @@ This list is expanding all the time and if you'd like to contribute an AAP adapt
 | [MCP wrapper](mcp-wrapper.md) | Planned | Local MCP proxy | Not included in the current release. |
 | [MCP gateway](mcp-gateway.md) | Synchronous | Remote HTTP MCP server | Tool calls to registered downstream MCP servers. |
 
-The [MCP wrapper](mcp-wrapper.md) is deferred. The [MCP gateway](mcp-gateway.md) is a separate provider deployment. Neither is installed by `aap`.
-
-The current integrations use [synchronous approval](../specification/6_sync.md): the intercepted call stays open whilst the adapter polls. An asynchronous JavaScript callback or background goroutine still follows this mode. AAP's [asynchronous mode](../specification/7_async.md), which durably suspends execution and resumes after a webhook notification, is not currently supported by these adapters.
-
-Runtime hooks cover calls that pass through the runtime. The wrapper covers its MCP connection. The gateway can also hold downstream credentials, so access to a protected service can be controlled away from the agent's machine. See [enforcement limits](../specification/8_security.md#enforcement-limits) when choosing where to place approval.
-
 ## Install the CLI
 
 Download the standalone `aap` binary for macOS or Linux, on amd64 or arm64:
