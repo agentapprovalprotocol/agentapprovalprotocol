@@ -43,7 +43,7 @@ Documentation at `/docs` introduces AAP and explains how to build with it. Speci
 
 Edit the Markdown files in `docs/` and keep relative links usable on GitHub. Keep normative requirements in `docs/specification/` and practical guides in the other documentation directories. The site resolves source links to the correct area. Fenced Mermaid diagrams render on the website and remain readable in the source.
 
-Update `openapi.yaml` first when changing the wire contract. The website generates instance, request, webhook and schema reference pages from that file, including authentication, examples, response headers and conditional fields. The source is also served at `/openapi.yaml`.
+Update `openapi.yaml` first when changing the wire contract. The website generates instance, request, webhook and schema reference pages from that file, including authentication, examples, response headers and conditional fields. The complete source is rendered at `/specification/reference/openapi`, with a YAML download served at `/openapi.yaml`.
 
 Site identity lives in `website/site.config.ts`. Navigation and source-file mappings live in `website/lib/docs.ts`. Each page has a Markdown endpoint, and `/llms.txt` lists them.
 

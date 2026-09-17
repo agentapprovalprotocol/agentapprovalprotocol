@@ -45,7 +45,7 @@ export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
       </nav>
       <footer className="docs-rail-footer">
         <a href={site.repository}>GitHub <span aria-hidden>↗</span></a>
-        <Link href="/openapi.yaml">OpenAPI schema <span aria-hidden>↗</span></Link>
+        <Link href="/specification/reference/openapi" aria-current={pathname === "/specification/reference/openapi" ? "page" : undefined} onClick={() => setMenuOpen(false)}>OpenAPI schema</Link>
         <div className="docs-theme-row"><span>Appearance</span><ThemeToggle /></div>
       </footer>
     </div>
