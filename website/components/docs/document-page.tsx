@@ -7,6 +7,7 @@ import { PageActions } from "@/components/docs/page-actions";
 import { HighlightedCode } from "@/components/docs/code-block";
 import { ApiReference, SchemaReference } from "@/components/docs/api/api-reference";
 import { getAdjacentDocs, getDoc } from "@/lib/docs";
+import { externalLinkProps } from "@/lib/links";
 import { site } from "@/site.config";
 
 export function documentMetadata(slug: string): Metadata {
@@ -32,7 +33,7 @@ export function DocumentPage({ slug }: { slug: string }) {
         <HighlightedCode code={doc.content} lang="yaml" title="openapi.yaml" />
       </>}
     </div>
-    <div className="docs-source-link"><a href={`${site.repository}/blob/main/${doc.kind === "markdown" ? doc.source : "openapi.yaml"}`}>View source on GitHub ↗</a></div>
+    <div className="docs-source-link"><a href={`${site.repository}/blob/main/${doc.kind === "markdown" ? doc.source : "openapi.yaml"}`} {...externalLinkProps(site.repository)}>View source on GitHub ↗</a></div>
     <nav aria-label="Previous and next pages" className="docs-pagination">{prev ? <Link href={`/${prev.slug}`}>← {prev.title}</Link> : <span />}{next && <Link href={`/${next.slug}`}>{next.title} →</Link>}</nav>
   </article><aside className="docs-contents-rail"><div className="docs-contents"><Toc items={doc.toc} /></div></aside></div>;
 }
