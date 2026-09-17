@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Asynchronous Mode
 
 In asynchronous mode, the harness can suspend execution whilst waiting for approval.

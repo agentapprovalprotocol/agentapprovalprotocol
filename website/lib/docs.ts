@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+import apiPageMetadata from "../api-page-metadata.json";
 import { extractHeadings, type TocItem } from "./content";
 import { getApiGroups, getApiSchemas, repositoryRoot, specPath, type ApiGroup, type ApiSchema } from "./openapi";
+import { parseMarkdownPage, validateLastModified } from "./page-metadata";
 
 export const specificationPages = [
   ["overview", "1_overview.md", "Overview", "Approve agent tool calls through a shared, open protocol."],
@@ -52,6 +54,17 @@ export function getDocsNav(area?: DocsArea): DocsNavSection[] {
 
 export function getAllDocs(area?: DocsArea): DocMeta[] { return getDocsNav(area).flatMap((section) => section.pages); }
 
+function readMarkdownPage(source: string) {
+  return parseMarkdownPage(fs.readFileSync(path.join(repositoryRoot, source), "utf8"), source);
+}
+
+export function getDocLastModified(slug: string): string {
+  const source = markdownPages.find((page) => page.slug === slug)?.source;
+  if (source) return readMarkdownPage(source).lastModified;
+  const metadata: Record<string, { lastModified: string }> = apiPageMetadata;
+  return validateLastModified(metadata[slug]?.lastModified, `website/api-page-metadata.json (${slug})`);
+}
+
 export function getAdjacentDocs(doc: DocMeta) {
   const pages = getAllDocs(doc.area);
   const index = pages.findIndex((page) => page.slug === doc.slug);
@@ -66,7 +79,7 @@ export function getDoc(slug: string): DocPage | null {
   }
   const source = markdownPages.find((page) => page.slug === slug)?.source;
   if (source) {
-    let content = fs.readFileSync(path.join(repositoryRoot, source), "utf8").replace(/^# .+\r?\n+/, "");
+    let content = readMarkdownPage(source).content.replace(/^(?:\r?\n)*# .+\r?\n+/, "");
     if (slug === "specification/reference/overview") {
       const pages = getAllDocs().filter((page) => page.section === meta.section && page.slug !== slug);
       content += `\n## Explore the reference\n\n| Section | Description |\n| --- | --- |\n${pages.map((page) => `| [${page.title}](/${page.slug}) | ${page.description} |`).join("\n")}\n`;

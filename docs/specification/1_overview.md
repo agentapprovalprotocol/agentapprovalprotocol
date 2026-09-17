@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Specification
 
 Agents can finally do real work. They write code, answer customers, move tickets, touch production.

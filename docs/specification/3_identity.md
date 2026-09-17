@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Identity and Authentication
 
 ## Identity

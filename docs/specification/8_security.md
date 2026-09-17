@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Security and Conformance
 
 AAP provides a decision about whether a tool call may run.

@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Structure
 
 This specification explains what AAP is, what an approval means and how an adapter asks for one.

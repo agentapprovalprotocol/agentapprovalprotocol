@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # HTTP API
 
 AAP uses HTTP and JSON to exchange approval requests and decisions.

@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Architecture and Modes
 
 AAP has three parties: the agent, the adapter and the provider.

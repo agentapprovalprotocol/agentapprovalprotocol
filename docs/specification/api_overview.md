@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # API reference overview
 
 The AAP API connects an adapter to an approval provider over HTTP and JSON.

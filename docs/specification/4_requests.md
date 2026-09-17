@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Requests and Decisions
 
 An approval request asks whether one proposed tool call may run.

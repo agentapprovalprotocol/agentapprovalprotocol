@@ -1,3 +1,7 @@
+---
+lastModified: 2026-09-16
+---
+
 # Synchronous Mode
 
 In synchronous mode, the adapter holds the intercepted tool call open whilst waiting for approval.
