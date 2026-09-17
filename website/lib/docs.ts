@@ -29,9 +29,9 @@ export type DocPage = DocMeta & { toc: TocItem[] } & (
 
 const documentationPages = [
   { slug: "docs/getting-started/introduction", area: "docs", section: "Get started", title: "What is Agent Approval Protocol (AAP)?", sidebarTitle: "What is AAP?", description: "Give agents a way to ask for approval before their tools take action.", source: "docs/getting-started/introduction.md" },
-  { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
   { slug: "docs/concepts/adapter", area: "docs", section: "Core concepts", title: "Adapter", description: "Connect tool calls to an approval provider and enforce its decisions before execution.", source: "docs/concepts/adapter.md" },
   { slug: "docs/concepts/provider", area: "docs", section: "Core concepts", title: "Provider", description: "Review proposed tool calls and record decisions for adapters to enforce.", source: "docs/concepts/provider.md" },
+  { slug: "docs/concepts/approval-flow", area: "docs", section: "Core concepts", title: "The approval flow", description: "Understand the adapter, the provider and the two ways an agent can wait.", source: "docs/concepts/approval-flow.md" },
   { slug: "docs/adapters/overview", area: "docs", section: "Adapters", title: "Adapters overview", sidebarTitle: "Overview", description: "Choose an adapter and connect it to an approval provider.", source: "docs/adapters/overview.md" },
   { slug: "docs/adapters/claude-code", area: "docs", section: "Adapters", title: "Claude Code", description: "Request approval through Claude Code's tool hooks.", source: "docs/adapters/claude-code.md" },
   { slug: "docs/adapters/codex", area: "docs", section: "Adapters", title: "Codex", description: "Connect Codex command hooks to an approval provider.", source: "docs/adapters/codex.md" },
