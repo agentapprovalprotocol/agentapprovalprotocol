@@ -9,8 +9,15 @@ import rehypeMermaid from "@/lib/rehype-mermaid";
 import { shikiOptions } from "@/lib/shiki";
 import { CodeBlock } from "./code-block";
 import { Mermaid } from "./mermaid";
+import { Heading } from "./heading";
 
 const components: MDXComponents = {
+  h1: (props) => <Heading as="h1" {...props} />,
+  h2: (props) => <Heading as="h2" {...props} />,
+  h3: (props) => <Heading as="h3" {...props} />,
+  h4: (props) => <Heading as="h4" {...props} />,
+  h5: (props) => <Heading as="h5" {...props} />,
+  h6: (props) => <Heading as="h6" {...props} />,
   pre: CodeBlock,
   "mermaid-diagram": Mermaid,
   table: ({ children, ...props }) => <div className="blog-table-wrap"><table {...props}>{children}</table></div>,
