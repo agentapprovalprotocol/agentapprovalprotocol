@@ -29,6 +29,7 @@ export const documentationPages = [
   { slug: "docs/adapters/deepseek", area: "docs", section: "Adapters", title: "DeepSeek Harness", description: "Request approval from DeepSeek Harness through its hooks bridge.", source: "docs/adapters/deepseek.md" },
   { slug: "docs/adapters/mcp-wrapper", area: "docs", section: "Adapters", title: "MCP wrapper", description: "Add approval to an MCP server through a local proxy.", source: "docs/adapters/mcp-wrapper.md" },
   { slug: "docs/adapters/mcp-gateway", area: "docs", section: "Adapters", title: "MCP gateway", description: "Centralize MCP access and keep downstream credentials at the gateway.", source: "docs/adapters/mcp-gateway.md" },
+  { slug: "docs/providers/overview", area: "docs", section: "Providers", title: "Providers overview", sidebarTitle: "Overview", description: "Choose an approval provider and connect your adapters.", source: "docs/providers/overview.md" },
 ] satisfies (DocMeta & { source: string })[];
 
 export const markdownPages = [

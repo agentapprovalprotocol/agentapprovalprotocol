@@ -17,7 +17,7 @@ export type DocPage = DocMeta & { toc: TocItem[] } & (
 
 export function getDocsNav(area?: DocsArea): DocsNavSection[] {
   const sections: DocsNavSection[] = [
-    ...["Get started", "Core concepts", "Adapters"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
+    ...["Get started", "Core concepts", "Adapters", "Providers"].map((title) => ({ area: "docs" as const, title, pages: documentationPages.filter((page) => page.section === title) })),
     { area: "specification", title: "Protocol", pages: markdownPages.filter((page) => page.section === "Protocol") },
     { area: "specification", title: "API reference", pages: [
       markdownPages.find((page) => page.slug === "specification/reference/overview")!,
