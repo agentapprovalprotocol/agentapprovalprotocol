@@ -1,6 +1,6 @@
 # What is Agent Approval Protocol (AAP)?
 
-Agent Approval Protocol (AAP) is an open protocol for approving agent tool calls. It connects the system running an agent to an approval provider, so a proposed action can be reviewed before it happens.
+Agent Approval Protocol (AAP) is an open protocol for approving agent action, primarily tool calls. It connects the system running an agent to an approval provider, so a proposed action can be reviewed before it happens.
 
 For example, an agent helping a customer may propose a refund. An adapter intercepts that tool call and sends the exact payment and amount to an approval provider. The adapter waits for the outcome and only allows the refund when it has a valid approval.
 
