@@ -7,7 +7,7 @@ import (
 )
 
 // claudeCode wires Claude Code: a PreToolUse hook in ~/.claude/settings.json
-// with a catch-all matcher and a 600 second timeout.
+// with a catch-all matcher and a week-long approval window plus time to return.
 type claudeCode struct{}
 
 func (claudeCode) Key() catalog.Key { return catalog.ClaudeCode }

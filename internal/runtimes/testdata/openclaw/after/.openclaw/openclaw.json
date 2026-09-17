@@ -16,7 +16,7 @@
         "config": {
           "binary": "{{BINARY}}",
           "configDir": "{{CONFIG}}",
-          "approvalTimeoutMs": 3600000
+          "approvalTimeoutMs": 604830000
         }
       }
     },

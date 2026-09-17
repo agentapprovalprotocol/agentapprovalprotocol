@@ -31,12 +31,12 @@ import (
 // the boundary and the reviewer's note and the run continues. Allow returns
 // nothing, so OpenClaw's own exec approvals and tool policy still apply.
 //
-// The payload carries `timeout_ms`, the ceiling the plugin registered its
-// hook with. The request timeout is that ceiling minus a margin, so the
+// The payload carries `timeout_ms`, the configured approval ceiling. The
+// plugin adds a watchdog margin; the request timeout subtracts a margin so the
 // provider expires the request and this frontend answers before OpenClaw's
 // runner times the handler out (which also fails closed, but with a generic
 // reason instead of the boundary text). The ceiling is plugin configuration
-// and can be hours: OpenClaw clamps it only to Node's timer maximum.
+// and defaults to a week plus the request margin.
 //
 // MCP tools are named `<server>__<tool>` by OpenClaw's bundle manager with
 // no marker prefix, so the first double underscore is the seam and the

@@ -17,6 +17,23 @@ function piHook(verdict) {
 const context = () => ({ cwd: '/project', sessionManager: { getSessionId: () => 's', getBranch: () => [] } });
 const event = () => ({ toolName: 'write', toolCallId: 'c', input: { path: 'x', nested: { amount: 5 } } });
 
+test('Pi defaults to a full week with time to return the decision', async () => {
+  const previous = process.env.AAP_APPROVAL_TIMEOUT_MS;
+  let handler;
+  try {
+    delete process.env.AAP_APPROVAL_TIMEOUT_MS;
+    createAAPExtension({ askAdapter: async ({ payload, timeoutMs }) => {
+      assert.equal(payload.timeout_ms, 604830000);
+      assert.equal(timeoutMs, 604890000);
+      return { decision: 'allow', gated: false };
+    } })({ on: (_name, fn) => { handler = fn; } });
+  } finally {
+    if (previous === undefined) delete process.env.AAP_APPROVAL_TIMEOUT_MS;
+    else process.env.AAP_APPROVAL_TIMEOUT_MS = previous;
+  }
+  assert.equal(await handler(event(), context()), undefined);
+});
+
 test('Pi snapshots and freezes approved arguments', async () => {
   const input = event();
   const hook = piHook(async ({ payload, configDir }) => {
@@ -59,11 +76,11 @@ test('Pi transport blocks nonzero exit, malformed output and missing executable'
 });
 function openclawHook(binary, configDir) {
   let handler;
-  openclaw.register({ pluginConfig: { binary, configDir }, logger: {}, on: (name, fn, options) => { assert.equal(name, 'before_tool_call'); assert.ok(options.timeoutMs > 3600000); handler = fn; } });
+  openclaw.register({ pluginConfig: { binary, configDir }, logger: {}, on: (name, fn, options) => { assert.equal(name, 'before_tool_call'); assert.equal(options.timeoutMs, 604890000); handler = fn; } });
   return handler;
 }
 test('OpenClaw transport and snapshot return preserve reviewed arguments', async t => {
-  const binary = executable(t, `test "$AAP_CONFIG_DIR" = "/aap" || exit 2\ncat >/dev/null\necho '{"decision":"allow","gated":true,"expires_at":"${expires_at()}"}'`);
+  const binary = executable(t, `test "$AAP_CONFIG_DIR" = "/aap" || exit 2\ncat | grep -q '"timeout_ms":604830000' || exit 3\necho '{"decision":"allow","gated":true,"expires_at":"${expires_at()}"}'`);
   const input = { toolName: 'write', params: { path: 'x' }, toolCallId: 'c' };
   const result = await openclawHook(binary, '/aap')(input, { sessionId: 's' });
   assert.deepEqual(result.params, input.params); assert.notEqual(result.params, input.params);

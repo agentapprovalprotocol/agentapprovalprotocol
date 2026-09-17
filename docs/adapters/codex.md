@@ -16,9 +16,11 @@ aap install codex --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://app
 
 Start a new Codex session and run `/hooks` to check that AAP is enabled.
 
+If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Then start a new agent session.
+
 ## What to expect
 
-By default, every tool call goes to your provider for approval. Requests can wait up to five minutes for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+By default, every tool call goes to your provider for approval. Requests can wait up to one week for a decision. Your provider may set a shorter deadline. Keep the agent session running while approval is pending. A denied or expired request blocks the call, as does a failure to confirm approval.
 
 Codex's own permissions still apply. Approving an action through AAP does not override a local permission prompt or sandbox restriction.
 

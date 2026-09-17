@@ -16,9 +16,11 @@ aap install openclaw --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://
 
 Follow any manual setup instructions printed by the installer, then restart the OpenClaw Gateway.
 
+If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Apply any manual settings printed by the installer, then restart the Gateway.
+
 ## What to expect
 
-By default, every tool call goes to your provider for approval. Requests can wait up to an hour for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+By default, every tool call goes to your provider for approval. Requests can wait up to one week for a decision. Your provider may set a shorter deadline. Keep the Gateway and agent run active while approval is pending. A denied or expired request blocks the call, as does a failure to confirm approval.
 
 If AAP cannot start or reach your provider, the tool call is blocked.
 

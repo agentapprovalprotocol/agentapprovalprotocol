@@ -25,6 +25,8 @@
 import { spawn } from "node:child_process";
 import { isDeepStrictEqual } from "node:util";
 
+// The Go hook subtracts 30 seconds, leaving a full week for approval.
+const DEFAULT_APPROVAL_TIMEOUT_MS = 7 * 24 * 60 * 60 * 1000 + 30_000;
 const HOOK_MARGIN_MS = 60_000;
 const FAIL_CLOSED_TEXT =
   "This action is gated by your organization's approval policy, but the approval adapter could not return a decision. The call was not run (fail closed). Do not attempt this action through any other means.";
@@ -40,7 +42,7 @@ function readConfig(raw) {
   const approvalTimeoutMs =
     Number.isFinite(cfg.approvalTimeoutMs) && cfg.approvalTimeoutMs >= 60_000
       ? Math.floor(cfg.approvalTimeoutMs)
-      : 3_600_000;
+      : DEFAULT_APPROVAL_TIMEOUT_MS;
   return { binary, configDir, approvalTimeoutMs };
 }
 

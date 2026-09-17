@@ -2,13 +2,14 @@ package runtimes
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/catalog"
 )
 
 // hookTimeoutSeconds is the per-hook ceiling written into Claude Code
 // style hook registrations: the approval window plus room to answer.
-const hookTimeoutSeconds = 600
+const hookTimeoutSeconds = 7*24*60*60 + 60
 
 // claudeHookEntry builds the PreToolUse entry Claude Code (and the dsh
 // bridge, which reads the same shape) runs for our hook.
@@ -16,7 +17,7 @@ func claudeHookEntry(command, matcher string) *jsonObject {
 	hook := newJSONObject()
 	hook.Set("type", "command")
 	hook.Set("command", command)
-	hook.Set("timeout", json.Number("600"))
+	hook.Set("timeout", json.Number(strconv.Itoa(hookTimeoutSeconds)))
 	entry := newJSONObject()
 	if matcher != "" {
 		entry.Set("matcher", matcher)
@@ -85,7 +86,7 @@ func upsertClaudeHook(root *jsonObject, key catalog.Key, command, matcher string
 	hook := hooksArray[j].(*jsonObject)
 	hook.Set("type", "command")
 	hook.Set("command", command)
-	hook.Set("timeout", json.Number("600"))
+	hook.Set("timeout", json.Number(strconv.Itoa(hookTimeoutSeconds)))
 	hooks.Set("PreToolUse", entries)
 }
 

@@ -21,7 +21,7 @@
       "approvalTimeoutMs": {
         "type": "integer",
         "minimum": 60000,
-        "default": 3600000,
+        "default": 604830000,
         "description": "How long a gated tool call may wait for a human decision. The plugin registers its hook with this ceiling plus a margin; the provider deadline lands inside it."
       },
       "configDir": {

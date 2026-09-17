@@ -23,7 +23,7 @@
           {
             "type": "command",
             "command": "AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook claude-code",
-            "timeout": 600
+            "timeout": 604860
           }
         ]
       }
