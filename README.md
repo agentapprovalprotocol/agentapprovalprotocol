@@ -69,7 +69,7 @@ Choose an [approval provider](https://agentapprovalprotocol.io/docs/providers/ov
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 ```
 
-If prompted, reopen your terminal. Follow the setup guide for your agent:
+Follow the setup guide for your agent:
 
 [Claude Code](https://agentapprovalprotocol.io/docs/adapters/claude-code) · [Codex](https://agentapprovalprotocol.io/docs/adapters/codex) · [OpenClaw](https://agentapprovalprotocol.io/docs/adapters/openclaw) · [Pi](https://agentapprovalprotocol.io/docs/adapters/pi) · [Hermes Agent](https://agentapprovalprotocol.io/docs/adapters/hermes) · [DeepSeek Harness](https://agentapprovalprotocol.io/docs/adapters/deepseek)
 
