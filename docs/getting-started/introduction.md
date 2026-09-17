@@ -27,6 +27,9 @@ The provider can ask a human, apply a policy or combine several steps. AAP defin
 ## When to use AAP
 
 Use AAP when an agent can propose actions that need approval before execution, such as issuing a refund, changing production settings or sending a message on someone's behalf.
+If you have agents taking consequential actions, then AAP can likely offer you something.
+
+## What are the benefits of using AAP
 
 The most common use case is to run all tool calls through AAP, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
 This gives you a centralized place to view all actions every agent has ever taken across all your infrastucture.
