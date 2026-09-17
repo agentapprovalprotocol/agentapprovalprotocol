@@ -49,4 +49,7 @@ jobs:
         with:
           version: v2.18.2
           args: check
-      - run: goreleaser release --snapshot --clean --skip=publish
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          version: v2.18.2
+          args: release --snapshot --clean --skip=publish
