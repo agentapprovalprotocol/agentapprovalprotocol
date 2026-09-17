@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { externalLinkProps } from "@/lib/links";
 import { site } from "@/site.config";
 
 /* Supports code spans and inline Markdown links in OpenAPI descriptions.
@@ -17,7 +18,7 @@ export function Inline({ text }: { text: string }) {
           const href = link[2].startsWith(`${site.url}/`) ? link[2].slice(site.url.length) : link[2];
           const label = <Inline text={link[1]} />;
           return /^(https?:\/\/|mailto:|\/(?!\/)|#)/i.test(href)
-            ? <a key={i} href={href}>{label}</a>
+            ? <a key={i} href={href} {...externalLinkProps(href)}>{label}</a>
             : <Fragment key={i}>{label}</Fragment>;
         }
         return <Fragment key={i}>{part}</Fragment>;

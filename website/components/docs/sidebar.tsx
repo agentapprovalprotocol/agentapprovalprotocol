@@ -7,6 +7,7 @@ import { Search } from "@/components/site/search";
 import { Logo } from "@/components/site/logo";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import type { DocsNavSection } from "@/lib/docs";
+import { externalLinkProps } from "@/lib/links";
 import { site } from "@/site.config";
 
 export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
@@ -44,8 +45,8 @@ export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
         </div>)}
       </nav>
       <footer className="docs-rail-footer">
-        <a href={site.repository}>GitHub <span aria-hidden>↗</span></a>
-        <a href={site.discord}>Discord <span aria-hidden>↗</span></a>
+        <a href={site.repository} {...externalLinkProps(site.repository)}>GitHub <span aria-hidden>↗</span></a>
+        <a href={site.discord} {...externalLinkProps(site.discord)}>Discord <span aria-hidden>↗</span></a>
         <Link href="/specification/reference/openapi" aria-current={pathname === "/specification/reference/openapi" ? "page" : undefined} onClick={() => setMenuOpen(false)}>OpenAPI schema</Link>
         <div className="docs-theme-row"><span>Appearance</span><ThemeToggle /></div>
       </footer>

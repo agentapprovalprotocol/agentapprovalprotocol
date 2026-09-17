@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeShiki from "@shikijs/rehype";
 import { resolveDocLink } from "@/lib/docs";
+import { externalLinkProps } from "@/lib/links";
 import rehypeMermaid from "@/lib/rehype-mermaid";
 import { shikiOptions } from "@/lib/shiki";
 import { CodeBlock } from "./code-block";
@@ -28,8 +29,8 @@ export function Markdown({ source, sourcePath }: { source: string; sourcePath: s
     ...components,
     a: ({ href = "", children, ...rest }) => {
       const url = resolveDocLink(href, sourcePath);
-      return url.startsWith("/") || url.startsWith("#") ?
-        <Link href={url} {...rest}>{children}</Link> : <a href={url} {...rest}>{children}</a>;
+      return (url.startsWith("/") && !url.startsWith("//")) || url.startsWith("#") ?
+        <Link href={url} {...rest}>{children}</Link> : <a href={url} {...rest} {...externalLinkProps(url)}>{children}</a>;
     },
   };
   return <MDXRemote source={source} components={pageComponents} options={{ mdxOptions: {
