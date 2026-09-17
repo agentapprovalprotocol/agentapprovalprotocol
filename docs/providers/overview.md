@@ -20,7 +20,7 @@ When choosing a provider, consider where approval requests will be stored, who n
 
 1. Set up the provider and configure how requests should be reviewed.
 2. Obtain a credential for each agent instance and the provider's complete AAP base URL, including any path prefix.
-3. Follow the [adapter setup guide](../adapters/overview.md#install-an-adapter), then test a harmless call with both an approval and a denial.
+3. Follow the [adapter setup guide](../adapters/cli.md#install-an-adapter), then test a harmless call with both an approval and a denial.
 
 The AAP CLI installs adapters using an existing instance token and base URL. Provider enrollment, reviewer routing and approval policies are configured separately. Follow your provider's documentation for setup.
 

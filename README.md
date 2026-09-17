@@ -29,7 +29,7 @@ Install the standalone binary for macOS or Linux (amd64 and arm64):
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 ```
 
-The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If prompted, reopen your terminal or run the printed command before continuing. See [installer options](docs/adapters/overview.md#installer-options) for custom paths and manual shell setup.
+The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If prompted, reopen your terminal or run the printed command before continuing. See [installer options](docs/adapters/cli.md#installer-options) for custom paths and manual shell setup.
 
 ```sh
 aap adapters
@@ -53,7 +53,7 @@ result, err := adapter.Install(instanceToken, aapBaseURL)
 // Optional: adapter.Install(instanceToken, aapBaseURL, adapters.WithToolGlob("create_*"))
 ```
 
-Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Installers record the current executable's absolute path, so an importing CLI must also route `hook <adapter>` to `adapters.RunHook(ctx, key, stdin, stdout)`, or use the dispatcher in `github.com/agentapprovalprotocol/agentapprovalprotocol/cli`. No separate `aap` executable is needed when embedding. See the [adapter guide](docs/adapters/overview.md) for configuration, limitations and lifecycle behavior.
+Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Installers record the current executable's absolute path, so an importing CLI must also route `hook <adapter>` to `adapters.RunHook(ctx, key, stdin, stdout)`, or use the dispatcher in `github.com/agentapprovalprotocol/agentapprovalprotocol/cli`. No separate `aap` executable is needed when embedding. See the [AAP CLI guide](docs/adapters/cli.md) for configuration, embedding and lifecycle behavior.
 
 ```sh
 make adapters-test

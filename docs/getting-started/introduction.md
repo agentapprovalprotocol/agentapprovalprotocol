@@ -82,9 +82,9 @@ Choose an [approval provider](../providers/overview.md), then install the AAP bi
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 ```
 
-The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If it updates your shell configuration, reopen your terminal or run the command it prints to use `aap` immediately. See [CLI installation](../adapters/overview.md#install-the-cli) for other shells and installer options.
+The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If it updates your shell configuration, reopen your terminal or run the command it prints to use `aap` immediately. See [CLI installation](../adapters/cli.md#install-the-cli) for other shells and installer options.
 
-Obtain your instance token and complete AAP base URL from the provider. Follow the [adapter setup guide](../adapters/overview.md#install-an-adapter) to connect your runtime and test both approval and denial.
+Obtain your instance token and complete AAP base URL from the provider. Follow the [adapter setup guide](../adapters/cli.md#install-an-adapter) to connect your runtime and test both approval and denial.
 
 Read [the approval flow](../concepts/approval-flow.md) to understand identities, outcomes and execution modes.
 

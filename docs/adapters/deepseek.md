@@ -10,7 +10,7 @@ Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprov
 
 ## Install
 
-Install the [AAP CLI](overview.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
 
 ```sh
 aap install deepseek --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
@@ -19,7 +19,7 @@ aap status deepseek
 
 Installation configures the selected profile's `cordis.patch.yml`, with `hooks.json` under the AAP configuration directory. Run `dsh` under the profile named in the installation notes. The installer selects `default` when present, otherwise the sole profile, otherwise creates `default`. `DSH_HOME` is honored.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](overview.md#optional-tool-filter) before narrowing coverage.
+Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
 
 ## How it works
 
@@ -41,4 +41,4 @@ Uninstall removes recorded local integration and credentials while preserving un
 
 The request window is five minutes inside a 600-second hook timeout. The existing bridge can let a tool proceed if it cannot start the hook process. Keep the executable at its registered path and verify that calls reach the provider. Once started, the adapter denies malformed calls and failed provider exchanges. No transcript reasoning is supplied by the bridge.
 
-The [shared enforcement limits](overview.md#approval-enforcement-and-limits) and [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
