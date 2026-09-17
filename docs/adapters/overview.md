@@ -6,9 +6,10 @@ lastModified: 2026-09-17
 
 An [adapter](../concepts/adapter.md) captures a proposed tool call, asks an approval provider whether it may run and translates the outcome back into the runtime's hook or extension response.
 
-This repository maintains a provider-independent Go library and an `aap` CLI for six runtimes. Each adapter installs itself using an existing instance token and the provider's complete AAP base URL. Creating the instance and obtaining its token are the provisioner's responsibility.
+AAP maintains a provider-independent Go library and an `aap` CLI for six common agent runtimes that are listed below.
+This list is expanding all the time and if you'd like to contribute an AAP adapter, please do!
 
-## Choose an adapter
+## First Part AAP Adapters
 
 | Adapter | Supported modes | Integration | Coverage |
 | --- | --- | --- | --- |
