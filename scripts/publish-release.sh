@@ -50,6 +50,13 @@ aws s3 cp "$tmp/release/SHA256SUMS" "s3://$R2_PUBLIC_BUCKET/$prefix/SHA256SUMS" 
   --cache-control 'public, max-age=31536000, immutable' --content-type text/plain --only-show-errors
 aws s3 cp "$root/deployment/cli/install.sh" "s3://$R2_PUBLIC_BUCKET/install.sh" \
   --cache-control 'public, max-age=300' --content-type text/x-shellscript --only-show-errors
-# Advance latest only after all immutable objects and the installer exist.
+# Publish stable direct-download URLs after all immutable objects exist.
+for file in aap-darwin-amd64 aap-darwin-arm64 aap-linux-amd64 aap-linux-arm64; do
+  aws s3 cp "$tmp/release/$file" "s3://$R2_PUBLIC_BUCKET/cli/latest/$file" \
+    --cache-control 'no-cache' --only-show-errors
+done
+aws s3 cp "$tmp/release/SHA256SUMS" "s3://$R2_PUBLIC_BUCKET/cli/latest/SHA256SUMS" \
+  --cache-control 'no-cache' --content-type text/plain --only-show-errors
+# Advance the installer pointer only after all uploads succeed.
 aws s3 cp "$tmp/release/version" "s3://$R2_PUBLIC_BUCKET/cli/latest/version" \
   --cache-control 'no-cache' --content-type text/plain --only-show-errors

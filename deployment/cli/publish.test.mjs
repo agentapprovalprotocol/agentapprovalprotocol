@@ -56,17 +56,32 @@ test('publishes the latest pointer only after every artifact and checksum', asyn
   const f = await fixture(t);
   await f.run();
   const uploads = await f.uploads();
-  assert.equal(uploads.length, 8);
+  assert.equal(uploads.length, 13);
   assert.equal(uploads.at(-1)[3], 's3://test-bucket/cli/latest/version');
   assert.equal(uploads[5][3], 's3://test-bucket/cli/0.1.0/SHA256SUMS');
   assert.ok(uploads.slice(0, 6).every(args => args.includes('public, max-age=31536000, immutable')));
-  assert.ok(uploads.at(-1).includes('no-cache'));
+  const latest = uploads.filter(args => args[3].includes('/latest/'));
+  assert.deepEqual(latest.map(args => args[3].split('/').at(-1)), [
+    'aap-darwin-amd64', 'aap-darwin-arm64', 'aap-linux-amd64', 'aap-linux-arm64', 'SHA256SUMS', 'version',
+  ]);
+  assert.ok(latest.every(args => args.includes('no-cache')));
+  for (const args of latest) {
+    const immutable = uploads.find(upload => upload[3] === args[3].replace('/latest/', '/0.1.0/'));
+    assert.equal(args[2], immutable[2]);
+  }
 });
 test('failed artifact upload never advances latest', async t => {
   const f = await fixture(t, { fail: 'aap-linux-arm64' });
   await assert.rejects(f.run());
   assert.ok((await f.uploads()).every(args => !args[3].includes('/latest/')));
 });
+for (const file of ['aap-linux-arm64', 'SHA256SUMS']) {
+  test(`failed latest ${file} upload never advances the installer pointer`, async t => {
+    const f = await fixture(t, { fail: `/latest/${file}` });
+    await assert.rejects(f.run());
+    assert.ok((await f.uploads()).every(args => !args[3].endsWith('/latest/version')));
+  });
+}
 test('refuses to overwrite a published release with different checksums', async t => {
   const f = await fixture(t, { existing: 'other checksums\n' });
   await assert.rejects(f.run(), /refusing to replace/);

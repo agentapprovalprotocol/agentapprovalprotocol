@@ -30,16 +30,16 @@ Rerun the installer to update the executable in place, then start fresh runtime 
 
 ### Direct downloads
 
-You can also download release 0.1.0 directly:
+You can also download the latest release directly:
 
 | Platform | Binary |
 | --- | --- |
-| macOS, Apple silicon | [aap-darwin-arm64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-darwin-arm64) |
-| macOS, Intel | [aap-darwin-amd64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-darwin-amd64) |
-| Linux, arm64 | [aap-linux-arm64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-linux-arm64) |
-| Linux, amd64 | [aap-linux-amd64](https://downloads.agentapprovalprotocol.io/cli/0.1.0/aap-linux-amd64) |
+| macOS, Apple silicon | [aap-darwin-arm64](https://downloads.agentapprovalprotocol.io/cli/latest/aap-darwin-arm64) |
+| macOS, Intel | [aap-darwin-amd64](https://downloads.agentapprovalprotocol.io/cli/latest/aap-darwin-amd64) |
+| Linux, arm64 | [aap-linux-arm64](https://downloads.agentapprovalprotocol.io/cli/latest/aap-linux-arm64) |
+| Linux, amd64 | [aap-linux-amd64](https://downloads.agentapprovalprotocol.io/cli/latest/aap-linux-amd64) |
 
-Verify direct downloads against [SHA256SUMS](https://downloads.agentapprovalprotocol.io/cli/0.1.0/SHA256SUMS), make the binary executable and name it `aap` in your chosen installation directory.
+Verify direct downloads against [SHA256SUMS](https://downloads.agentapprovalprotocol.io/cli/latest/SHA256SUMS), make the binary executable and name it `aap` in your chosen installation directory.
 
 ### Build from source
 

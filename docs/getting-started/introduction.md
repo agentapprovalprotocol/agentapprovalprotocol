@@ -82,7 +82,7 @@ Choose an [approval provider](../providers/overview.md), then install the AAP bi
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 ```
 
-Find a provider from the list of [providers](../providers/overview). Follow the [adapter setup guide](../adapters/overview.md#install-an-adapter) to connect your agent.
+Find a provider from the list of [providers](../providers/overview.md). Follow the [adapter setup guide](../adapters/cli.md#install-an-adapter) to connect your agent.
 
 ## Read the specification
 

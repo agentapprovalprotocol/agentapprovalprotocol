@@ -35,6 +35,11 @@ cli/<version>/aap-linux-amd64
 cli/<version>/aap-linux-arm64
 cli/<version>/SHA256SUMS
 cli/<version>/version
+cli/latest/aap-darwin-amd64
+cli/latest/aap-darwin-arm64
+cli/latest/aap-linux-amd64
+cli/latest/aap-linux-arm64
+cli/latest/SHA256SUMS
 cli/latest/version
 ```
 
@@ -43,6 +48,12 @@ Version directories are immutable. The installer first resolves the small
 version. Publishing advances the pointer only after all files are uploaded, so
 an installation cannot mix files from two releases. Checksums detect corruption;
 they are delivered through the same HTTPS origin as the binaries.
+
+The stable `cli/latest/` binary and checksum URLs serve the latest release for
+direct downloads. Publishing refreshes these copies after the immutable version
+is complete and before advancing `latest/version`. These copies update
+individually; use the installer or a fixed version for downloads that must stay
+on the same release during publication.
 
 ## Build and publish
 
@@ -98,4 +109,4 @@ Configure these GitHub Actions values in this repository:
 Use an R2 credential with Object Read & Write permission restricted to this
 bucket. The workflow does not need permission to create buckets or change DNS.
 Versioned artifacts use a one-year immutable cache policy, the installer uses a
-five-minute cache policy, and the latest pointer requires revalidation.
+five-minute cache policy, and all latest URLs require revalidation.
