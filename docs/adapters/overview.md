@@ -56,7 +56,7 @@ Verify direct downloads against [SHA256SUMS](https://downloads.agentapprovalprot
 
 ### Build from source
 
-With Go 1.25 or later, run from the repository root:
+With Go 1.25 or later, run from the [repository](https://github.com/agentapprovalprotocol/agentapprovalprotocol) root:
 
 ```sh
 mkdir -p "$HOME/.local/bin"
