@@ -10,7 +10,7 @@ Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprov
 
 ## Install
 
-Install the [AAP CLI](overview.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
 
 ```sh
 aap install pi --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
@@ -19,7 +19,7 @@ aap status pi
 
 Installation configures AAP's `plugins/pi` directory, registered with `pi install`. Start a fresh Pi session after installation. `pi` must be available on `PATH` for registration and removal.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](overview.md#optional-tool-filter) before narrowing coverage.
+Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
 
 ## How it works
 
@@ -41,4 +41,4 @@ Uninstall removes recorded local integration and credentials while preserving un
 
 The default wait is one hour, with timeout margins. A failed registration returns an incomplete installation. Missing call or session identifiers, missing adapter processes and malformed decisions block calls. Calls outside the glob continue normally. Later handlers must not replace the entire argument object; freezing protects mutations of the reviewed object, not every possible harness rewrite.
 
-The [shared enforcement limits](overview.md#approval-enforcement-and-limits) and [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.

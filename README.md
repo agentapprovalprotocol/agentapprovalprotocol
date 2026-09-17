@@ -50,7 +50,7 @@ result, err := adapter.Install(instanceToken, aapBaseURL)
 // Optional: adapter.Install(instanceToken, aapBaseURL, adapters.WithToolGlob("create_*"))
 ```
 
-Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Installers record the current executable's absolute path, so an importing CLI must also route `hook <adapter>` to `adapters.RunHook(ctx, key, stdin, stdout)`, or use the dispatcher in `github.com/agentapprovalprotocol/agentapprovalprotocol/cli`. No separate `aap` executable is needed when embedding. See the [adapter guide](docs/adapters/overview.md) for configuration, limitations and lifecycle behavior.
+Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Installers record the current executable's absolute path, so an importing CLI must also route `hook <adapter>` to `adapters.RunHook(ctx, key, stdin, stdout)`, or use the dispatcher in `github.com/agentapprovalprotocol/agentapprovalprotocol/cli`. No separate `aap` executable is needed when embedding. See the [AAP CLI guide](docs/adapters/cli.md) for configuration, embedding and lifecycle behavior.
 
 ```sh
 make adapters-test

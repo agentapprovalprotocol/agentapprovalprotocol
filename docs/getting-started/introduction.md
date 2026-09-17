@@ -84,7 +84,7 @@ export PATH="$HOME/.local/bin:$PATH"
 aap adapters
 ```
 
-Obtain your instance token and complete AAP base URL from the provider. Follow the [adapter setup guide](../adapters/overview.md#install-an-adapter) to connect your runtime and test both approval and denial.
+Obtain your instance token and complete AAP base URL from the provider. Follow the [adapter setup guide](../adapters/cli.md#install-an-adapter) to connect your runtime and test both approval and denial.
 
 Read [the approval flow](../concepts/approval-flow.md) to understand identities, outcomes and execution modes.
 
