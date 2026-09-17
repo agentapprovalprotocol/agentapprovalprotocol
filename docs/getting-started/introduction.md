@@ -33,8 +33,6 @@ This gives you a centralized place to view all actions every agent has ever take
 
 The benefit of using AAP is that of any shared standard. Any harness implementing AAP can use any approval provider and any approval provider implementing AAP will work with any harness that implements it.
 
-The adapter needs control of the execution path. If an agent can reach the same protected operation through another tool or credential, that path needs its own boundary. See the specification's [enforcement limits](../specification/8_security.md#enforcement-limits).
-
 ## Start building
 
 - Follow the [quickstart](quickstart.md) to submit a request and retrieve a decision.
