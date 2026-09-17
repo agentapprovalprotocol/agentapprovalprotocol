@@ -13,12 +13,14 @@ This list is expanding all the time and if you'd like to contribute an AAP adapt
 
 | Adapter | Supported modes | Integration | Coverage |
 | --- | --- | --- | --- |
-| [Claude Code](claude-code.md) | Synchronous | `PreToolUse` command hook | Built-in tools and MCP tool calls. |
-| [Codex](codex.md) | Synchronous | `PreToolUse` command hook | Built-in tools and MCP calls in builds supporting command hooks. |
-| [OpenClaw](openclaw.md) | Synchronous | Native Gateway plugin | Calls passing through `before_tool_call`, including MCP tools. |
-| [Pi](pi.md) | Synchronous | Native extension | Model-proposed calls passing through `tool_call`. |
-| [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | Built-in tools and MCP tool calls. |
-| [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | Calls passing through the configured profile's bridge. |
+| [Claude Code](claude-code.md) | Synchronous | `PreToolUse` command hook | All tools |
+| [Codex](codex.md) | Synchronous | `PreToolUse` command hook | All tools |
+| [OpenClaw](openclaw.md) | Synchronous | Native Gateway plugin | All tools |
+| [Pi](pi.md) | Synchronous | Native extension | All tools |
+| [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | All tools |
+| [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | All tools |
+
+Coverage is for tool calls through the configured runtime, with no tool filter. Each guide explains its setup requirements and enforcement limits.
 
 ## Install the CLI
 
