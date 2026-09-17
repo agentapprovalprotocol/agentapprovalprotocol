@@ -31,10 +31,14 @@ If you have agents taking consequential actions, then AAP can likely offer you s
 
 ## What are the benefits of using AAP
 
-The most common use case is to run all tool calls through AAP, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
-This gives you a centralized place to view all actions every agent has ever taken across all your infrastucture.
+There are a few benefits of using AAP.
+1. Like any open standard, AAP allows you to plug components in easily. Any harness implementing AAP can use any approval provider and any approval provider implementing AAP will work with any harness that implements it.
+2. A centralized provider. AAP is designed to allow many agents to connect to a single approval provider. This allows you to centralize approvals, auditing and permissions in a single place, rather than across every agent provider.
 
-The benefit of using AAP is that of any shared standard. Any harness implementing AAP can use any approval provider and any approval provider implementing AAP will work with any harness that implements it.
+## How should I use AAP
+
+The most common use case is to run all tool calls through AAP, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
+This gives you a centralized location to view all actions every agent has ever taken across all your infrastucture.
 
 ## Start building
 
