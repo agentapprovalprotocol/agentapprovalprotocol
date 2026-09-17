@@ -58,6 +58,7 @@ So to get the project moving without getting all harness providers to opt in, AA
 | Synchronous | The adapter keeps the call open and polls for a decision. | Can wait within the tool call's time limit. |
 | Asynchronous | The adapter saves execution state, suspends work and resumes after a notification. | Can suspend and resume the same execution attempt. |
 
-Both modes use the same request and decision objects. Start with synchronous mode when the harness can keep the call open long enough. Asynchronous mode also needs a durable receiver, signed webhook handling and coordination with suspended execution.
+What this means in practice is that most adapters are currently written to support synchronous waiting for now.
+Ideally as the project gets traction and support from harness providers, we can transition to asynchronous waiting.
 
 Read [synchronous mode](../specification/6_sync.md) and [asynchronous mode](../specification/7_async.md) for their complete contracts.
