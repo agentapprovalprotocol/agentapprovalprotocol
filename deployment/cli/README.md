@@ -6,15 +6,24 @@ amd64 and arm64. Users do not need Go or a separate product CLI.
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-aap version
 ```
 
-The installer verifies SHA-256 checksums before replacing the executable. It
-defaults to `~/.local/bin/aap`; set `AAP_INSTALL_DIR` to choose another absolute
+The installer verifies SHA-256 checksums before replacing the executable and
+prints the installed version. It defaults to `~/.local/bin/aap`; set
+`AAP_INSTALL_DIR` to choose another absolute
 directory. Keep the path stable because adapter hooks record it. `AAP_CLI_VERSION`
-pins a release such as `0.1.0`, and `AAP_CLI_BASE` selects a mirror. Rerunning the
-installer updates only the binary. Restart runtime sessions after an update.
+pins a release such as `0.1.0`, and `AAP_CLI_BASE` selects a mirror.
+
+When the installation directory is absent from `PATH`, the installer uses
+`SHELL` to configure Bash, Zsh or Fish. It respects `ZDOTDIR` and
+`XDG_CONFIG_HOME`, preserves existing configuration and avoids duplicate entries
+on reruns. Bash setup covers both interactive and login shells. Reopen the
+terminal after setup or run the printed command to update the current shell.
+Unsupported shells need manual PATH setup. Set `AAP_NO_MODIFY_PATH=1` to skip
+startup-file changes, including in CI where you manage `PATH` yourself.
+
+Rerunning the installer updates the binary and sets up PATH if needed; adapter
+credentials and configuration stay in place. Restart runtime sessions after an update.
 
 ## Bucket layout
 

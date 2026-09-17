@@ -80,9 +80,9 @@ Choose an [approval provider](../providers/overview.md), then install the AAP bi
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-aap adapters
 ```
+
+The installer prints the installed version and configures `PATH` for Bash, Zsh or Fish if needed. If it updates your shell configuration, reopen your terminal or run the command it prints to use `aap` immediately. See [CLI installation](../adapters/cli.md#install-the-cli) for other shells and installer options.
 
 Obtain your instance token and complete AAP base URL from the provider. Follow the [adapter setup guide](../adapters/cli.md#install-an-adapter) to connect your runtime and test both approval and denial.
 

@@ -2,6 +2,7 @@
 # Install a checksum-verified AAP CLI release from the public R2 bucket.
 # AAP_CLI_BASE selects a mirror, AAP_CLI_VERSION pins a release, and
 # AAP_INSTALL_DIR selects the stable directory used by installed hooks.
+# AAP_NO_MODIFY_PATH=1 leaves shell startup files unchanged.
 set -eu
 
 say() { printf '%s\n' "$*" >&2; }
@@ -74,6 +75,67 @@ staged=
 "$target/aap" version
 say "Installed $target/aap"
 case ":$PATH:" in
-  *":$target:"*) ;;
-  *) say "Add $target to your PATH before installing adapters." ;;
+  *":$target:"*) say "Run aap adapters to choose a runtime."; exit 0 ;;
 esac
+
+# Quote paths as shell literals, including spaces, quotes and dollar signs.
+quoted_target=$(printf "'%s'" "$(printf '%s' "$target" | sed "s/'/'\\\\''/g")")
+path_line="case \":\$PATH:\" in *:$quoted_target:*) ;; *) export PATH=$quoted_target:\"\$PATH\" ;; esac"
+path_command="export PATH=$quoted_target:\"\$PATH\""
+shell_name=${SHELL:-}
+shell_name=${shell_name##*/}
+if [ "$shell_name" = fish ]; then
+  quoted_target=$(printf "'%s'" "$(printf '%s' "$target" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\'/g")")
+  path_line="if not contains -- $quoted_target \$PATH; set -gx PATH $quoted_target \$PATH; end"
+  path_command="set -gx PATH $quoted_target \$PATH"
+fi
+
+add_to_profile() {
+  profile=$1
+  if [ -f "$profile" ] && grep -Fqx -- "$path_line" "$profile"; then
+    return 0
+  fi
+  if (mkdir -p "$(dirname "$profile")" && printf '\n# AAP CLI\n%s\n' "$path_line" >> "$profile"); then
+    say "Added $target to PATH in $profile"
+  else
+    say "Could not update $profile. Add the PATH command below to your shell configuration."
+    return 1
+  fi
+}
+
+path_ready=1
+case "$shell_name" in
+  bash | zsh | fish) ;;
+  *)
+    say "Automatic PATH setup supports Bash, Zsh and Fish. Add $target to your shell's PATH."
+    say "You can run the CLI now with: $quoted_target/aap adapters"
+    exit 0
+    ;;
+esac
+if [ "${AAP_NO_MODIFY_PATH:-0}" = 1 ]; then
+  path_ready=0
+  say "Skipping shell setup because AAP_NO_MODIFY_PATH=1."
+else
+  case "$shell_name" in
+    zsh) add_to_profile "${ZDOTDIR:-$HOME}/.zshrc" || path_ready=0 ;;
+    bash)
+      # Interactive shells read .bashrc; login shells read the first of these
+      # profiles. Do not create a file that would hide an existing login profile.
+      add_to_profile "$HOME/.bashrc" || path_ready=0
+      if [ -f "$HOME/.bash_profile" ]; then
+        add_to_profile "$HOME/.bash_profile" || path_ready=0
+      elif [ -f "$HOME/.bash_login" ]; then
+        add_to_profile "$HOME/.bash_login" || path_ready=0
+      else
+        add_to_profile "$HOME/.profile" || path_ready=0
+      fi
+      ;;
+    fish) add_to_profile "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish" || path_ready=0 ;;
+  esac
+fi
+
+if [ "$path_ready" = 1 ]; then
+  say "Restart your terminal, then run: aap adapters"
+fi
+say "To use aap in this terminal now, run:"
+say "  $path_command"

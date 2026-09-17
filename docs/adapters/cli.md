@@ -12,22 +12,29 @@ Download the standalone `aap` binary for macOS or Linux, on amd64 or arm64:
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-aap version
 ```
 
-The installer checks the download against the release's SHA-256 checksums and installs to `~/.local/bin/aap`. Add that directory to your shell's startup configuration so it remains on `PATH`. It does not require Go or install an adapter until you run `aap install`.
+The installer verifies the release's SHA-256 checksum, installs to `~/.local/bin/aap` and prints the installed version. Go and administrator access are not required.
+
+If the directory is missing from `PATH`, the installer adds it to your Bash, Zsh or Fish startup configuration. Reopen your terminal to use `aap`, or run the command printed by the installer to use it in the current terminal. Other shells need manual PATH setup.
+
+Next, [install an adapter](#install-an-adapter) to connect your runtime to an approval provider.
 
 Keep the binary at a stable absolute path: installed hooks record that path. Runtime applications must already be installed and configured.
 
-To choose a different directory or pin a version, download the installer and set its options:
+### Installer options
+
+To choose a different directory or pin a version, pass options to the installer:
 
 ```sh
-curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh -o /tmp/install-aap.sh
-AAP_INSTALL_DIR="$HOME/.local/bin" AAP_CLI_VERSION=0.1.0 sh /tmp/install-aap.sh
+curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | env AAP_INSTALL_DIR="$HOME/.local/bin" AAP_CLI_VERSION=0.1.0 sh
 ```
 
-`AAP_CLI_BASE` selects a download mirror. Rerun the installer to update the executable in place, then start fresh runtime sessions or restart the runtime's plugin host. Existing adapter credentials and configuration stay in their configuration directory.
+Set `AAP_NO_MODIFY_PATH=1` to leave shell configuration unchanged, for example in CI where you manage `PATH` yourself. `AAP_CLI_BASE` selects a download mirror.
+
+Rerun the installer to update the executable in place, then start fresh runtime sessions or restart the runtime's plugin host. Existing adapter credentials and configuration stay in their configuration directory.
+
+### Direct downloads
 
 You can also download release 0.1.0 directly:
 
@@ -47,8 +54,10 @@ With Go 1.25 or later, run from the [repository](https://github.com/agentapprova
 ```sh
 mkdir -p "$HOME/.local/bin"
 go build -o "$HOME/.local/bin/aap" ./cmd/aap
-aap version
+"$HOME/.local/bin/aap" version
 ```
+
+For source builds, add `~/.local/bin` to your `PATH` if it is not already there.
 
 ## Install an adapter
 
