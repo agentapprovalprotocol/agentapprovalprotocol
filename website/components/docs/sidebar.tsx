@@ -39,7 +39,7 @@ export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
           <h2>{section.title}</h2>
           <ul>{section.pages.map((page) => {
             const href = `/${page.slug}`;
-            return <li key={page.slug}><Link href={href} aria-current={pathname === href ? "page" : undefined} onClick={() => setMenuOpen(false)}>{page.title}</Link></li>;
+            return <li key={page.slug}><Link href={href} aria-current={pathname === href ? "page" : undefined} onClick={() => setMenuOpen(false)}>{page.sidebarTitle ?? page.title}</Link></li>;
           })}</ul>
         </div>)}
       </nav>
