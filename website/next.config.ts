@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  // Keep RSC/prefetch headers visible so content negotiation can bypass navigation.
+  skipProxyUrlNormalize: true,
   outputFileTracingRoot: path.join(__dirname, ".."),
   turbopack: { root: path.join(__dirname, "..") },
   async redirects() {
