@@ -2,7 +2,7 @@
 
 The standalone `aap` executable is published to Cloudflare R2 at
 `https://downloads.agentapprovalprotocol.io`. It supports macOS and Linux on
-amd64 and arm64. Users do not need Go or a separate product CLI.
+amd64 and arm64. Users do not need Go to install it.
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh

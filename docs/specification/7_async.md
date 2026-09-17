@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-09-17
 ---
 
 # Asynchronous Mode
@@ -12,8 +12,6 @@ This allows approvals to outlive a process or a network connection.
 
 AAP version 1 uses webhooks for delivery.
 A provider supporting asynchronous mode must support webhooks.
-The event is independent of the transport so a future socket mode can carry the same notification.
-Socket connections, authentication and acknowledgements are not defined here.
 
 ## Delivery Configuration
 
