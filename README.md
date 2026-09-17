@@ -16,14 +16,14 @@
 
 <p align="center">
   <a href="https://github.com/agentapprovalprotocol/agentapprovalprotocol"><img src="https://img.shields.io/badge/Star_on_GitHub-0a0d17?style=flat-square&amp;logo=github&amp;logoColor=white" alt="Star on GitHub"></a>
-  <a href="docs/adapters/cli.md"><img src="https://img.shields.io/badge/CLI-macOS_%7C_Linux-0a0d17?style=flat-square" alt="CLI: macOS and Linux"></a>
+  <a href="https://agentapprovalprotocol.io/docs/adapters/cli"><img src="https://img.shields.io/badge/CLI-macOS_%7C_Linux-0a0d17?style=flat-square" alt="CLI: macOS and Linux"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-0a0d17?style=flat-square" alt="License: Apache 2.0"></a>
 </p>
 
 <p align="center">
   <a href="#get-started">Get started</a> ·
-  <a href="https://agentapprovalprotocol.io">Documentation</a> ·
-  <a href="docs/specification/1_overview.md">Specification</a> ·
+  <a href="https://agentapprovalprotocol.io/docs/getting-started/introduction">Documentation</a> ·
+  <a href="https://agentapprovalprotocol.io/specification/overview">Specification</a> ·
   <a href="https://github.com/agentapprovalprotocol/agentapprovalprotocol/issues">Report an issue</a>
 </p>
 
@@ -57,13 +57,13 @@ flowchart LR
 
 For a refund, approval covers the exact payment, amount and currency, for one execution attempt. Changing the amount requires a new approval. If the request is denied, expires or approval cannot be confirmed, the adapter blocks the call.
 
-The agent receives the tool's result or an explanation of why the call did not run. The adapter handles the approval process on its behalf. See [the approval flow](docs/concepts/approval-flow.md) for more.
+The agent receives the tool's result or an explanation of why the call did not run. The adapter handles the approval process on its behalf. See [the approval flow](https://agentapprovalprotocol.io/docs/concepts/approval-flow) for more.
 
-An adapter controls only the tool calls that pass through it. Your agent's existing permissions still apply, and other paths to the same service need their own controls. See [adapter coverage and limits](docs/concepts/adapter.md#where-the-adapter-runs).
+An adapter controls only the tool calls that pass through it. Your agent's existing permissions still apply, and other paths to the same service need their own controls. See [adapter coverage and limits](https://agentapprovalprotocol.io/docs/concepts/adapter#where-the-adapter-runs).
 
 ## Get started
 
-Choose an [approval provider](docs/providers/overview.md) and get an instance token and its complete AAP URL. Then install the AAP CLI on the machine running your agent. It supports macOS and Linux on arm64 and amd64.
+Choose an [approval provider](https://agentapprovalprotocol.io/docs/providers/overview) and get an instance token and its complete AAP URL. Then install the AAP CLI on the machine running your agent. It supports macOS and Linux on arm64 and amd64.
 
 ```sh
 curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
@@ -71,17 +71,17 @@ curl -fsSL https://downloads.agentapprovalprotocol.io/install.sh | sh
 
 If prompted, reopen your terminal. Follow the setup guide for your agent:
 
-[Claude Code](docs/adapters/claude-code.md) · [Codex](docs/adapters/codex.md) · [OpenClaw](docs/adapters/openclaw.md) · [Pi](docs/adapters/pi.md) · [Hermes Agent](docs/adapters/hermes.md) · [DeepSeek Harness](docs/adapters/deepseek.md)
+[Claude Code](https://agentapprovalprotocol.io/docs/adapters/claude-code) · [Codex](https://agentapprovalprotocol.io/docs/adapters/codex) · [OpenClaw](https://agentapprovalprotocol.io/docs/adapters/openclaw) · [Pi](https://agentapprovalprotocol.io/docs/adapters/pi) · [Hermes Agent](https://agentapprovalprotocol.io/docs/adapters/hermes) · [DeepSeek Harness](https://agentapprovalprotocol.io/docs/adapters/deepseek)
 
 Each guide explains how to connect your provider, check that approvals work and understand your agent's coverage and waiting limits. Most current adapters keep the agent running while approval is pending. AAP also defines a mode for agents that can suspend work and resume after a decision.
 
-See the [CLI guide](docs/adapters/cli.md) for direct downloads, updates, changing credentials and removal.
+See the [CLI guide](https://agentapprovalprotocol.io/docs/adapters/cli) for direct downloads, updates, changing credentials and removal.
 
 ## Build with AAP
 
-The [version 1 specification](docs/specification/1_overview.md) defines how adapters and providers work together. The [OpenAPI contract](openapi.yaml) describes the HTTP API. Use these to add approval support to your agent or implement a provider.
+The [version 1 specification](https://agentapprovalprotocol.io/specification/overview) defines how adapters and providers work together. The [OpenAPI contract](https://agentapprovalprotocol.io/specification/reference/openapi) describes the HTTP API. Use these to add approval support to your agent or implement a provider.
 
-The adapters are also available as a [Go library](docs/adapters/cli.md#use-as-a-go-library). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
+The adapters are also available as a [Go library](https://agentapprovalprotocol.io/docs/adapters/cli#use-as-a-go-library). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
 
 ## Contribute
 
