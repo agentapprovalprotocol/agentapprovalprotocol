@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Agent Approval Protocol">
+  <rect width="128" height="128" rx="24" fill="#f9f9f8"/>
+  <g transform="translate(17.6 28.8) scale(.8)" fill="none" stroke="#0a0d17" stroke-width="4.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4">
+    <path d="M43 24 V8 L77 20 V68 L43 80 V54 H8"/>
+    <path d="M8 36 H45 L53 44 H65"/>
+    <path d="M89 44 H108 M100 36 L108 44 L100 52" stroke-width="3.6"/>
+  </g>
+</svg>
