@@ -25,6 +25,13 @@ button, input { font: inherit; }
 .docs-section-tabs { display: flex; gap: 28px; align-self: stretch; }
 .docs-section-tabs a { display: flex; align-items: center; border-bottom: 2px solid transparent; color: var(--color-ink-muted); font-size: 14px; white-space: nowrap; }
 .docs-section-tabs a[aria-current] { color: var(--color-ink); border-bottom-color: var(--color-accent); font-weight: 500; }
+.docs-topbar-actions { display: flex; align-items: center; flex-shrink: 0; gap: 12px; margin-left: auto; }
+.docs-github { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 6px 10px; border: .5px solid var(--color-edge); border-radius: 8px; background: var(--color-surface); color: var(--color-ink-muted); font-size: 12px; white-space: nowrap; }
+.docs-github:hover { background: var(--color-fill); color: var(--color-ink); }
+.docs-github:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.docs-github-mark { width: 16px; height: 16px; color: var(--color-ink); }
+.docs-github-stars { display: inline-flex; align-items: center; gap: 4px; padding-left: 8px; border-left: .5px solid var(--color-edge); font-variant-numeric: tabular-nums; }
+.docs-github-stars svg { width: 14px; height: 14px; }
 .docs-version { display: inline-flex; align-items: center; flex-shrink: 0; gap: 6px; min-height: 32px; padding: 6px 8px; border: .5px solid var(--color-edge); border-radius: 8px; background: var(--color-surface); color: var(--color-ink-muted); font-size: 12px; white-space: nowrap; cursor: pointer; }
 .docs-version:hover, .docs-version[data-popup-open] { background: var(--color-fill); color: var(--color-ink); }
 .docs-version:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
@@ -92,6 +99,13 @@ button, input { font: inherit; }
   .docs-contents-rail { display: none; }
   .docs-main { max-width: 850px; }
 }
+@media (max-width: 1023px) {
+  .docs-topbar { flex-wrap: wrap; height: auto; min-height: 56px; row-gap: 0; }
+  .docs-section-tabs { min-height: 56px; }
+  .docs-topbar-actions { padding: 8px 0; gap: 8px; }
+  .docs-github-label { display: none; }
+  .docs-page-grid, .docs-prose .docs-heading, .docs-api-field { scroll-margin-top: 148px; }
+}
 @media (max-width: 767px) {
   /* Share the border-box height so fractional hairlines cannot leave a gap. */
   :root { --docs-mobile-rail-height: 109px; }
@@ -104,16 +118,16 @@ button, input { font: inherit; }
   .docs-rail-navigation { display: none; }
   .docs-rail-navigation[data-open="true"] { display: flex; position: absolute; inset: 100% 0 auto; height: calc(100dvh - var(--docs-mobile-rail-height)); padding: 24px 24px 0; border-bottom: .5px solid var(--color-edge); background: var(--color-canvas); }
   .docs-workspace { margin-left: 0; }
-  .docs-topbar { top: var(--docs-mobile-rail-height); height: 48px; padding: 0 24px; }
-  .docs-section-tabs { gap: 24px; }
+  .docs-topbar { top: var(--docs-mobile-rail-height); min-height: 48px; padding: 0 24px; }
+  .docs-section-tabs { min-height: 48px; gap: 24px; }
   .docs-version { font-size: 11px; }
   .docs-main { padding: 28px 24px 56px; }
-  .docs-page-grid { scroll-margin-top: 180px; }
+  .docs-page-grid { scroll-margin-top: 228px; }
   .docs-page-meta { gap: 12px; }
   .docs-title { margin-top: 20px; font-size: 30px; }
   .docs-description { font-size: 17px; }
   .docs-article-body { margin-top: 28px; }
-  .docs-prose .docs-heading, .docs-api-field { scroll-margin-top: 180px; }
+  .docs-prose .docs-heading, .docs-api-field { scroll-margin-top: 228px; }
 }
 @media (max-width: 359px) {
   .docs-section-tabs { gap: 12px; }

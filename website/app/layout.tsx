@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/site/theme-provider";
 import { DocsSidebar } from "@/components/docs/sidebar";
 import { SiteNav } from "@/components/site/nav";
+import { GitHubButton } from "@/components/site/github-button";
 import { getDocsNav } from "@/lib/docs";
 import { site } from "@/site.config";
 import "./globals.css";
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body>
     <ThemeProvider><a href="#main-content" className="skip-link">Skip to content</a>
       <DocsSidebar nav={getDocsNav()} />
-      <div className="docs-workspace"><SiteNav /><main id="main-content" className="docs-main">{children}</main></div>
+      <div className="docs-workspace"><SiteNav><GitHubButton /></SiteNav><main id="main-content" className="docs-main">{children}</main></div>
     </ThemeProvider>
   </body></html>;
 }
