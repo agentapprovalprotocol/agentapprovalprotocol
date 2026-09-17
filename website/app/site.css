@@ -86,7 +86,7 @@ button, input { font: inherit; }
 .docs-api-description > p + p { margin-top: .75em; }
 .docs-prose .docs-code { max-width: 100%; }
 .docs-prose :not(pre) > code { overflow-wrap: anywhere; }
-.docs-prose h2, .docs-prose h3, .docs-api-field { scroll-margin-top: 110px; }
+.docs-prose .docs-heading, .docs-api-field { scroll-margin-top: 110px; }
 @media (max-width: 1199px) {
   .docs-page-grid { grid-template-columns: minmax(0, 1fr); }
   .docs-contents-rail { display: none; }
@@ -113,7 +113,7 @@ button, input { font: inherit; }
   .docs-title { margin-top: 20px; font-size: 30px; }
   .docs-description { font-size: 17px; }
   .docs-article-body { margin-top: 28px; }
-  .docs-prose h2, .docs-prose h3, .docs-api-field { scroll-margin-top: 180px; }
+  .docs-prose .docs-heading, .docs-api-field { scroll-margin-top: 180px; }
 }
 @media (max-width: 359px) {
   .docs-section-tabs { gap: 12px; }

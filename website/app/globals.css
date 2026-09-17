@@ -665,7 +665,7 @@ li.docs-step:last-child::after {
   background: var(--color-surface);
 }
 
-/* API reference anchors: a link glyph that shows on hover next to operation
+/* Documentation anchors: a link glyph that shows on hover next to section
  * headings, field names and parameter names, and a soft accent wash on
  * whatever the URL hash points at. */
 .docs-api-anchor-icon {
@@ -683,24 +683,33 @@ li.docs-step:last-child::after {
   text-decoration: none;
 }
 
-.docs-api-op > h2 .docs-api-anchor-icon {
+.docs-heading > .docs-api-anchor:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+h2.docs-heading .docs-api-anchor-icon {
   height: 1.125rem;
   margin-left: 0.5rem;
   width: 1.125rem;
 }
 
-.docs-api-op > h3 .docs-api-anchor-icon {
+h3.docs-heading .docs-api-anchor-icon {
   height: 1rem;
   margin-left: 0.375rem;
   width: 1rem;
 }
 
-.docs-api-op > h2:hover .docs-api-anchor-icon,
-.docs-api-op > h3:hover .docs-api-anchor-icon,
+.docs-heading:hover .docs-api-anchor-icon,
 .docs-api-field-head:hover .docs-api-anchor-icon,
 .docs-api-name:hover .docs-api-anchor-icon,
 a:focus-visible > .docs-api-anchor-icon {
   opacity: 1;
+}
+
+@media (hover: none) {
+  .docs-heading .docs-api-anchor-icon { opacity: 1; }
 }
 
 .blog-prose a.docs-api-field-name,

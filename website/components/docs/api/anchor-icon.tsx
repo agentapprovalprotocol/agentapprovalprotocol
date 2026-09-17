@@ -1,5 +1,5 @@
 /* Chain-link glyph shown on hover next to anything that can be deep-linked:
- * operation headings, body fields, parameter rows. */
+ * documentation headings, body fields, parameter rows. */
 export function AnchorIcon() {
   return (
     <svg
