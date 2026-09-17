@@ -19,8 +19,6 @@ This list is expanding all the time and if you'd like to contribute an AAP adapt
 | [Pi](pi.md) | Synchronous | Native extension | Model-proposed calls passing through `tool_call`. |
 | [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | Built-in tools and MCP tool calls. |
 | [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | Calls passing through the configured profile's bridge. |
-| [MCP wrapper](mcp-wrapper.md) | Planned | Local MCP proxy | Not included in the current release. |
-| [MCP gateway](mcp-gateway.md) | Synchronous | Remote HTTP MCP server | Tool calls to registered downstream MCP servers. |
 
 ## Install the CLI
 

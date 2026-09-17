@@ -128,4 +128,4 @@ Third-party materials retain their own licenses and notices, including [Inter](w
 The specification was extracted from the `aap/` directory in [withHuman](https://github.com/withHumanAI/withHuman), merged in PR #385 at commit `bee0e8d72a767379063342cfccdeaf88aa1e9f4b`.
 The website reuses and adapts withHuman's documentation components. Inter and Roboto Mono retain their included OFL license notices. Proprietary fonts and withHuman product assets are not included.
 
-The six runtime adapters were extracted from the withHuman CLI. Provider enrollment, onboarding tool discovery, the MCP wrapper and the remote gateway are outside this library.
+The six runtime adapters were extracted from the withHuman CLI. Provider enrollment and onboarding tool discovery are outside this library.

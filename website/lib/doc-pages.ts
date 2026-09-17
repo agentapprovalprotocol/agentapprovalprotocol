@@ -27,8 +27,6 @@ export const documentationPages = [
   { slug: "docs/adapters/pi", area: "docs", section: "Adapters", title: "Pi", description: "Hold Pi tool calls for approval through a native extension.", source: "docs/adapters/pi.md" },
   { slug: "docs/adapters/hermes", area: "docs", section: "Adapters", title: "Hermes Agent", description: "Connect Hermes shell hooks to an approval provider.", source: "docs/adapters/hermes.md" },
   { slug: "docs/adapters/deepseek", area: "docs", section: "Adapters", title: "DeepSeek Harness", description: "Request approval from DeepSeek Harness through its hooks bridge.", source: "docs/adapters/deepseek.md" },
-  { slug: "docs/adapters/mcp-wrapper", area: "docs", section: "Adapters", title: "MCP wrapper", description: "Planned local MCP proxy support and available runtime alternatives.", source: "docs/adapters/mcp-wrapper.md" },
-  { slug: "docs/adapters/mcp-gateway", area: "docs", section: "Adapters", title: "MCP gateway", description: "Centralize MCP access and keep downstream credentials at the gateway.", source: "docs/adapters/mcp-gateway.md" },
   { slug: "docs/providers/overview", area: "docs", section: "Providers", title: "Providers overview", sidebarTitle: "Overview", description: "Choose an approval provider and connect your adapters.", source: "docs/providers/overview.md" },
 ] satisfies (DocMeta & { source: string })[];
 

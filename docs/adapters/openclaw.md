@@ -15,7 +15,7 @@ aap install openclaw --instance-token "$INSTANCE_TOKEN" --base-url "https://appr
 aap status openclaw
 ```
 
-Installation configures `~/.openclaw/openclaw.json`. Restart the OpenClaw Gateway after installation so it loads the plugin. This is OpenClaw's own Gateway, not the separate AAP MCP gateway.
+Installation configures `~/.openclaw/openclaw.json`. Restart the OpenClaw Gateway after installation so it loads the plugin.
 
 Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](overview.md#optional-tool-filter) before narrowing coverage.
 
