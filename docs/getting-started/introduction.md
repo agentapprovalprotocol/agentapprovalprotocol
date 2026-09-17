@@ -43,7 +43,36 @@ There are a few benefits of using AAP.
 ## How should I use AAP
 
 The most common use case is to run the tool calls of all agents through your AAP provider, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
-This gives you a centralized location to view all actions every agent has ever taken across all your infrastucture.
+This gives you a centralized location to view all actions every agent has ever taken across all your infrastructure.
+
+```mermaid
+flowchart LR
+    accTitle: Agents and teams share one AAP provider
+    accDescr: A coding agent from provider A on a developer laptop, a support agent from provider B on an application server, and an operations agent from provider C on a cloud VM each connect through an AAP adapter to the same AAP provider. The adapters send approval requests and receive decisions. Security, developers and ops teams also connect to that provider to review requests and manage approval policies.
+
+    subgraph Laptop[Developer laptop]
+        Coding["Coding agent<br/>Agent provider A"] --> LaptopAdapter[AAP adapter]
+    end
+
+    subgraph Server[Application server]
+        Support["Support agent<br/>Agent provider B"] --> ServerAdapter[AAP adapter]
+    end
+
+    subgraph Cloud[Cloud VM]
+        Operations["Operations agent<br/>Agent provider C"] --> CloudAdapter[AAP adapter]
+    end
+
+    LaptopAdapter <-->|AAP| Provider[One AAP provider]
+    ServerAdapter <-->|AAP| Provider
+    CloudAdapter <-->|AAP| Provider
+
+    Provider <--> Security(Security team)
+    Provider <--> Developers(Developers)
+    Provider <--> Ops(Ops team)
+```
+
+Agents from different providers can run on separate machines and share one AAP provider. Each agent's adapter sends approval requests to that provider and enforces the returned decisions.
+Security, developer and ops teams can use the same provider to review requests and manage approval policies.
 
 ## Getting started
 
