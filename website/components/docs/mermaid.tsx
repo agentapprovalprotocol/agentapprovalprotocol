@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/site/theme-provider";
-import { positionFlowchartLabels } from "@/lib/mermaid-labels";
+import { labelSequenceAlternatives, positionFlowchartLabels } from "@/lib/mermaid-labels";
 import { CodeFrame } from "./code-frame";
 
 let rendering: Promise<unknown> = Promise.resolve();
@@ -35,8 +35,10 @@ export function Mermaid({ chart }: { chart: string }) {
   }, [chart, id, resolvedTheme]);
 
   useLayoutEffect(() => {
-    const diagram = canvas.current?.querySelector<SVGSVGElement>("svg.flowchart");
-    if (diagram) positionFlowchartLabels(diagram);
+    const diagram = canvas.current?.querySelector<SVGSVGElement>("svg");
+    if (!diagram) return;
+    labelSequenceAlternatives(diagram);
+    if (diagram.classList.contains("flowchart")) positionFlowchartLabels(diagram);
   }, [svg]);
 
   return (

@@ -1,6 +1,34 @@
 type Point = { x: number; y: number };
 type Box = { x: number; y: number; width: number; height: number };
 
+// Keep standard Mermaid syntax in Markdown while making alternatives clearer
+// to readers. Scope the labels to their control structure so loops keep theirs.
+export function labelSequenceAlternatives(svg: SVGSVGElement) {
+  for (const group of svg.querySelectorAll('g[data-et="control-structure"]')) {
+    const badge = group.querySelector<SVGTextElement>(":scope > .labelText");
+    if (badge?.textContent?.trim() !== "alt") continue;
+    badge.textContent = "if/else";
+
+    const box = group.querySelector<SVGPolygonElement>(":scope > polygon.labelBox");
+    if (box) {
+      const { x, width } = box.getBBox();
+      const extraWidth = Math.max(0, badge.getComputedTextLength() + 16 - width);
+      for (let index = 0; index < box.points.numberOfItems; index++) {
+        const point = box.points.getItem(index);
+        if (point.x > x) point.x += extraWidth;
+      }
+      badge.setAttribute("x", String(x + (width + extraWidth) / 2));
+    }
+
+    for (const label of group.querySelectorAll(":scope > .loopText, :scope > .sectionTitle")) {
+      // Mermaid renders wrapped lines as separate text elements. Prefix only
+      // the opening bracket, preserving the remaining lines and their spacing.
+      const line = label.querySelector("tspan") ?? label;
+      if (line.textContent?.startsWith("[")) line.textContent = `if ${line.textContent}`;
+    }
+  }
+}
+
 function intersects(a: Box, b: Box) {
   return a.x <= b.x + b.width && a.x + a.width >= b.x &&
     a.y <= b.y + b.height && a.y + a.height >= b.y;
