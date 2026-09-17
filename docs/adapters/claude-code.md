@@ -11,7 +11,7 @@ Connect Claude Code to your approval provider to review its tool calls before th
 Make sure Claude Code is installed, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install claude-code --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap agent install claude-code --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 ```
 
 Start a new Claude Code session to use the adapter.
@@ -26,10 +26,10 @@ Claude Code's own permissions still apply, so an AAP approval may be followed by
 
 ## Check it works
 
-Check the local setup:
+Check that Claude Code appears with its adapter installed:
 
 ```sh
-aap status claude-code
+aap agent discover
 ```
 
 To test the connection, ask Claude Code to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
@@ -37,10 +37,10 @@ To test the connection, ask Claude Code to perform a harmless action that your p
 ## Uninstall
 
 ```sh
-aap uninstall claude-code
+aap agent eject claude-code
 ```
 
-This removes the adapter and its saved token from this machine. Start a new Claude Code session afterward. Revoke the token with your provider too if you no longer need it.
+Confirm removal when prompted. This removes the adapter and its saved token from this machine. Start a new Claude Code session afterward. For scripted removal and token revocation, see [credentials and maintenance](cli.md#credentials-and-maintenance).
 
 ## Limits and troubleshooting
 

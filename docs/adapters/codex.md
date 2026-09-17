@@ -11,7 +11,7 @@ Connect Codex to your approval provider to review its tool calls before they run
 Use a Codex version that supports command hooks, and install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install codex --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap agent install codex --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 ```
 
 Start a new Codex session and run `/hooks` to check that AAP is enabled.
@@ -26,10 +26,10 @@ Codex's own permissions still apply. Approving an action through AAP does not ov
 
 ## Check it works
 
-Check the local setup:
+Check that Codex appears with its adapter installed:
 
 ```sh
-aap status codex
+aap agent discover
 ```
 
 To test the connection, ask Codex to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
@@ -37,10 +37,10 @@ To test the connection, ask Codex to perform a harmless action that your provide
 ## Uninstall
 
 ```sh
-aap uninstall codex
+aap agent eject codex
 ```
 
-This removes the adapter and its saved token from this machine. Start a new Codex session afterward. Revoke the token with your provider too if you no longer need it.
+Confirm removal when prompted. This removes the adapter and its saved token from this machine. Start a new Codex session afterward. For scripted removal and token revocation, see [credentials and maintenance](cli.md#credentials-and-maintenance).
 
 ## Limits and troubleshooting
 

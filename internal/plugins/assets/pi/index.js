@@ -30,7 +30,7 @@ export const CANCELLED_TEXT =
 export const ARGUMENTS_CHANGED_TEXT =
   "This action was approved with different tool arguments than the runtime was about to execute. The call was not run (fail closed).";
 
-// `aap install pi` writes aap.json next to this file with the binary
+// `aap agent install pi` writes aap.json next to this file with the binary
 // path and the AAP configuration root. AAP_BINARY can select a development
 // executable; installed configuration retains its credential directory.
 function readInstalledConfig() {

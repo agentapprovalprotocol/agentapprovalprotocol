@@ -13,7 +13,7 @@ DeepSeek can let a tool run without approval if it cannot start AAP. Keep the CL
 Make sure DeepSeek Harness is installed, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install deepseek --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap agent install deepseek --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 ```
 
 Start a new `dsh` session using the profile shown in the installation notes. The adapter applies to that profile.
@@ -28,10 +28,10 @@ The harness's own permissions and sandbox restrictions still apply after AAP app
 
 ## Check it works
 
-Check the local setup:
+Check that DeepSeek appears with its adapter installed:
 
 ```sh
-aap status deepseek
+aap agent discover
 ```
 
 To test the connection, ask DeepSeek to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked. Repeat this test if you move or reinstall the CLI.
@@ -39,10 +39,10 @@ To test the connection, ask DeepSeek to perform a harmless action that your prov
 ## Uninstall
 
 ```sh
-aap uninstall deepseek
+aap agent eject deepseek
 ```
 
-This removes the adapter and its saved token from this machine. Start a new DeepSeek session afterward. Revoke the token with your provider too if you no longer need it.
+Confirm removal when prompted. This removes the adapter and its saved token from this machine. Start a new DeepSeek session afterward. For scripted removal and token revocation, see [credentials and maintenance](cli.md#credentials-and-maintenance).
 
 ## Limits and troubleshooting
 

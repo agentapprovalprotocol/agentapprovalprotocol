@@ -12,7 +12,7 @@ import (
 // handler index under [hooks.state]. A hook whose hash does not match is
 // silently skipped by `codex exec` and flagged for review in the TUI.
 //
-// Running `aap install` is the person's decision to install this
+// Running `aap agent install` is the person's decision to install this
 // hook, so the install records the same hash Codex would after a manual
 // review. The computation mirrors codex-rs (hooks/src/engine/discovery.rs
 // hook_hash and config/src/fingerprint.rs version_for_toml): the identity

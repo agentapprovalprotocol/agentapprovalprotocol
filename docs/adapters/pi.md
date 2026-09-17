@@ -11,7 +11,7 @@ Connect Pi to your approval provider to review its tool calls before they run.
 Make sure you can run `pi` from your terminal, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install pi --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap agent install pi --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 ```
 
 Start a new Pi session to load the adapter.
@@ -26,10 +26,10 @@ If the tool inputs change while you are reviewing them, AAP blocks the call. If 
 
 ## Check it works
 
-Check the local setup:
+Check that Pi appears with its adapter installed:
 
 ```sh
-aap status pi
+aap agent discover
 ```
 
 To test the connection, ask Pi to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
@@ -39,13 +39,13 @@ To test the connection, ask Pi to perform a harmless action that your provider h
 Make sure `pi` is still available in your terminal, then run:
 
 ```sh
-aap uninstall pi
+aap agent eject pi
 ```
 
-This removes the adapter and its saved token from this machine. Start a new Pi session afterward. Revoke the token with your provider too if you no longer need it.
+Confirm removal when prompted. This removes the adapter and its saved token from this machine. Start a new Pi session afterward. For scripted removal and token revocation, see [credentials and maintenance](cli.md#credentials-and-maintenance).
 
 ## Limits and troubleshooting
 
-- **Incomplete installation:** Run the `pi install` command printed in the installation notes, then repeat `aap install pi` with your token and provider URL.
+- **Incomplete installation:** Run the `pi install` command printed in the installation notes, then repeat `aap agent install pi` with your token and provider URL.
 - **No approval requests:** Start a fresh Pi session. Check your token and provider URL if requests still do not appear.
 - **Other extensions:** Extensions that replace tool inputs after approval can change what actually runs. Avoid combining AAP with extensions that make those changes after review.

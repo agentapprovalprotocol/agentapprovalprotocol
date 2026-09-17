@@ -36,7 +36,7 @@ const CANCELLED_TEXT =
 function readConfig(raw) {
   const cfg = raw && typeof raw === "object" ? raw : {};
   const binary = typeof cfg.binary === "string" && cfg.binary.trim() ? cfg.binary.trim() : "aap";
-  // The credential the adapter uses: `aap install` configures one instance per
+  // The credential the adapter uses: `aap agent install` configures one instance per
   // runtime and every hook it installs names its own.
   const configDir = typeof cfg.configDir === "string" ? cfg.configDir : undefined;
   const approvalTimeoutMs =

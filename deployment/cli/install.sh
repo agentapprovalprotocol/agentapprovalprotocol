@@ -7,7 +7,7 @@ set -eu
 
 say() { printf '%s\n' "$*" >&2; }
 die() { say "install.sh: $*"; exit 1; }
-[ "$#" -eq 0 ] || die "this script takes no arguments; run aap install after installing the CLI"
+[ "$#" -eq 0 ] || die "this script takes no arguments; run aap agent install after installing the CLI"
 
 base=${AAP_CLI_BASE:-https://downloads.agentapprovalprotocol.io}
 version=${AAP_CLI_VERSION:-latest}
@@ -75,7 +75,7 @@ staged=
 "$target/aap" version
 say "Installed $target/aap"
 case ":$PATH:" in
-  *":$target:"*) say "Run aap adapters to choose a runtime."; exit 0 ;;
+  *":$target:"*) say "Run aap agent discover to find supported agents on this machine."; exit 0 ;;
 esac
 
 # Quote paths as shell literals, including spaces, quotes and dollar signs.
@@ -108,7 +108,7 @@ case "$shell_name" in
   bash | zsh | fish) ;;
   *)
     say "Automatic PATH setup supports Bash, Zsh and Fish. Add $target to your shell's PATH."
-    say "You can run the CLI now with: $quoted_target/aap adapters"
+    say "You can run the CLI now with: $quoted_target/aap agent discover"
     exit 0
     ;;
 esac
@@ -135,7 +135,7 @@ else
 fi
 
 if [ "$path_ready" = 1 ]; then
-  say "Restart your terminal, then run: aap adapters"
+  say "Restart your terminal, then run: aap agent discover"
 fi
 say "To use aap in this terminal now, run:"
 say "  $path_command"

@@ -89,7 +89,7 @@ test('default install configures Zsh once and makes aap available after reloadin
   const profile = path.join(f.dir, '.zshrc');
   await writeFile(profile, '# existing configuration without a final newline');
   const { stderr } = await f.run(env);
-  assert.match(stderr, /Restart your terminal/);
+  assert.match(stderr, /Restart your terminal, then run: aap agent discover/);
   const contents = await readFile(profile, 'utf8');
   assert.ok(contents.startsWith('# existing configuration without a final newline\n'));
   await f.run(env);

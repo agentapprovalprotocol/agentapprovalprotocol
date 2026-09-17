@@ -11,7 +11,7 @@ Connect OpenClaw to your approval provider to review its tool calls before they 
 Make sure OpenClaw is installed, then install the [AAP CLI](cli.md#install-the-cli) on the machine running the Gateway. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install openclaw --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap agent install openclaw --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 ```
 
 Follow any manual setup instructions printed by the installer, then restart the OpenClaw Gateway.
@@ -26,10 +26,10 @@ If AAP cannot start or reach your provider, the tool call is blocked.
 
 ## Check it works
 
-Check the local setup:
+Find OpenClaw and check its adapter status:
 
 ```sh
-aap status openclaw
+aap agent discover
 ```
 
 To test the connection, ask OpenClaw to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
@@ -37,10 +37,10 @@ To test the connection, ask OpenClaw to perform a harmless action that your prov
 ## Uninstall
 
 ```sh
-aap uninstall openclaw
+aap agent eject openclaw
 ```
 
-This removes the adapter and its saved token from this machine. If you added AAP's settings manually, remove those entries from your OpenClaw configuration too. Then restart the Gateway. Revoke the token with your provider too if you no longer need it.
+Confirm removal when prompted. This removes the adapter and its saved token from this machine. If you added AAP's settings manually, remove those entries from your OpenClaw configuration too. Then restart the Gateway. For scripted removal and token revocation, see [credentials and maintenance](cli.md#credentials-and-maintenance).
 
 ## Limits and troubleshooting
 

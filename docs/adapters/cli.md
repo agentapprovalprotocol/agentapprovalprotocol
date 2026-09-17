@@ -55,7 +55,13 @@ For source builds, add `~/.local/bin` to your `PATH` if it is not already there.
 
 ## Install an adapter
 
-Choose your agent and follow its adapter setup guide:
+Find supported agents on this machine:
+
+```sh
+aap agent discover
+```
+
+Then choose your agent and follow its adapter setup guide:
 
 - [Claude Code](claude-code.md)
 - [Codex](codex.md)
@@ -68,19 +74,27 @@ Choose your agent and follow its adapter setup guide:
 
 Your token is saved on this machine, so you only need to enter it during setup. To change your token or provider URL, repeat your adapter's installation steps with the new values, then restart your agent.
 
-Check which adapters are configured:
+Check the setup for supported agents found on this machine:
 
 ```sh
-aap status
+aap agent discover
 ```
+
+Each result shows whether its adapter is installed, incomplete or not installed. If an adapter is incomplete, repeat its installation steps and follow the printed notes. For JSON output, use `aap agent discover --json`.
 
 To remove an adapter, use its name. For example:
 
 ```sh
-aap uninstall claude-code
+aap agent eject claude-code
 ```
 
-Uninstalling removes the adapter and its saved token from this machine. Revoke the token with your provider too if you no longer need it.
+Enter `y` or `yes` to confirm removal. For scripts, add `--yes` to skip the prompt:
+
+```sh
+aap agent eject claude-code --yes
+```
+
+Removing an adapter also removes its saved token from this machine. Revoke the token with your provider too if you no longer need it.
 
 ## Use as a Go library
 

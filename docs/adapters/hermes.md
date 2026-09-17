@@ -11,7 +11,7 @@ Connect Hermes Agent to your approval provider to review its tool calls before t
 Make sure Hermes is installed, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install hermes --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap agent install hermes --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
 ```
 
 Start a fresh Hermes session and accept its one-time request to enable the AAP hook. Run `hermes hooks list` to check that it is active.
@@ -24,10 +24,10 @@ Hermes's own permissions still apply after AAP approves an action.
 
 ## Check it works
 
-Check the local setup:
+Check that Hermes appears with its adapter installed:
 
 ```sh
-aap status hermes
+aap agent discover
 ```
 
 To test the connection, ask Hermes to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
@@ -35,10 +35,10 @@ To test the connection, ask Hermes to perform a harmless action that your provid
 ## Uninstall
 
 ```sh
-aap uninstall hermes
+aap agent eject hermes
 ```
 
-This removes the adapter and its saved token from this machine. Start a new Hermes session afterward. Revoke the token with your provider too if you no longer need it.
+Confirm removal when prompted. This removes the adapter and its saved token from this machine. Start a new Hermes session afterward. For scripted removal and token revocation, see [credentials and maintenance](cli.md#credentials-and-maintenance).
 
 ## Limits and troubleshooting
 
