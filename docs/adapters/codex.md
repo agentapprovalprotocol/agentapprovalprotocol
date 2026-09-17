@@ -4,41 +4,44 @@ lastModified: 2026-09-17
 
 # Codex
 
-The Codex adapter uses a `PreToolUse` command hook to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
-
-Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/codex.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/codex.go).
+Connect Codex to your approval provider to review its tool calls before they run.
 
 ## Install
 
-Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Use a Codex version that supports command hooks, and install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install codex --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap install codex --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+```
+
+Start a new Codex session and run `/hooks` to check that AAP is enabled.
+
+## What to expect
+
+By default, every tool call goes to your provider for approval. Requests can wait up to five minutes for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+
+Codex's own permissions still apply. Approving an action through AAP does not override a local permission prompt or sandbox restriction.
+
+## Check it works
+
+Check the local setup:
+
+```sh
 aap status codex
 ```
 
-Installation configures `~/.codex/config.toml`. Use a Codex build that supports command hooks. Start a new session and inspect `/hooks` after installation.
+To test the connection, ask Codex to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
-
-## How it works
-
-Installation adds a catch-all hook and its trust record under `hooks.state`. AAP approval preserves Codex's own local permissions. The hook frontend also understands manually configured `PermissionRequest` events; these return explicit permission only for covered, approved calls. Filtered calls leave the local prompt in place.
-
-The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
-
-## Verify and remove
-
-Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
+## Uninstall
 
 ```sh
 aap uninstall codex
 ```
 
-Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
+This removes the adapter and its saved token from this machine. Start a new Codex session afterward. Revoke the token with your provider too if you no longer need it.
 
 ## Limits and troubleshooting
 
-The approval window is five minutes, within a 600-second hook timeout. Changes to the command, matcher or timeout require a matching trust record. When an event supplies no call ID, each invocation requests a new approval rather than reusing a decision for identical arguments.
-
-The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+- If AAP is missing or disabled in `/hooks`, confirm your Codex version supports command hooks. Repeat the install command, then start a new session.
+- If you edit AAP's hook settings manually, Codex may stop trusting it. Rerun the install command to restore the setup.
+- If an approved call still stops, check Codex's own permissions and sandbox settings.

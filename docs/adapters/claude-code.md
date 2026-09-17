@@ -4,41 +4,44 @@ lastModified: 2026-09-17
 
 # Claude Code
 
-The Claude Code adapter uses a `PreToolUse` command hook to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
-
-Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/claudecode.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/claudecode.go).
+Connect Claude Code to your approval provider to review its tool calls before they run, including calls to MCP tools.
 
 ## Install
 
-Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Make sure Claude Code is installed, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install claude-code --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap install claude-code --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+```
+
+Start a new Claude Code session to use the adapter.
+
+## What to expect
+
+By default, every tool call goes to your provider for approval. Requests can wait up to five minutes for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+
+Claude Code's own permissions still apply, so an AAP approval may be followed by a local permission prompt. Your provider may also receive a short excerpt of the agent's explanation for the proposed action.
+
+## Check it works
+
+Check the local setup:
+
+```sh
 aap status claude-code
 ```
 
-Installation configures `~/.claude/settings.json`. Start a new Claude Code session after installation. Existing local permissions still apply after an AAP approval.
+To test the connection, ask Claude Code to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
-
-## How it works
-
-The hook covers built-in tools and MCP calls. MCP prefixes are removed before glob matching and submission; the server alias is carried in context. The hook can include a short excerpt of recent assistant text from the transcript as agent reasoning.
-
-The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
-
-## Verify and remove
-
-Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
+## Uninstall
 
 ```sh
 aap uninstall claude-code
 ```
 
-Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
+This removes the adapter and its saved token from this machine. Start a new Claude Code session afterward. Revoke the token with your provider too if you no longer need it.
 
 ## Limits and troubleshooting
 
-The approval window is five minutes, within a 600-second hook timeout. Claude Code controls the final tool execution and any later hooks. Keep the approved arguments unchanged and avoid later hooks that rewrite them.
-
-The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+- If requests do not appear, start a fresh Claude Code session and check your token and provider URL. Repeat the install command to update them.
+- If an approved call still stops, check Claude Code's own permissions and any other hooks you have installed.
+- Other hooks can change an action after AAP has approved it. Avoid hooks that rewrite tool inputs after the approval check.

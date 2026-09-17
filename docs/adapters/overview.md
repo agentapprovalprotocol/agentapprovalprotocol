@@ -4,22 +4,25 @@ lastModified: 2026-09-17
 
 # Adapters overview
 
-An [adapter](../concepts/adapter.md) captures a proposed tool call, asks an approval provider whether it may run and translates the outcome back into the runtime's hook or extension response.
+An adapter connects your agent to an [approval provider](../providers/overview.md), so tool calls can be reviewed before they run. Your provider can approve routine actions automatically and ask you to review others.
 
-AAP maintains a provider-independent Go library and an `aap` CLI for six common agent runtimes that are listed below.
-This list is expanding all the time and if you'd like to contribute an AAP adapter, please do!
+## Choose your agent
 
-## First Party AAP Adapters
+Install the [AAP CLI](cli.md#install-the-cli), then follow the guide for the agent you use. You will need an instance token and an AAP URL from your provider.
 
-| Adapter | Supported modes | Integration | Coverage |
-| --- | --- | --- | --- |
-| [Claude Code](claude-code.md) | Synchronous | `PreToolUse` command hook | All tools |
-| [Codex](codex.md) | Synchronous | `PreToolUse` command hook | All tools |
-| [OpenClaw](openclaw.md) | Synchronous | Native Gateway plugin | All tools |
-| [Pi](pi.md) | Synchronous | Native extension | All tools |
-| [Hermes Agent](hermes.md) | Synchronous | `pre_tool_call` shell hook | All tools |
-| [DeepSeek Harness](deepseek.md) | Synchronous | Claude Code hooks bridge | All tools |
+| Agent | After installing the adapter |
+| --- | --- |
+| [Claude Code](claude-code.md) | Start a new Claude Code session. |
+| [Codex](codex.md) | Start a new session and check `/hooks`. |
+| [OpenClaw](openclaw.md) | Restart the OpenClaw Gateway. |
+| [Pi](pi.md) | Start a new Pi session. |
+| [Hermes Agent](hermes.md) | Start a new session and accept the AAP hook when prompted. |
+| [DeepSeek Harness](deepseek.md) | Use the profile shown in the installation notes. |
 
-Coverage is for tool calls through the configured runtime, with no tool filter. Each guide explains its setup requirements and enforcement limits.
+By default, AAP requests approval for all tool calls made through the configured agent. Your agent's own permissions still apply. Each guide explains how long it waits for approval and any limitations that affect your setup.
 
-Use the [AAP CLI](cli.md) to install and manage these adapters.
+## Check your setup
+
+After installation, try a harmless action that your provider holds for review. Approve it and confirm it runs, then try again with a denial and confirm it is blocked. This checks that your agent is connected to the provider and following its decisions.
+
+For updates, new credentials or removal, see [credentials and maintenance](cli.md#credentials-and-maintenance).

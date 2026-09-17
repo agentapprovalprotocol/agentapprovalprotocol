@@ -4,41 +4,46 @@ lastModified: 2026-09-17
 
 # DeepSeek Harness
 
-The DeepSeek Harness adapter uses the harness's Claude Code hooks bridge to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
+Connect DeepSeek Harness to your approval provider to review its tool calls before they run.
 
-Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/deepseek.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/deepseek.go).
+DeepSeek can let a tool run without approval if it cannot start AAP. Keep the CLI in its installed location and test the connection after setup.
 
 ## Install
 
-Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Make sure DeepSeek Harness is installed, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install deepseek --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap install deepseek --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+```
+
+Start a new `dsh` session using the profile shown in the installation notes. The adapter applies to that profile.
+
+## What to expect
+
+By default, tool calls in the configured profile go to your provider for approval. Requests can wait up to five minutes for a decision. When AAP is running, a denied or expired request blocks the call, as does a failure to confirm approval.
+
+The harness's own permissions and sandbox restrictions still apply after AAP approves an action.
+
+## Check it works
+
+Check the local setup:
+
+```sh
 aap status deepseek
 ```
 
-Installation configures the selected profile's `cordis.patch.yml`, with `hooks.json` under the AAP configuration directory. Run `dsh` under the profile named in the installation notes. The installer selects `default` when present, otherwise the sole profile, otherwise creates `default`. `DSH_HOME` is honored.
+To test the connection, ask DeepSeek to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked. Repeat this test if you move or reinstall the CLI.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
-
-## How it works
-
-The installer mounts `@deepseek-ai/dsh-hooks-claude-code` as the `aap` bridge. Calls use the Claude Code hook payload and response format, with `deepseek` recorded as the runtime. Approval preserves the harness's local guards and sandbox checks.
-
-The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
-
-## Verify and remove
-
-Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
+## Uninstall
 
 ```sh
 aap uninstall deepseek
 ```
 
-Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
+This removes the adapter and its saved token from this machine. Start a new DeepSeek session afterward. Revoke the token with your provider too if you no longer need it.
 
 ## Limits and troubleshooting
 
-The request window is five minutes inside a 600-second hook timeout. The existing bridge can let a tool proceed if it cannot start the hook process. Keep the executable at its registered path and verify that calls reach the provider. Once started, the adapter denies malformed calls and failed provider exchanges. No transcript reasoning is supplied by the bridge.
-
-The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+- **No approval requests:** Check that you are using the profile shown in the installation notes. Other profiles are not covered by that installation.
+- **CLI moved or removed:** DeepSeek may continue without approvals if it cannot start AAP. Restore the CLI or reinstall it, then repeat the adapter installation and the approval test.
+- **An approved call still stops:** Check the harness's own permissions and sandbox settings.

@@ -4,41 +4,44 @@ lastModified: 2026-09-17
 
 # Hermes Agent
 
-The Hermes Agent adapter uses the native `pre_tool_call` shell hook to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
-
-Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/hermes.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/hermes.go).
+Connect Hermes Agent to your approval provider to review its tool calls before they run.
 
 ## Install
 
-Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Make sure Hermes is installed, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install hermes --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap install hermes --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+```
+
+Start a fresh Hermes session and accept its one-time request to enable the AAP hook. Run `hermes hooks list` to check that it is active.
+
+## What to expect
+
+By default, every tool call goes to your provider for approval. Requests can wait up to four and a half minutes for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+
+Hermes's own permissions still apply after AAP approves an action.
+
+## Check it works
+
+Check the local setup:
+
+```sh
 aap status hermes
 ```
 
-Installation configures `~/.hermes/config.yaml`. Accept Hermes's one-time hook consent, or start once with `hermes --accept-hooks chat`. Inspect `hermes hooks list` after installation.
+To test the connection, ask Hermes to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
-
-## How it works
-
-Installation puts AAP last in `hooks.pre_tool_call`, enables `fail_closed` and sets a sufficient callback timeout. Approval returns an identity modification containing the reviewed arguments. MCP names normalize before filtering; session, task, turn and call identifiers are included when available.
-
-The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
-
-## Verify and remove
-
-Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
+## Uninstall
 
 ```sh
 aap uninstall hermes
 ```
 
-Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
+This removes the adapter and its saved token from this machine. Start a new Hermes session afterward. Revoke the token with your provider too if you no longer need it.
 
 ## Limits and troubleshooting
 
-AAP must remain the last `pre_tool_call` hook because Hermes merges hook modifications in registration order. The request window is 270 seconds inside a 300-second hook ceiling, with a 330-second callback timeout. Missing session or call identifiers and malformed argument objects block execution.
-
-The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+- **No approval requests:** Check `hermes hooks list` and make sure you accepted the hook consent prompt. Check your token and provider URL if requests still do not appear.
+- **Adding other hooks:** Keep AAP last in Hermes's `pre_tool_call` list so later hooks cannot change an approved action. Rerunning the install command puts AAP last again.
+- **Requests expire:** Complete the review within four and a half minutes. After expiry, ask the agent to retry so it creates a new request.

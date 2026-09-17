@@ -4,41 +4,46 @@ lastModified: 2026-09-17
 
 # Pi
 
-The Pi adapter uses a native extension registered on `tool_call` to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
-
-Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/pi.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/pi.go), [native extension](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/plugins/assets/pi/index.js).
+Connect Pi to your approval provider to review its tool calls before they run.
 
 ## Install
 
-Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Make sure you can run `pi` from your terminal, then install the [AAP CLI](cli.md#install-the-cli) on the same machine. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install pi --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap install pi --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+```
+
+Start a new Pi session to load the adapter.
+
+## What to expect
+
+By default, every tool call goes to your provider for approval. Requests can wait up to an hour for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+
+If the tool inputs change while you are reviewing them, AAP blocks the call. If AAP cannot start or reach your provider, the call is also blocked.
+
+## Check it works
+
+Check the local setup:
+
+```sh
 aap status pi
 ```
 
-Installation configures AAP's `plugins/pi` directory, registered with `pi install`. Start a fresh Pi session after installation. `pi` must be available on `PATH` for registration and removal.
+To test the connection, ask Pi to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
+## Uninstall
 
-## How it works
-
-The extension snapshots tool arguments and calls the installing executable. After provider approval it verifies that the original arguments have not changed and freezes their contents. The AAP configuration root and executable path live in the extension's `aap.json`; the token stays in the separate restricted credential file.
-
-The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
-
-## Verify and remove
-
-Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
+Make sure `pi` is still available in your terminal, then run:
 
 ```sh
 aap uninstall pi
 ```
 
-Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
+This removes the adapter and its saved token from this machine. Start a new Pi session afterward. Revoke the token with your provider too if you no longer need it.
 
 ## Limits and troubleshooting
 
-The default wait is one hour, with timeout margins. A failed registration returns an incomplete installation. Missing call or session identifiers, missing adapter processes and malformed decisions block calls. Calls outside the glob continue normally. Later handlers must not replace the entire argument object; freezing protects mutations of the reviewed object, not every possible harness rewrite.
-
-The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+- **Incomplete installation:** Run the `pi install` command printed in the installation notes, then repeat `aap install pi` with your token and provider URL.
+- **No approval requests:** Start a fresh Pi session. Check your token and provider URL if requests still do not appear.
+- **Other extensions:** Extensions that replace tool inputs after approval can change what actually runs. Avoid combining AAP with extensions that make those changes after review.

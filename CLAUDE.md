@@ -10,5 +10,6 @@ This repository contains the provider-independent AAP specification, Go adapter 
 - Adapter code targets Go 1.25 or later on macOS and Linux. Run `make adapters-test` and `make adapters-build` after Go or native plugin changes. Keep the library independent of provider enrollment and product code.
 - Stop the development server before a production build.
 - Use semantic design tokens, the existing docs components and plain prose. Do not add em dashes to user-facing copy.
+- Write user guides for end users: explain what they need to do and how behavior affects them. Keep implementation details in developer documentation.
 - Never copy proprietary font files into this repository.
 - Keep instructions in this file. `AGENTS.md` must remain a relative symlink to `CLAUDE.md`.

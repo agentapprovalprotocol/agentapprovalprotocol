@@ -4,41 +4,44 @@ lastModified: 2026-09-17
 
 # OpenClaw
 
-The OpenClaw adapter uses a native plugin registered on `before_tool_call` to request approval before a tool call executes. It connects to any provider implementing the current AAP contract.
-
-Implementation: [installer](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/runtimes/openclaw.go), [hook handler](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/hook/openclaw.go), [native plugin](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/internal/plugins/assets/openclaw/index.js).
+Connect OpenClaw to your approval provider to review its tool calls before they run.
 
 ## Install
 
-Install the [AAP CLI](cli.md#install-the-cli) on the machine running your agent. Obtain an instance token and complete AAP base URL from your provider, then run:
+Make sure OpenClaw is installed, then install the [AAP CLI](cli.md#install-the-cli) on the machine running the Gateway. Get an instance token and AAP URL from your provider, and replace the example values below:
 
 ```sh
-aap install openclaw --instance-token "$INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+aap install openclaw --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://approvals.example.com/api/aap"
+```
+
+Follow any manual setup instructions printed by the installer, then restart the OpenClaw Gateway.
+
+## What to expect
+
+By default, every tool call goes to your provider for approval. Requests can wait up to an hour for a decision. A denied or expired request blocks the call, as does a failure to confirm approval.
+
+If AAP cannot start or reach your provider, the tool call is blocked.
+
+## Check it works
+
+Check the local setup:
+
+```sh
 aap status openclaw
 ```
 
-Installation configures `~/.openclaw/openclaw.json`. Restart the OpenClaw Gateway after installation so it loads the plugin.
+To test the connection, ask OpenClaw to perform a harmless action that your provider holds for review. Approve it and confirm it runs. Repeat with a denial and confirm it is blocked.
 
-Every intercepted tool is covered by default. Add `--tool-glob 'create_*'` to limit coverage to matching normalized AAP tool names. See [filter behavior](cli.md#optional-tool-filter) before narrowing coverage.
-
-## How it works
-
-The installer writes the plugin under AAP's `plugins/openclaw` directory and registers it as `aap` in the runtime configuration. The plugin invokes the installing executable, snapshots arguments and returns the reviewed parameters after approval. MCP names such as `stripe__create_refund` normalize to `create_refund`.
-
-The shared client handles immediate decisions and polling, validates approval expiry and records consumption before returning permission. Denial, expiry, cancellation and invalid provider exchanges keep covered calls blocked. Nonmatching calls continue through the runtime's ordinary permissions without an AAP request.
-
-## Verify and remove
-
-Make a harmless tool call in a fresh runtime session. Confirm that it appears at your provider, approve it and verify execution. Repeat with a denial and confirm that the call stays blocked. Local status reports registration, not end-to-end connectivity.
+## Uninstall
 
 ```sh
 aap uninstall openclaw
 ```
 
-Uninstall removes recorded local integration and credentials while preserving unrelated user changes. Revoke the token separately at the provider if needed.
+This removes the adapter and its saved token from this machine. If you added AAP's settings manually, remove those entries from your OpenClaw configuration too. Then restart the Gateway. Revoke the token with your provider too if you no longer need it.
 
 ## Limits and troubleshooting
 
-Strict JSON configuration is edited automatically. JSON5 configurations receive a manual snippet and an incomplete result; merge it without replacing other plugin entries, or convert the file to strict JSON and rerun installation for automatic verification. The default wait is one hour, with margins for cancellation and process shutdown. Missing executables, invalid output and expired approvals block the call. Later plugins may still alter parameters, so inspect their order and behavior.
-
-The [adapter requirements](../specification/8_security.md#adapter-requirements) also apply.
+- **Manual setup requested:** If your OpenClaw configuration uses JSON5, add the settings printed by the installer to `~/.openclaw/openclaw.json`, preserving your other plugins. AAP cannot automatically verify JSON5 setup, so status may remain incomplete. To use automatic setup, convert the file to standard JSON and rerun installation.
+- **No approval requests:** Restart the Gateway after installation or changes to the adapter. Check your token and provider URL if requests still do not appear.
+- **Other plugins:** Plugins that change tool inputs after AAP approves them can change what actually runs. Avoid combining AAP with plugins that make those changes after review.
