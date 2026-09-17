@@ -34,6 +34,7 @@ If you have agents taking consequential actions, then AAP can likely offer you s
 There are a few benefits of using AAP.
 1. Like any open standard, AAP allows you to plug components in easily. Any harness implementing AAP can use any approval provider and any approval provider implementing AAP will work with any harness that implements it.
 2. A centralized provider. AAP is designed to allow many agents to connect to a single approval provider. This allows you to centralize approvals, auditing and permissions in a single place, rather than across every agent provider.
+3. Ecosystem support, AAP is open source and adapters have already been written for a number of different harnesses with more support being added frequently.
 
 ## How should I use AAP
 
