@@ -38,7 +38,7 @@ There are a few benefits of using AAP.
 
 ## How should I use AAP
 
-The most common use case is to run all tool calls through AAP, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
+The most common use case is to run the tool calls of all agents through your AAP provider, and have the provider automatically approve benign requests whilst holding riskier ones for approval.
 This gives you a centralized location to view all actions every agent has ever taken across all your infrastucture.
 
 ## Start building
