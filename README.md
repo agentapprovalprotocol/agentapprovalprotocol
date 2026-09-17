@@ -1,7 +1,3 @@
----
-lastModified: 2026-09-17
----
-
 <p align="center">
   <a href="https://agentapprovalprotocol.io">
     <picture>
