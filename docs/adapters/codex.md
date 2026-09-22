@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-09-22
 ---
 
 # Codex
@@ -24,6 +24,8 @@ By default, every tool call goes to your provider for approval. Requests can wai
 
 Codex's own permissions still apply. Approving an action through AAP does not override a local permission prompt or sandbox restriction.
 
+Requests name MCP tools the way their servers define them, with the server's name from your Codex config alongside, so a rule written for `gmail.send_email` on `google-mail` matches whichever agent made the call. The first call to each server lists its tools once and remembers the result under AAP's configuration directory.
+
 ## Check it works
 
 Check that Codex appears with its adapter installed:
@@ -47,3 +49,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - If AAP is missing or disabled in `/hooks`, confirm your Codex version supports command hooks. Repeat the install command, then start a new session.
 - If you edit AAP's hook settings manually, Codex may stop trusting it. Rerun the install command to restore the setup.
 - If an approved call still stops, check Codex's own permissions and sandbox settings.
+- Tools on a server you signed in to with `codex mcp login`, and Codex Apps connectors, appear in requests with Codex's spelling of their names (letters, digits and underscores only), because the adapter cannot list those servers itself. Write rules for them using that spelling.
