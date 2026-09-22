@@ -49,4 +49,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - If AAP is missing or disabled in `/hooks`, confirm your Codex version supports command hooks. Repeat the install command, then start a new session.
 - If you edit AAP's hook settings manually, Codex may stop trusting it. Rerun the install command to restore the setup.
 - If an approved call still stops, check Codex's own permissions and sandbox settings.
-- Tools on a server you signed in to with `codex mcp login`, and Codex Apps connectors, appear in requests with Codex's spelling of their names (letters, digits and underscores only), because the adapter cannot list those servers itself. Write rules for them using that spelling.
+- Tools on a server you signed in to with `codex mcp login`, and Codex Apps connectors, appear in requests with Codex's spelling of their names (letters, digits and underscores only), because the adapter cannot list those servers itself. Servers reached with a token from `bearer_token_env_var` or `env_http_headers` are listed normally. Write rules for the others using Codex's spelling.
