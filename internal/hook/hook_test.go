@@ -4,12 +4,21 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/mcpclient/mcptest"
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/testprovider"
 )
+
+func TestMain(m *testing.M) {
+	mcptest.MaybeServe()
+	os.Exit(m.Run())
+}
 
 func payload(runtime, tool string) []byte {
 	p := map[string]any{"tool_name": tool, "session_id": "session", "tool_use_id": "call", "tool_call_id": "call", "tool_input": map[string]any{"amount": json.Number("9007199254740993")}, "arguments": map[string]any{"amount": json.Number("9007199254740993")}, "params": map[string]any{"amount": json.Number("9007199254740993")}, "hook_event_name": "PreToolUse"}
@@ -118,6 +127,38 @@ func TestOpenClawServerNormalization(t *testing.T) {
 		t.Fatal(out.String())
 	}
 }
+
+// Codex hands its hook sanitised names. With the server in Codex's config
+// the hook lists it once and submits the server-defined name and alias.
+func TestCodexRecoversServerDefinedNames(t *testing.T) {
+	home := filepath.Join(t.TempDir(), ".codex")
+	command, env := mcptest.Command()
+	config := "[mcp_servers.\"google-mail\"]\ncommand = " + strconv.Quote(command) + "\n[mcp_servers.\"google-mail\".env]\n"
+	for key, value := range env {
+		config += key + " = " + strconv.Quote(value) + "\n"
+	}
+	if err := os.MkdirAll(home, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(home, "config.toml"), []byte(config), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("CODEX_HOME", home)
+	p := testprovider.New(t)
+	c := p.Client(t)
+	var out bytes.Buffer
+	if err := Run(context.Background(), "codex", c, payload("codex", "mcp__google_mail__gmail_send_email"), &out); err != nil || denied(out.String()) {
+		t.Fatalf("approval %s: %v", out.String(), err)
+	}
+	in := p.Inputs()[0]
+	if in.Tool != "gmail.send_email" || in.Server != "google-mail" {
+		t.Fatalf("submission %+v", in)
+	}
+	if _, err := os.Stat(filepath.Join(c.CacheDir, "codex-tools.json")); err != nil {
+		t.Fatalf("listing not cached: %v", err)
+	}
+}
+
 func TestCodexPermissionBypassPreservesLocalPrompt(t *testing.T) {
 	p := testprovider.New(t)
 	c := p.Client(t)

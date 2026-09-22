@@ -23,7 +23,10 @@ import (
 
 type Client struct {
 	BaseURL, Token, ToolGlob, StateDir string
-	HTTP                               *http.Client
+	// CacheDir is where hooks keep local caches they can rebuild, such as
+	// the Codex tool name listings; empty disables them.
+	CacheDir string
+	HTTP     *http.Client
 }
 
 func ValidateConfig(token, baseURL, glob string) error {

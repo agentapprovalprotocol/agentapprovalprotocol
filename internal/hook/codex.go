@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/codextools"
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
@@ -80,9 +82,11 @@ func Codex(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.W
 	}
 
 	// Codex spells MCP tools the Claude Code way, with server and tool
-	// names sanitised to [A-Za-z0-9_]; the request carries that spelling
-	// split apart, since the hook cannot recover the original names.
-	call := tool.Identify(in.ToolName, tool.NamingMCPPrefixed)
+	// names sanitised to [A-Za-z0-9_]. The server comes back from Codex's
+	// config and the tool from a cached listing of that server; whatever
+	// cannot be recovered keeps Codex's spelling.
+	call := codextools.Resolver{Home: codextools.Home(os.Getenv), CacheDir: client.CacheDir}.
+		Resolve(ctx, tool.Identify(in.ToolName, tool.NamingMCPPrefixed))
 
 	requestContext := map[string]any{
 		"runtime":    "codex",
