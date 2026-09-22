@@ -526,6 +526,14 @@ components:
       minLength: 1
       description: The name identifying the intercepted tool.
       examples: [issue_refund]
+    ServerName:
+      type: string
+      minLength: 1
+      description: |
+        The alias of the MCP server that defines the tool, as the runtime
+        configured it. Present only for tools served over MCP. It is a label
+        the adapter observed and does not establish the server's identity.
+      examples: [stripe]
     ToolArguments:
       type: object
       additionalProperties: true
@@ -543,6 +551,7 @@ components:
       required: [tool, arguments, timeout]
       properties:
         tool: { $ref: '#/components/schemas/ToolName' }
+        server: { $ref: '#/components/schemas/ServerName' }
         arguments: { $ref: '#/components/schemas/ToolArguments' }
         timeout: { $ref: '#/components/schemas/Duration' }
         agent_reasoning: { $ref: '#/components/schemas/AgentReasoning' }
@@ -599,6 +608,7 @@ components:
       properties:
         id: { $ref: '#/components/schemas/Identifier' }
         tool: { $ref: '#/components/schemas/ToolName' }
+        server: { $ref: '#/components/schemas/ServerName' }
         arguments: { $ref: '#/components/schemas/ToolArguments' }
         timeout: { $ref: '#/components/schemas/Duration' }
         agent_reasoning: { $ref: '#/components/schemas/AgentReasoning' }
@@ -981,6 +991,7 @@ components:
       summary: Request approval for a refund
       value:
         tool: issue_refund
+        server: stripe
         arguments:
           payment_id: payment_123
           amount: 4900
@@ -991,6 +1002,7 @@ components:
       value:
         id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
         tool: issue_refund
+        server: stripe
         arguments:
           payment_id: payment_123
           amount: 4900
@@ -1004,6 +1016,7 @@ components:
       value:
         id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
         tool: issue_refund
+        server: stripe
         arguments:
           payment_id: payment_123
           amount: 4900
@@ -1022,6 +1035,7 @@ components:
       value:
         id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
         tool: issue_refund
+        server: stripe
         arguments:
           payment_id: payment_123
           amount: 4900

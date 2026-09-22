@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // Pi runs the AAP half of the Pi adapter. The runtime half is the native Pi
@@ -45,7 +46,8 @@ func Pi(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writ
 		return nil
 	}
 
-	tool, mcpServer := aap.CanonicalTool(in.ToolName)
+	// Pi has no MCP client, so a tool name is the tool.
+	call := tool.Identify(in.ToolName, tool.NamingPlain)
 
 	requestContext := map[string]any{
 		"runtime":    "pi",
@@ -54,9 +56,6 @@ func Pi(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writ
 	}
 	if in.ToolCallID != "" {
 		requestContext["call_id"] = in.ToolCallID
-	}
-	if mcpServer != "" {
-		requestContext["mcp_server"] = mcpServer
 	}
 
 	// A Pi tool call id identifies one execution attempt. A restarted adapter
@@ -71,12 +70,13 @@ func Pi(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writ
 		}
 	}
 	decision, err := gate(ctx, client, aap.CreateInput{
-		Tool:           tool,
+		Tool:           call.Tool,
+		Server:         call.Server,
 		Arguments:      in.Arguments,
 		AgentReasoning: in.AgentReasoning,
 		Context:        requestContext,
 		Timeout:        fmt.Sprintf("%ds", int(timeout.Seconds())),
-		IdempotencyKey: aap.IdempotencyKey(attempt, tool, in.Arguments),
+		IdempotencyKey: aap.IdempotencyKey(attempt, call, in.Arguments),
 	})
 	switch {
 	case err != nil:
