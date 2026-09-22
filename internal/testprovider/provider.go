@@ -129,5 +129,6 @@ func (p *Provider) Approve() { p.mu.Lock(); defer p.mu.Unlock(); p.Pending = fal
 func (p *Provider) Client(t *testing.T) *aap.Client {
 	c := aap.NewClient(p.Server.URL+"/custom/aap", "test-token")
 	c.StateDir = t.TempDir()
+	c.CacheDir = t.TempDir()
 	return c
 }
