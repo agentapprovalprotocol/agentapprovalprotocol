@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // Hermes runs the AAP half of the Hermes Agent adapter. Hermes invokes this
@@ -49,7 +50,7 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 		return nil
 	}
 
-	call := aap.IdentifyTool(in.ToolName, aap.NamingMCPPrefixed)
+	call := tool.Identify(in.ToolName, tool.NamingMCPPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    "hermes",

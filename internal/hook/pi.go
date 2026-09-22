@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // Pi runs the AAP half of the Pi adapter. The runtime half is the native Pi
@@ -46,7 +47,7 @@ func Pi(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writ
 	}
 
 	// Pi has no MCP client, so a tool name is the tool.
-	call := aap.IdentifyTool(in.ToolName, aap.NamingPlain)
+	call := tool.Identify(in.ToolName, tool.NamingPlain)
 
 	requestContext := map[string]any{
 		"runtime":    "pi",

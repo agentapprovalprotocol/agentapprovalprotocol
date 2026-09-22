@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // OpenClaw runs the tool gate for OpenClaw, called by the AAP OpenClaw
@@ -65,7 +66,7 @@ func OpenClaw(ctx context.Context, client *aap.Client, stdin io.Reader, stdout i
 		in.Params = map[string]any{}
 	}
 
-	call := aap.IdentifyTool(in.ToolName, aap.NamingServerPrefixed)
+	call := tool.Identify(in.ToolName, tool.NamingServerPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    "openclaw",

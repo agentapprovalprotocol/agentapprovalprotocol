@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // codexInput covers both Codex hook events. Codex's PreToolUse input is
@@ -81,7 +82,7 @@ func Codex(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.W
 	// Codex spells MCP tools the Claude Code way, with server and tool
 	// names sanitised to [A-Za-z0-9_]; the request carries that spelling
 	// split apart, since the hook cannot recover the original names.
-	call := aap.IdentifyTool(in.ToolName, aap.NamingMCPPrefixed)
+	call := tool.Identify(in.ToolName, tool.NamingMCPPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    "codex",

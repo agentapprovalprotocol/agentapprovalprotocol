@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // preToolUseInput is the JSON Claude Code pipes to a PreToolUse hook. The
@@ -74,7 +75,7 @@ func preToolUse(ctx context.Context, client *aap.Client, stdin io.Reader, stdout
 
 	// The request carries the tool as its server defines it, with the
 	// server alias apart, never the host's mcp__<server>__ spelling.
-	call := aap.IdentifyTool(in.ToolName, aap.NamingMCPPrefixed)
+	call := tool.Identify(in.ToolName, tool.NamingMCPPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    runtime,
