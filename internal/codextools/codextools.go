@@ -173,10 +173,16 @@ func (r Resolver) save(cache map[string]cacheEntry) {
 }
 
 // Servers reads the [mcp_servers.<name>] tables of a Codex config:
-// command, args, env and cwd for stdio, url plus http_headers for
-// streamable HTTP. A table with enabled = false is one Codex itself will
-// not start. A missing file is an empty list.
+// command, args, env and cwd for stdio; url with http_headers,
+// env_http_headers (header names mapped to the environment variables
+// holding their values) and bearer_token_env_var for streamable HTTP. A
+// table with enabled = false is one Codex itself will not start. A
+// missing file is an empty list.
 func Servers(configPath string) ([]mcpclient.Spec, error) {
+	return servers(configPath, os.Getenv)
+}
+
+func servers(configPath string, getenv func(string) string) ([]mcpclient.Spec, error) {
 	content, err := os.ReadFile(configPath)
 	if os.IsNotExist(err) {
 		return nil, nil
@@ -205,6 +211,22 @@ func Servers(configPath string) ([]mcpclient.Spec, error) {
 		if url := asString(entry["url"]); url != "" {
 			spec.URL = url
 			spec.Headers = asStringMap(entry["http_headers"])
+			for header, variable := range asStringMap(entry["env_http_headers"]) {
+				if value := getenv(variable); value != "" {
+					if spec.Headers == nil {
+						spec.Headers = map[string]string{}
+					}
+					spec.Headers[header] = value
+				}
+			}
+			if variable := asString(entry["bearer_token_env_var"]); variable != "" {
+				if token := getenv(variable); token != "" {
+					if spec.Headers == nil {
+						spec.Headers = map[string]string{}
+					}
+					spec.Headers["Authorization"] = "Bearer " + token
+				}
+			}
 		} else {
 			spec.Command = asString(entry["command"])
 			spec.Args = asStrings(entry["args"])

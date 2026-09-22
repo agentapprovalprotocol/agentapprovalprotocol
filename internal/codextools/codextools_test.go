@@ -128,6 +128,23 @@ func TestResolveOverHTTPAndUnauthorizedFallsBackToTheAlias(t *testing.T) {
 	}
 }
 
+func TestServersReadTokensFromTheEnvironment(t *testing.T) {
+	locked := httptest.NewServer(mcptest.HTTPHandler("secret"))
+	defer locked.Close()
+	home := filepath.Join(t.TempDir(), ".codex")
+	writeConfig(t, home, "[mcp_servers.locked]\nurl = "+strconv.Quote(locked.URL)+"\nbearer_token_env_var = \"LOCKED_TOKEN\"\n[mcp_servers.locked.env_http_headers]\nX-Team = \"TEAM_NAME\"\n")
+	t.Setenv("LOCKED_TOKEN", "secret")
+	t.Setenv("TEAM_NAME", "payments")
+	specs, err := Servers(filepath.Join(home, "config.toml"))
+	if err != nil || len(specs) != 1 || specs[0].Headers["Authorization"] != "Bearer secret" || specs[0].Headers["X-Team"] != "payments" {
+		t.Fatalf("specs %+v, %v", specs, err)
+	}
+	r := Resolver{Home: home, CacheDir: t.TempDir()}
+	if got := r.Resolve(context.Background(), tool.Identity{Tool: "gmail_send_email", Server: "locked"}); got != (tool.Identity{Tool: "gmail.send_email", Server: "locked"}) {
+		t.Fatalf("bearer listing: %+v", got)
+	}
+}
+
 func TestResolveWithoutCacheDirRecoversOnlyTheAlias(t *testing.T) {
 	home := filepath.Join(t.TempDir(), ".codex")
 	writeConfig(t, home, fixtureConfig("google-mail"))
