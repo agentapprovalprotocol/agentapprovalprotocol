@@ -28,7 +28,15 @@ func TestSixRuntimeHooks(t *testing.T) {
 		t.Run(key, func(t *testing.T) {
 			p := testprovider.New(t)
 			c := p.Client(t)
-			raw := payload(key, "mcp__stripe__create_refund")
+			// Each runtime's own spelling of the same Stripe tool.
+			name, wantServer := "mcp__stripe__create_refund", "stripe"
+			switch key {
+			case "openclaw":
+				name = "stripe__create_refund"
+			case "pi":
+				name, wantServer = "create_refund", ""
+			}
+			raw := payload(key, name)
 			var out bytes.Buffer
 			if err := Run(context.Background(), key, c, raw, &out); err != nil || denied(out.String()) {
 				t.Fatalf("approval %s: %v", out.String(), err)
@@ -41,7 +49,7 @@ func TestSixRuntimeHooks(t *testing.T) {
 			if in.Timeout != wantTimeout {
 				t.Fatalf("approval timeout = %s, want %s", in.Timeout, wantTimeout)
 			}
-			if in.Tool != "create_refund" || in.Context["mcp_server"] != "stripe" || in.Context["runtime"] != key || in.Arguments["amount"] != json.Number("9007199254740993") {
+			if in.Tool != "create_refund" || in.Server != wantServer || in.Context["mcp_server"] != nil || in.Context["runtime"] != key || in.Arguments["amount"] != json.Number("9007199254740993") {
 				t.Fatalf("submission %+v", in)
 			}
 			out.Reset()

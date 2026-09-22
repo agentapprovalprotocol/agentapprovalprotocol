@@ -39,8 +39,9 @@ import (
 // and defaults to a week plus the request margin.
 //
 // MCP tools are named `<server>__<tool>` by OpenClaw's bundle manager with
-// no marker prefix, so the first double underscore is the seam and the
-// server alias goes to context.mcp_server.
+// no marker prefix, so the first double underscore is the seam between the
+// request's server and tool. Names the bundle manager had to truncate to
+// fit a provider's limit stay opaque.
 func OpenClaw(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writer) error {
 	raw, err := io.ReadAll(stdin)
 	if err != nil {
@@ -64,10 +65,7 @@ func OpenClaw(ctx context.Context, client *aap.Client, stdin io.Reader, stdout i
 		in.Params = map[string]any{}
 	}
 
-	tool, mcpServer := aap.CanonicalTool(in.ToolName)
-	if mcpServer == "" {
-		tool, mcpServer = splitServerPrefixedTool(tool)
-	}
+	call := aap.IdentifyTool(in.ToolName, aap.NamingServerPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    "openclaw",
@@ -80,7 +78,6 @@ func OpenClaw(ctx context.Context, client *aap.Client, stdin io.Reader, stdout i
 		"agent_id":    in.AgentID,
 		"tool_kind":   in.ToolKind,
 		"cwd":         in.Cwd,
-		"mcp_server":  mcpServer,
 	} {
 		if v != "" {
 			requestContext[k] = v
@@ -98,11 +95,12 @@ func OpenClaw(ctx context.Context, client *aap.Client, stdin io.Reader, stdout i
 		}
 	}
 	decision, err := gate(ctx, client, aap.CreateInput{
-		Tool:           tool,
+		Tool:           call.Tool,
+		Server:         call.Server,
 		Arguments:      in.Params,
 		Context:        requestContext,
 		Timeout:        fmt.Sprintf("%ds", int(timeout.Seconds())),
-		IdempotencyKey: aap.IdempotencyKey(attempt, tool, in.Params),
+		IdempotencyKey: aap.IdempotencyKey(attempt, call, in.Params),
 	})
 	switch {
 	case err != nil:
@@ -140,16 +138,4 @@ type openclawVerdict struct {
 	Gated     bool   `json:"gated"`
 	Decision  string `json:"decision"`
 	Reason    string `json:"reason,omitempty"`
-}
-
-// splitServerPrefixedTool applies OpenClaw's MCP naming rule, which is
-// `<server>__<tool>` with no marker prefix. Built-in tools never carry a
-// double underscore, so the first one is the seam. Names the bundle
-// manager had to truncate to fit a provider's limit stay opaque.
-func splitServerPrefixedTool(tool string) (string, string) {
-	server, name, ok := strings.Cut(tool, "__")
-	if !ok || server == "" || name == "" {
-		return tool, ""
-	}
-	return name, server
 }

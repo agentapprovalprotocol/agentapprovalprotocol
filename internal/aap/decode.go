@@ -34,7 +34,7 @@ func decodeRequest(raw []byte) (*Request, error) {
 	if err := uniqueKeys(raw); err != nil {
 		return nil, err
 	}
-	object, err := protocolObject(raw, []string{"id", "tool", "arguments", "timeout", "agent_reasoning", "context", "status", "created_at", "deadline_at", "decision"}, []string{"id", "tool", "arguments", "timeout", "status", "created_at", "deadline_at"})
+	object, err := protocolObject(raw, []string{"id", "tool", "server", "arguments", "timeout", "agent_reasoning", "context", "status", "created_at", "deadline_at", "decision"}, []string{"id", "tool", "arguments", "timeout", "status", "created_at", "deadline_at"})
 	if err != nil {
 		return nil, err
 	}

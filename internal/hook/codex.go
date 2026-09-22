@@ -78,9 +78,10 @@ func Codex(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.W
 		}
 	}
 
-	// Canonical tool identity: strip the host's mcp__<server>__ prefix,
-	// carry the server alias in context.
-	tool, mcpServer := aap.CanonicalTool(in.ToolName)
+	// Codex spells MCP tools the Claude Code way, with server and tool
+	// names sanitised to [A-Za-z0-9_]; the request carries that spelling
+	// split apart, since the hook cannot recover the original names.
+	call := aap.IdentifyTool(in.ToolName, aap.NamingMCPPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    "codex",
@@ -92,9 +93,6 @@ func Codex(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.W
 	if in.ToolUseID != "" {
 		requestContext["call_id"] = in.ToolUseID
 	}
-	if mcpServer != "" {
-		requestContext["mcp_server"] = mcpServer
-	}
 	// One logical request per execution attempt, as in the Claude Code
 	// hook. PreToolUse carries a tool_use_id per call; PermissionRequest
 	// only carries the turn. Both must be in the key: the provider binds
@@ -103,11 +101,12 @@ func Codex(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.W
 	// in a later turn a 409 instead of a fresh approval.
 	attempt := strings.Join([]string{in.SessionID, in.TurnID, in.ToolUseID}, "\x00")
 	decision, err := gate(ctx, client, aap.CreateInput{
-		Tool:           tool,
+		Tool:           call.Tool,
+		Server:         call.Server,
 		Arguments:      in.ToolInput,
 		Context:        requestContext,
 		Timeout:        fmt.Sprintf("%ds", int(requestTimeout.Seconds())),
-		IdempotencyKey: aap.IdempotencyKey(attempt, tool, in.ToolInput),
+		IdempotencyKey: aap.IdempotencyKey(attempt, call, in.ToolInput),
 	})
 	switch {
 	case err != nil:

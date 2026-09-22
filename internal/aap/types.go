@@ -26,6 +26,7 @@ const (
 
 type CreateInput struct {
 	Tool           string         `json:"tool"`
+	Server         string         `json:"server,omitempty"`
 	Arguments      map[string]any `json:"arguments"`
 	Timeout        string         `json:"timeout"`
 	AgentReasoning string         `json:"agent_reasoning,omitempty"`
@@ -35,6 +36,7 @@ type CreateInput struct {
 type Request struct {
 	ID             string         `json:"id"`
 	Tool           string         `json:"tool"`
+	Server         string         `json:"server,omitempty"`
 	Arguments      map[string]any `json:"arguments"`
 	Timeout        string         `json:"timeout"`
 	AgentReasoning string         `json:"agent_reasoning,omitempty"`
@@ -119,7 +121,7 @@ func validate(r *Request, in CreateInput, previous *Request) error {
 	if _, err := uuid.Parse(r.ID); err != nil {
 		return bad
 	}
-	if r.Tool != in.Tool || r.Arguments == nil || !equalJSON(r.Arguments, in.Arguments) || r.Timeout != in.Timeout || r.AgentReasoning != in.AgentReasoning || !equalJSON(r.Context, in.Context) {
+	if r.Tool != in.Tool || r.Server != in.Server || r.Arguments == nil || !equalJSON(r.Arguments, in.Arguments) || r.Timeout != in.Timeout || r.AgentReasoning != in.AgentReasoning || !equalJSON(r.Context, in.Context) {
 		return bad
 	}
 	created, e1 := time.Parse(time.RFC3339Nano, r.CreatedAt)

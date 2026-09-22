@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-09-22
 ---
 
 # Requests and Decisions
@@ -21,6 +21,7 @@ For example:
 ```json
 {
   "tool": "issue_refund",
+  "server": "stripe",
   "arguments": {
     "payment_id": "payment_123",
     "amount": 4900,
@@ -41,6 +42,23 @@ The provider may use `agent_reasoning` to help a reviewer understand the request
 However, it is a claim from the agent and must be presented as such.
 
 `context` is information collected by the adapter.
+
+## Tool Identity
+
+`tool` is the name under which the tool is defined.
+For a tool served over MCP, that is the name the server advertises in `tools/list`.
+For a tool built into the runtime, it is the runtime's own name for it.
+
+`server` is the alias of the MCP server that defines the tool, as the runtime configured it.
+It is present only for tools served over MCP.
+It is a label observed by the adapter and does not establish the server's identity.
+
+Runtimes commonly join the two into one name when presenting tools to the model, such as `mcp__stripe__create_refund`.
+The adapter must split that spelling into `tool` and `server` before submitting the request.
+It must not submit the joined name.
+
+The provider must record and return both fields unchanged.
+A rule that matches on `tool` therefore sees the same name for the same tool whichever runtime intercepted the call.
 
 ## Request Resource
 

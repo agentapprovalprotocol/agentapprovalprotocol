@@ -49,7 +49,7 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 		return nil
 	}
 
-	tool, mcpServer := aap.CanonicalTool(in.ToolName)
+	call := aap.IdentifyTool(in.ToolName, aap.NamingMCPPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    "hermes",
@@ -62,7 +62,6 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 		"turn_id":        in.Extra.TurnID,
 		"api_request_id": in.Extra.APIRequestID,
 		"cwd":            in.Cwd,
-		"mcp_server":     mcpServer,
 	} {
 		if value != "" {
 			requestContext[key] = value
@@ -80,11 +79,12 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 		in.Extra.ToolCallID,
 	}, "\x00")
 	decision, err := gate(ctx, client, aap.CreateInput{
-		Tool:           tool,
+		Tool:           call.Tool,
+		Server:         call.Server,
 		Arguments:      in.ToolInput,
 		Context:        requestContext,
 		Timeout:        fmt.Sprintf("%ds", int(hermesApprovalTimeout.Seconds())),
-		IdempotencyKey: aap.IdempotencyKey(attempt, tool, in.ToolInput),
+		IdempotencyKey: aap.IdempotencyKey(attempt, call, in.ToolInput),
 	})
 	switch {
 	case err != nil:
