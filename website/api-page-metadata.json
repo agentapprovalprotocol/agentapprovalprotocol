@@ -1,7 +1,7 @@
 {
   "specification/reference/instances": { "lastModified": "2026-09-17" },
-  "specification/reference/requests": { "lastModified": "2026-09-16" },
+  "specification/reference/requests": { "lastModified": "2026-09-22" },
   "specification/reference/webhooks": { "lastModified": "2026-09-16" },
-  "specification/reference/schemas": { "lastModified": "2026-09-17" },
-  "specification/reference/openapi": { "lastModified": "2026-09-17" }
+  "specification/reference/schemas": { "lastModified": "2026-09-22" },
+  "specification/reference/openapi": { "lastModified": "2026-09-22" }
 }

@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/aap"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 )
 
 // preToolUseInput is the JSON Claude Code pipes to a PreToolUse hook. The
@@ -72,10 +73,9 @@ func preToolUse(ctx context.Context, client *aap.Client, stdin io.Reader, stdout
 		return nil
 	}
 
-	// The pipeline and the queue speak canonical tool names: for MCP tools
-	// that is the server-defined name, with the host's mcp__<server>__
-	// prefix stripped. The server alias travels in context instead.
-	tool, mcpServer := aap.CanonicalTool(in.ToolName)
+	// The request carries the tool as its server defines it, with the
+	// server alias apart, never the host's mcp__<server>__ spelling.
+	call := tool.Identify(in.ToolName, tool.NamingMCPPrefixed)
 
 	requestContext := map[string]any{
 		"runtime":    runtime,
@@ -84,9 +84,6 @@ func preToolUse(ctx context.Context, client *aap.Client, stdin io.Reader, stdout
 	}
 	if in.ToolUseID != "" {
 		requestContext["call_id"] = in.ToolUseID
-	}
-	if mcpServer != "" {
-		requestContext["mcp_server"] = mcpServer
 	}
 	// A stable call ID recovers the same execution attempt. Without one, the
 	// shared gate generates a fresh key for this invocation.
@@ -97,12 +94,13 @@ func preToolUse(ctx context.Context, client *aap.Client, stdin io.Reader, stdout
 	// Agent and instance identity come from the credential, not the body;
 	// context never overrides the credential identity.
 	decision, err := gate(ctx, client, aap.CreateInput{
-		Tool:           tool,
+		Tool:           call.Tool,
+		Server:         call.Server,
 		Arguments:      in.ToolInput,
 		AgentReasoning: transcriptReasoning(in.TranscriptPath),
 		Context:        requestContext,
 		Timeout:        fmt.Sprintf("%ds", int(requestTimeout.Seconds())),
-		IdempotencyKey: aap.IdempotencyKey(attempt, tool, in.ToolInput),
+		IdempotencyKey: aap.IdempotencyKey(attempt, call, in.ToolInput),
 	})
 	switch {
 	case err != nil:

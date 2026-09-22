@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/storage"
+	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 	"github.com/google/uuid"
 )
 
@@ -44,16 +45,9 @@ func ValidateConfig(token, baseURL, glob string) error {
 func NewClient(baseURL, token string) *Client {
 	return &Client{BaseURL: strings.TrimRight(baseURL, "/"), Token: token, HTTP: &http.Client{Timeout: 35 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
 }
-func CanonicalTool(name string) (string, string) {
-	parts := strings.Split(name, "__")
-	if len(parts) >= 3 && parts[0] == "mcp" {
-		return strings.Join(parts[2:], "__"), parts[1]
-	}
-	return name, ""
-}
-func IdempotencyKey(attempt, tool string, args map[string]any) string {
+func IdempotencyKey(attempt string, call tool.Identity, args map[string]any) string {
 	raw, _ := json.Marshal(args)
-	return digest(attempt + "\x00" + tool + "\x00" + string(raw))
+	return digest(attempt + "\x00" + call.Server + "\x00" + call.Tool + "\x00" + string(raw))
 }
 func digest(s string) string { h := sha256.Sum256([]byte(s)); return hex.EncodeToString(h[:]) }
 

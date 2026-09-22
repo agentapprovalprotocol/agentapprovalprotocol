@@ -74,7 +74,7 @@ func (p *Provider) serve(w http.ResponseWriter, r *http.Request) {
 		if req == nil {
 			now := time.Now().UTC()
 			id = uuid.NewString()
-			req = &aap.Request{ID: id, Tool: in.Tool, Arguments: in.Arguments, Timeout: in.Timeout, Context: in.Context, AgentReasoning: in.AgentReasoning, Status: aap.StatusPending, CreatedAt: now.Format(time.RFC3339Nano), DeadlineAt: now.Add(time.Minute).Format(time.RFC3339Nano)}
+			req = &aap.Request{ID: id, Tool: in.Tool, Server: in.Server, Arguments: in.Arguments, Timeout: in.Timeout, Context: in.Context, AgentReasoning: in.AgentReasoning, Status: aap.StatusPending, CreatedAt: now.Format(time.RFC3339Nano), DeadlineAt: now.Add(time.Minute).Format(time.RFC3339Nano)}
 			p.keys[key] = id
 			p.requests[id] = req
 		}
