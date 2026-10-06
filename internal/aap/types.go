@@ -163,6 +163,25 @@ func validate(r *Request, in CreateInput, previous *Request) error {
 
 const FailClosedText = "The approval adapter could not obtain a valid AAP decision. The call was not run."
 
+// ErrCredentialRefused reports that the provider refused the instance
+// credential (HTTP 401 or 403). Unlike an outage it does not clear on its
+// own: every call fails the same way until someone acts.
+var ErrCredentialRefused = errors.New("the provider refused the instance credential")
+
+// FailureText is the deny reason for a call that got no valid decision. A
+// refused credential blocks every call until someone acts, so its text says
+// so and names the way out rather than the generic boundary text.
+func (c *Client) FailureText(err error) string {
+	if !errors.Is(err, ErrCredentialRefused) {
+		return FailClosedText
+	}
+	text := "The approval provider refused this runtime's credential, so no tool call can run. Its agent may have been archived or disabled, or the credential revoked. Ask whoever manages the agent"
+	if c.EjectCommand != "" {
+		text += ", or remove the approval adapter from this runtime with `" + c.EjectCommand + "`"
+	}
+	return text + ". The call was not run."
+}
+
 func BoundaryText(d Decision) string {
 	switch d.Status {
 	case StatusDenied:

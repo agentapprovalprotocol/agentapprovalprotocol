@@ -185,3 +185,20 @@ func TestNativeDeniedOutcomes(t *testing.T) {
 		}
 	}
 }
+func TestRefusedCredentialNamesEject(t *testing.T) {
+	for _, key := range []string{"claude-code", "codex", "deepseek", "hermes", "openclaw", "pi"} {
+		t.Run(key, func(t *testing.T) {
+			p := testprovider.New(t)
+			c := p.Client(t)
+			c.Token = "revoked-token"
+			c.EjectCommand = "provider agent eject " + key
+			var out bytes.Buffer
+			if err := Run(context.Background(), key, c, payload(key, "mcp__stripe__create_refund"), &out); err != nil {
+				t.Fatal(err)
+			}
+			if !denied(out.String()) || !strings.Contains(out.String(), "provider agent eject "+key) {
+				t.Fatalf("refused credential: %s", out.String())
+			}
+		})
+	}
+}

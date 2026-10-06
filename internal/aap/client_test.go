@@ -3,6 +3,7 @@ package aap_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -278,5 +279,28 @@ func TestRedirectDoesNotSendCredential(t *testing.T) {
 	}
 	if leaked.Load() {
 		t.Fatal("credential followed redirect")
+	}
+}
+func TestRefusedCredentialIsReported(t *testing.T) {
+	for _, tc := range []struct {
+		status  int
+		refused bool
+	}{{http.StatusUnauthorized, true}, {http.StatusForbidden, true}, {http.StatusNotFound, false}} {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(tc.status) }))
+		c := aap.NewClient(server.URL, "test-token")
+		c.StateDir = t.TempDir()
+		c.EjectCommand = "provider agent eject pi"
+		d, err := c.Decide(context.Background(), input())
+		server.Close()
+		if err == nil || d.Allows() {
+			t.Fatalf("HTTP %d accepted", tc.status)
+		}
+		if errors.Is(err, aap.ErrCredentialRefused) != tc.refused {
+			t.Fatalf("HTTP %d: refused = %v, want %v", tc.status, !tc.refused, tc.refused)
+		}
+		text := c.FailureText(err)
+		if strings.Contains(text, "provider agent eject pi") != tc.refused || (text == aap.FailClosedText) == tc.refused {
+			t.Fatalf("HTTP %d: %q", tc.status, text)
+		}
 	}
 }

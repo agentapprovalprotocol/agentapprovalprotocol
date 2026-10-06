@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-06
 ---
 
 # DeepSeek Harness
@@ -49,3 +49,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - **No approval requests:** Check that you are using the profile shown in the installation notes. Other profiles are not covered by that installation.
 - **CLI moved or removed:** DeepSeek may continue without approvals if it cannot start AAP. Restore the CLI or reinstall it, then repeat the adapter installation and the approval test.
 - **An approved call still stops:** Check the harness's own permissions and sandbox settings.
+- **Every call denied with a refused credential:** The agent may have been archived or disabled, or its token revoked. Ask whoever manages it in your provider, repeat the install command with a new token, or run `aap agent eject deepseek` to stop gating DeepSeek.

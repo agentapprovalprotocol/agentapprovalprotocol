@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-06
 ---
 
 # Hermes Agent
@@ -45,3 +45,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - **No approval requests:** Check `hermes hooks list` and make sure you accepted the hook consent prompt. Check your token and provider URL if requests still do not appear.
 - **Adding other hooks:** Keep AAP last in Hermes's `pre_tool_call` list so later hooks cannot change an approved action. Rerunning the install command puts AAP last again.
 - **Requests expire:** Complete the review within four and a half minutes. After expiry, ask the agent to retry so it creates a new request.
+- **Every call denied with a refused credential:** The agent may have been archived or disabled, or its token revoked. Ask whoever manages it in your provider, repeat the install command with a new token, or run `aap agent eject hermes` to stop gating Hermes.
