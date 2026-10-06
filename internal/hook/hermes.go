@@ -90,7 +90,7 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 	switch {
 	case err != nil:
 		fmt.Fprintf(os.Stderr, "aap: fail closed: %v\n", err)
-		block(aap.FailClosedText)
+		block(client.FailureText(err))
 	case decision.Allows():
 		approve(in.ToolInput)
 	default:

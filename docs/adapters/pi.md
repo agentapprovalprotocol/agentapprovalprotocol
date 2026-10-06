@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-06
 ---
 
 # Pi
@@ -49,3 +49,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - **Incomplete installation:** Run the `pi install` command printed in the installation notes, then repeat `aap agent install pi` with your token and provider URL.
 - **No approval requests:** Start a fresh Pi session. Check your token and provider URL if requests still do not appear.
 - **Other extensions:** Extensions that replace tool inputs after approval can change what actually runs. Avoid combining AAP with extensions that make those changes after review.
+- **Every call denied with a refused credential:** The agent may have been archived or disabled, or its token revoked. Ask whoever manages it in your provider, repeat the install command with a new token, or run `aap agent eject pi` to stop gating Pi.

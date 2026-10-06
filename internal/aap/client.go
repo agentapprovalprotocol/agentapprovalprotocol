@@ -26,7 +26,10 @@ type Client struct {
 	// CacheDir is where hooks keep local caches they can rebuild, such as
 	// the Codex tool name listings; empty disables them.
 	CacheDir string
-	HTTP     *http.Client
+	// EjectCommand removes this adapter from its runtime. Deny reasons
+	// quote it when the provider refuses the credential.
+	EjectCommand string
+	HTTP         *http.Client
 }
 
 func ValidateConfig(token, baseURL, glob string) error {
@@ -187,6 +190,10 @@ func (c *Client) exchange(ctx context.Context, method, endpoint string, body []b
 			}
 			delay = min(delay*2, 2*time.Second)
 			continue
+		}
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			resp.Body.Close()
+			return prev, fmt.Errorf("%w (HTTP %d)", ErrCredentialRefused, resp.StatusCode)
 		}
 		validCode := resp.StatusCode == http.StatusOK || (method == http.MethodPost && resp.StatusCode == http.StatusCreated)
 		if !validCode {

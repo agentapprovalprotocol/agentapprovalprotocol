@@ -115,7 +115,7 @@ func Codex(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.W
 	})
 	switch {
 	case err != nil:
-		deny(aap.FailClosedText)
+		deny(client.FailureText(err))
 	case decision.Allows():
 		if isPermissionRequest && !decision.Bypassed {
 			emitPermission(stdout, "allow", "") // the queue replaced the local prompt
