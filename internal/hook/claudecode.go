@@ -108,7 +108,7 @@ func preToolUse(ctx context.Context, client *aap.Client, stdin io.Reader, stdout
 		// call is classified. The underlying error goes to stderr for the
 		// runtime's debug log; the model only ever sees the boundary text.
 		fmt.Fprintf(os.Stderr, "aap: fail closed: %v\n", err)
-		emitDeny(stdout, aap.FailClosedText)
+		emitDeny(stdout, client.FailureText(err))
 	case decision.Allows():
 		// passthrough, not "allow": local permissions still apply
 	default:

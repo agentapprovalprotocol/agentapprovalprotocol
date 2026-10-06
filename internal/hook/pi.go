@@ -81,7 +81,7 @@ func Pi(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writ
 	switch {
 	case err != nil:
 		fmt.Fprintf(os.Stderr, "aap: fail closed: %v\n", err)
-		deny(aap.FailClosedText)
+		deny(client.FailureText(err))
 	case decision.Allows():
 		allow(!decision.Bypassed, decision.ExpiresAt)
 	default:

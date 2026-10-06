@@ -210,3 +210,16 @@ func TestManualOpenClawRegistrationIsReportedIncomplete(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+func TestRefusedCredentialNamesImportingExecutable(t *testing.T) {
+	p := testprovider.New(t)
+	m := manager(t, nil)
+	a, _ := m.Lookup("claude-code")
+	if _, err := a.Install("revoked-token", p.Server.URL+"/custom/aap"); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	err := a.RunHook(context.Background(), strings.NewReader(`{"hook_event_name":"PreToolUse","session_id":"s","tool_use_id":"1","tool_name":"Bash","tool_input":{"command":"ls"}}`), &out)
+	if err != nil || !strings.Contains(out.String(), "provider agent eject claude-code") {
+		t.Fatalf("%s %v", out.String(), err)
+	}
+}

@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-06
 ---
 
 # Claude Code
@@ -47,3 +47,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - If requests do not appear, start a fresh Claude Code session and check your token and provider URL. Repeat the install command to update them.
 - If an approved call still stops, check Claude Code's own permissions and any other hooks you have installed.
 - Other hooks can change an action after AAP has approved it. Avoid hooks that rewrite tool inputs after the approval check.
+- If every call is denied because the provider refused the credential, the agent may have been archived or disabled, or its token revoked. Ask whoever manages it in your provider, repeat the install command with a new token, or run `aap agent eject claude-code` to stop gating Claude Code.

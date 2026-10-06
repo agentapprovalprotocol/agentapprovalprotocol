@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-06
 ---
 
 # OpenClaw
@@ -47,3 +47,4 @@ Confirm removal when prompted. This removes the adapter and its saved token from
 - **Manual setup requested:** If your OpenClaw configuration uses JSON5, add the settings printed by the installer to `~/.openclaw/openclaw.json`, preserving your other plugins. AAP cannot automatically verify JSON5 setup, so status may remain incomplete. To use automatic setup, convert the file to standard JSON and rerun installation.
 - **No approval requests:** Restart the Gateway after installation or changes to the adapter. Check your token and provider URL if requests still do not appear.
 - **Other plugins:** Plugins that change tool inputs after AAP approves them can change what actually runs. Avoid combining AAP with plugins that make those changes after review.
+- **Every call denied with a refused credential:** The agent may have been archived or disabled, or its token revoked. Ask whoever manages it in your provider, repeat the install command with a new token, or run `aap agent eject openclaw` to stop gating OpenClaw.
