@@ -14,4 +14,5 @@ This repository contains the provider-independent AAP specification, Go adapter 
 - Keep user guides concise, with small command examples and actionable troubleshooting. Preserve limitations that affect whether approvals work, and tell users what to do about them. Link to shared instructions instead of repeating them.
 - Include technical details only when users need them to complete a task or understand a practical limitation. Omit internal storage layouts, hook payloads, polling mechanics, trust records and implementation source links from user guides. Keep protocol and implementation details in the specification or developer documentation; keep optional library examples short.
 - Never copy proprietary font files into this repository.
+- Never credit AI agents in commit messages or pull requests. Leave out co-author trailers, "generated with" lines and agent signatures. Contributors must be able to stand behind every change they submit as their own.
 - Keep instructions in this file. `AGENTS.md` must remain a relative symlink to `CLAUDE.md`.
