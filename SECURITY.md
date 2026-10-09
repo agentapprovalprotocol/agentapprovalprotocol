@@ -17,19 +17,22 @@ We will confirm that we received your report, keep you updated while we investig
 
 ## Scope
 
+Only the latest release is in scope. Reproduce the issue on it before reporting.
+
 In scope:
 
-- The [specification](docs/specification/) and [OpenAPI contract](openapi.yaml), including requirements that would let a conforming adapter or provider accept an unapproved call.
-- The Go adapter library, the `aap` CLI and the native runtime plugins in this repository.
-- The installer and published release artifacts at `downloads.agentapprovalprotocol.io`.
+- The current [specification](docs/specification/) and [OpenAPI contract](openapi.yaml), including requirements that would let a conforming adapter or provider accept an unapproved call.
+- The latest release of the `aap` CLI, including the Go adapter library and native runtime plugins it installs.
+- The installer at `downloads.agentapprovalprotocol.io/install.sh`.
 - The documentation website.
 
 Out of scope:
 
+- Earlier releases. Update to the latest release and check whether the issue still occurs.
 - Approval providers. Report those to the provider directly.
 - Agent runtimes such as Claude Code or Codex, unless the issue is in how AAP integrates with them.
 - Tool calls that never pass through an adapter. An adapter only controls the calls routed through it, as described in [adapter coverage and limits](https://agentapprovalprotocol.io/docs/concepts/adapter#where-the-adapter-runs).
 
 ## Supported versions
 
-Security fixes are released in the latest version of the `aap` CLI. Rerun the [installer](deployment/cli/README.md) to update.
+Only the latest release of the `aap` CLI receives security fixes. Earlier releases are not patched. Rerun the [installer](deployment/cli/README.md) to update, then reinstall your adapters with `aap agent install` so they pick up the fixed hooks and plugins.
