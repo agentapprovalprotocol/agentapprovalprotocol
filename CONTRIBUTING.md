@@ -1,10 +1,12 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-09
 ---
 
 # Contributing to AAP
 
 Contributions to the specification, adapters and documentation are welcome. [Open an issue](https://github.com/agentapprovalprotocol/agentapprovalprotocol/issues) to report a problem or discuss a change, or submit a pull request.
+
+To report a security vulnerability, follow the [security policy](SECURITY.md) instead of opening a public issue.
 
 ## Repository layout
 
