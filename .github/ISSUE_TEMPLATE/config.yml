@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/agentapprovalprotocol/agentapprovalprotocol/security/advisories/new
+    about: Report vulnerabilities privately instead of opening an issue.
+  - name: Ask a question
+    url: https://discord.gg/3ahDGxYvTZ
+    about: Get help setting up AAP or discuss ideas on Discord.
