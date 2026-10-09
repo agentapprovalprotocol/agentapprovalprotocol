@@ -51,3 +51,11 @@ test("the sitemap includes the explicit metadata date for every canonical page",
   assert.deepEqual(Object.keys(apiPageMetadata).sort(), generatedSlugs.sort());
   assert.deepEqual(sitemap(), entries);
 });
+
+test("every page has a search description long enough for result snippets", () => {
+  for (const page of getAllDocs()) {
+    const { length } = page.metaDescription;
+    assert.ok(length >= 110 && length <= 160, `${page.slug} metaDescription is ${length} characters`);
+    assert.ok(!page.metaDescription.includes("—"), page.slug);
+  }
+});
