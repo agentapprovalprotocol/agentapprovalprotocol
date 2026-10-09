@@ -1,0 +1,34 @@
+name: Protocol change
+description: Propose a change to the specification or the OpenAPI contract.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Protocol changes affect every adapter and provider. Read the [governance note](https://github.com/agentapprovalprotocol/agentapprovalprotocol/blob/main/GOVERNANCE.md#decisions) for how they are decided.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can adapters, providers or reviewers not do today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the new or changed requirements, fields or operations.
+    validations:
+      required: true
+  - type: input
+    id: sections
+    attributes:
+      label: Affected sections
+      placeholder: 4_requests.md, openapi.yaml ApprovalRequest
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility
+      description: Would existing conforming adapters or providers keep working? If not, what breaks?
+    validations:
+      required: true

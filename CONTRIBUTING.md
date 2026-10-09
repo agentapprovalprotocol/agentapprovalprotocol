@@ -8,6 +8,8 @@ Contributions to the specification, adapters and documentation are welcome. [Ope
 
 To report a security vulnerability, follow the [security policy](SECURITY.md) instead of opening a public issue.
 
+Everyone taking part in the project is expected to follow the [code of conduct](CODE_OF_CONDUCT.md). The [governance note](GOVERNANCE.md) explains how decisions are made, including changes to the specification.
+
 ## Repository layout
 
 - `docs/getting-started/` and `docs/concepts/`: introductory documentation and core concepts.
@@ -93,15 +95,7 @@ Responses include `Vary: Accept` alongside other variation headers so caches dis
 
 ## Deployment
 
-Create a Vercel project connected to `agentapprovalprotocol/agentapprovalprotocol`:
-
-1. Select the Next.js framework and set the Root Directory to `website`.
-2. Enable inclusion of source files outside the Root Directory. The build needs the repository's `docs/` and `openapi.yaml`.
-3. Use Node.js 24 and install dependencies with npm using the root workspace lockfile.
-4. Use `main` as the production branch and enable branch previews.
-5. Add `agentapprovalprotocol.io` as the production domain and apply the DNS records Vercel provides.
-
-No provider credentials or environment variables are required to build the documentation. Hosting setup is managed separately from this repository.
+The maintainers deploy the website from `main`, and pull requests get preview deployments. Building the documentation needs no provider credentials or environment variables.
 
 ## License and third-party notices
 
