@@ -17,6 +17,7 @@ from typing import Any, Awaitable, Callable, Iterable, Literal, Mapping, Sequenc
 
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.runnables.config import var_child_runnable_config
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command, interrupt
 
@@ -44,6 +45,25 @@ def _reasoning(state: Any) -> str | None:
             text = message.text if isinstance(message.text, str) else message.text()
             return text.strip() or None
     return None
+
+
+def _pause(request: ToolCallRequest, request_id: str, tool: str) -> None:
+    """Interrupt the run. Returns only on resume, and the value is never read:
+    the provider is asked again, so a resume cannot approve a call."""
+    value = {INTERRUPT_KEY: request_id, "tool": tool, "tool_call_id": request.tool_call["id"]}
+    try:
+        interrupt(value)
+    except RuntimeError:
+        # Python 3.10 can lose the run's config in tasks LangGraph gathers for
+        # parallel tool calls; the tool runtime still carries it.
+        config = getattr(request.runtime, "config", None)
+        if config is None:
+            raise
+        token = var_child_runnable_config.set(config)
+        try:
+            interrupt(value)
+        finally:
+            var_child_runnable_config.reset(token)
 
 
 def _denied(request: ToolCallRequest, verdict: Deny) -> ToolMessage:
@@ -118,9 +138,7 @@ class ApprovalMiddleware(AgentMiddleware):
         call, can_pause = self._call(request)
         verdict: Verdict = self.gate.check(call, can_pause=can_pause)
         while isinstance(verdict, Pending):
-            # Returns only on resume. The resume value is never read: the
-            # provider is asked again, so a resume cannot approve a call.
-            interrupt({INTERRUPT_KEY: verdict.request_id, "tool": call.tool, "tool_call_id": request.tool_call["id"]})
+            _pause(request, verdict.request_id, call.tool)
             verdict = self.gate.check(call, can_pause=can_pause)
         if isinstance(verdict, Deny):
             return _denied(request, verdict)
@@ -138,7 +156,7 @@ class ApprovalMiddleware(AgentMiddleware):
         call, can_pause = self._call(request)
         verdict: Verdict = await self.async_gate.check(call, can_pause=can_pause)
         while isinstance(verdict, Pending):
-            interrupt({INTERRUPT_KEY: verdict.request_id, "tool": call.tool, "tool_call_id": request.tool_call["id"]})
+            _pause(request, verdict.request_id, call.tool)
             verdict = await self.async_gate.check(call, can_pause=can_pause)
         if isinstance(verdict, Deny):
             return _denied(request, verdict)
