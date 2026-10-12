@@ -1,11 +1,6 @@
 <p align="center">
-  <a href="https://agentapprovalprotocol.io">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="website/public/brand/aap-lockup-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="website/public/brand/aap-lockup-light.svg">
-      <img src="website/public/brand/aap-lockup-light.svg" alt="AAP" width="320" height="120">
-    </picture>
-  </a>
+  <a href="https://agentapprovalprotocol.io/#gh-light-mode-only"><img src="website/public/brand/aap-lockup-light.svg#gh-light-mode-only" alt="AAP" width="320" height="120"></a>
+  <a href="https://agentapprovalprotocol.io/#gh-dark-mode-only"><img src="website/public/brand/aap-lockup-dark.svg#gh-dark-mode-only" alt="AAP" width="320" height="120"></a>
 </p>
 
 <h1 align="center">Agent Approval Protocol</h1>
