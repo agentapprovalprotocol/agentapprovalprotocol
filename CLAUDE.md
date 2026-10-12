@@ -9,6 +9,7 @@ This repository contains the provider-independent AAP specification, Go adapter 
 - Run npm commands from the repository root. Use `npm test`, `npm run check`, `make api-lint` and `npm run build` before shipping.
 - Adapter code targets Go 1.25 or later on macOS and Linux. Run `make adapters-test` and `make adapters-build` after Go or native plugin changes. Keep the library independent of provider enrollment and product code.
 - The Python SDK lives in `sdk/python/` (package `agentapprovalprotocol`). Run its commands from that directory with `uv`: `uv run pytest` and `uv build`. It supports Python 3.10 and later. Keep the gate's rules identical in the sync and async forms, and keep framework integrations thin layers over the gate.
+- The TypeScript SDK lives in `sdk/typescript/` (npm package `@agentapprovalprotocol/sdk`, a root workspace). Run its commands from the repository root: `npm test -w sdk/typescript`, `npm run check -w sdk/typescript` and `npm run build -w sdk/typescript`. It supports Node.js 20 and later and has no runtime dependencies. Keep its gate, wire rules and idempotency keys identical to the Python SDK's.
 - Stop the development server before a production build.
 - Use semantic design tokens, the existing docs components and plain prose. Do not add em dashes to user-facing copy.
 - Write user guides for end users. Lead with their tasks and outcomes: setup, what to expect, checking it works, updates and removal. Explain how behavior affects them in plain language.

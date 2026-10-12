@@ -13,5 +13,6 @@ playwright-report/
 /.wrangler/
 /sdk/python/.venv/
 /sdk/python/dist/
+/sdk/typescript/dist/
 __pycache__/
 /sdk/python/.pytest_cache/
