@@ -34,7 +34,7 @@ func decodeRequest(raw []byte) (*Request, error) {
 	if err := uniqueKeys(raw); err != nil {
 		return nil, err
 	}
-	object, err := protocolObject(raw, []string{"id", "tool", "server", "arguments", "timeout", "agent_reasoning", "context", "status", "created_at", "deadline_at", "decision"}, []string{"id", "tool", "arguments", "timeout", "status", "created_at", "deadline_at"})
+	object, err := protocolObject(raw, []string{"id", "tool", "server", "arguments", "timeout", "agent_reasoning", "context", "status", "created_at", "deadline_at", "decision", "consumption"}, []string{"id", "tool", "arguments", "timeout", "status", "created_at", "deadline_at"})
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +53,17 @@ func decodeRequest(raw []byte) (*Request, error) {
 		_, expiry := fields["expires_at"]
 		if expiry != (r.Status == StatusApproved) {
 			return nil, errors.New("invalid approval expiry")
+		}
+	}
+	if consumption, ok := object["consumption"]; ok {
+		fields, err := protocolObject(consumption, []string{"consumed_at", "outcome"}, []string{"consumed_at"})
+		if err != nil {
+			return nil, err
+		}
+		if outcome, ok := fields["outcome"]; ok {
+			if _, err := protocolObject(outcome, []string{"status", "note", "reported_at"}, []string{"status", "reported_at"}); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return &r, nil

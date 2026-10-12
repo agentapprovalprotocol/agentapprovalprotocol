@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-12
 ---
 
 # Adapter
@@ -22,14 +22,14 @@ The adapter captures the actual tool name and arguments, then submits them using
 
 For example, if an agent proposes a refund, the adapter submits the payment ID, amount and currency from the intercepted call. Approval covers that exact refund and one execution attempt. Changing the amount requires a new request.
 
-Before execution, the adapter validates the returned request and decision, checks that the outcome is `approved` and confirms that `decision.expires_at` has not passed. It keeps the approved arguments unchanged and tracks whether the call has already run, so retrieving the same approval again cannot repeat execution.
+Before execution, the adapter validates the returned request and decision, checks that the outcome is `approved` and confirms that `decision.expires_at` has not passed. It keeps the approved arguments unchanged and consumes the approval with the provider just before the call starts. Each approval can be consumed once, so retrieving the same approval again, from any process, cannot repeat execution.
 
 A pending request, denied outcome, invalid response or network failure does not permit execution. If execution is abandoned, the adapter attempts to cancel any pending request.
 
 ```mermaid
 flowchart TD
     accTitle: The adapter controls whether a tool call can execute
-    accDescr: The adapter captures the agent's exact tool call and requests a decision from the provider. It checks that approval matches the request, has not expired and has not already been used for execution. Only a valid approval lets the exact call run once. Otherwise the tool stays blocked, including whilst approval is pending.
+    accDescr: The adapter captures the agent's exact tool call and requests a decision from the provider. It checks that approval matches the request and has not expired, then consumes it with the provider so it cannot be used again. Only a valid approval lets the exact call run once. Otherwise the tool stays blocked, including whilst approval is pending.
     Agent[Agent / harness] -->|Tool call| Capture
     subgraph Adapter
         Capture[Capture the exact call]
@@ -45,6 +45,6 @@ flowchart TD
 
 In [synchronous mode](../specification/6_sync.md), the adapter holds the tool call open and polls when the provider has not decided yet.
 
-In [asynchronous mode](../specification/7_async.md), the harness saves execution state and suspends work. A receiving service verifies and durably records the provider's notification, then arranges for execution to resume. The adapter retrieves the authoritative decision and applies the same execution checks before allowing the saved call to run.
+In [asynchronous mode](../specification/7_async.md), the harness saves execution state and suspends work. A receiving service verifies the provider's notification, then arranges for execution to resume. The adapter retrieves the authoritative decision and applies the same execution checks before allowing the saved call to run.
 
 Read [the approval flow](approval-flow.md) to see these steps together, or the [adapter requirements](../specification/8_security.md#adapter-requirements) for the complete conformance rules.

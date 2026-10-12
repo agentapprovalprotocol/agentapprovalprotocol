@@ -24,11 +24,14 @@ type Provider struct {
 	Pending  bool
 	Mutate   func(*aap.Request)
 	Bodies   []aap.CreateInput
+	// consumed maps a request ID to the idempotency key that consumed it.
+	consumed map[string]string
+	Consumes int
 }
 
 func New(t *testing.T) *Provider {
 	t.Helper()
-	p := &Provider{requests: map[string]*aap.Request{}, keys: map[string]string{}, Status: aap.StatusApproved}
+	p := &Provider{requests: map[string]*aap.Request{}, keys: map[string]string{}, consumed: map[string]string{}, Status: aap.StatusApproved}
 	p.Server = httptest.NewServer(http.HandlerFunc(p.serve))
 	t.Cleanup(p.Server.Close)
 	return p
@@ -53,6 +56,36 @@ func (p *Provider) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	var req *aap.Request
+	if id, ok := strings.CutSuffix(strings.TrimPrefix(r.URL.Path, prefix+"/"), "/consume"); ok && r.Method == "POST" {
+		p.Consumes++
+		req = p.requests[id]
+		key := r.Header.Get("Idempotency-Key")
+		switch {
+		case req == nil:
+			w.WriteHeader(404)
+			return
+		case key == "":
+			w.WriteHeader(400)
+			return
+		case p.consumed[id] != "" && p.consumed[id] != key:
+			conflict(w, "already_consumed")
+			return
+		case p.consumed[id] == key:
+		case req.Status != aap.StatusApproved:
+			conflict(w, "not_approved")
+			return
+		default:
+			expiry, _ := time.Parse(time.RFC3339Nano, req.Decision.ExpiresAt)
+			if !time.Now().Before(expiry) {
+				conflict(w, "approval_expired")
+				return
+			}
+			p.consumed[id] = key
+			req.Consumption = &aap.Consumption{ConsumedAt: time.Now().UTC().Format(time.RFC3339Nano)}
+		}
+		p.write(w, req)
+		return
+	}
 	switch r.Method {
 	case "POST":
 		var in aap.CreateInput
@@ -104,10 +137,21 @@ func (p *Provider) serve(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(405)
 		return
 	}
+	p.write(w, req)
+}
+func conflict(w http.ResponseWriter, code string) {
+	w.WriteHeader(http.StatusConflict)
+	json.NewEncoder(w).Encode(map[string]any{"error": map[string]string{"type": "conflict", "code": code, "message": code, "request_id": uuid.NewString()}})
+}
+func (p *Provider) write(w http.ResponseWriter, req *aap.Request) {
 	out := *req
 	if req.Decision != nil {
 		d := *req.Decision
 		out.Decision = &d
+	}
+	if req.Consumption != nil {
+		c := *req.Consumption
+		out.Consumption = &c
 	}
 	if p.Mutate != nil {
 		p.Mutate(&out)
@@ -128,7 +172,6 @@ func (p *Provider) decide(r *aap.Request) {
 func (p *Provider) Approve() { p.mu.Lock(); defer p.mu.Unlock(); p.Pending = false }
 func (p *Provider) Client(t *testing.T) *aap.Client {
 	c := aap.NewClient(p.Server.URL+"/custom/aap", "test-token")
-	c.StateDir = t.TempDir()
 	c.CacheDir = t.TempDir()
 	return c
 }

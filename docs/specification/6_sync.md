@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-10-12
 ---
 
 # Synchronous Mode
@@ -7,7 +7,7 @@ lastModified: 2026-09-16
 In synchronous mode, the adapter holds the intercepted tool call open whilst waiting for approval.
 It submits an approval request to the provider, then polls until the request reaches a terminal state.
 
-If approved and the approval is still valid, the adapter allows the tool call to execute.
+If approved and the approval is still valid, the adapter consumes the approval and allows the tool call to execute.
 Otherwise, it returns the outcome without executing the call.
 
 ## Flow
@@ -15,8 +15,9 @@ Otherwise, it returns the outcome without executing the call.
 1. The agent makes a tool call.
 2. The adapter intercepts the call and submits an approval request.
 3. If the returned request is pending, the adapter polls for a decision.
-4. Once a decision is available, the adapter applies it to the intercepted call.
+4. Once a decision is available, the adapter applies it to the intercepted call. For an approval, it first consumes the approval with the provider.
 5. The agent receives the tool result or an explanation of why the call did not run.
+6. The adapter may report the call's outcome to the provider.
 
 ```mermaid
 sequenceDiagram
@@ -32,9 +33,14 @@ sequenceDiagram
         Provider-->>Adapter: Current request
     end
     alt Approved and approval still valid
+        Adapter->>Provider: POST /v1/requests/{id}/consume
+        Provider-->>Adapter: Consumed request
         Adapter->>Tool: Execute approved call
         Tool-->>Adapter: Result
         Adapter-->>Agent: Result
+        opt Report the outcome
+            Adapter->>Provider: POST /v1/requests/{id}/outcome
+        end
     else Call not permitted
         Adapter-->>Agent: Call did not run
     end
@@ -43,9 +49,10 @@ sequenceDiagram
 The provider may return a terminal decision in the response to the initial request.
 In that case, the adapter applies the decision immediately and does not poll.
 
-For every approved decision, the adapter must check `decision.expires_at` immediately before allowing the call to start.
+For every approved decision, the adapter must check `decision.expires_at` and then [consume the approval](5_http.md#consume-an-approval) before allowing the call to start.
 This also applies to approvals recovered through a retry.
 If the approval is no longer valid, the adapter reports that it expired without executing the call.
+If the provider reports that the approval was already consumed, the adapter reports that the call was already attempted and does not run it.
 
 ## HTTP Example
 
@@ -160,9 +167,17 @@ X-Request-ID: 85f21849-8387-4b67-a7ef-251cc4fcb67a
 }
 ```
 
-The adapter checks `decision.expires_at` immediately before starting the approved call.
-In this example, the call must start before `12:07:00Z`.
-It then returns the tool's result to the agent.
+The adapter checks `decision.expires_at`, then consumes the approval:
+
+```http
+POST /v1/requests/7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71/consume HTTP/1.1
+Host: approvals.example.com
+Authorization: Bearer <instance_credential>
+Idempotency-Key: 0c6f0d1e-2f5e-4c0a-9d0f-4a3c9a5b7e21
+```
+
+In this example, consumption must succeed before `12:07:00Z`.
+The adapter then starts the call and returns the tool's result to the agent.
 If approval has expired or the outcome does not permit execution, the tool does not run.
 
 ## Polling
@@ -197,5 +212,5 @@ This prevents a person from reviewing a call that nobody is waiting to execute.
 A lost HTTP response alone does not mean execution has been abandoned.
 The adapter can recover the same request using the retry rules in the [HTTP API](5_http.md#idempotency-and-retries).
 
-Recovering an approved request is only enough to continue if the harness knows the tool has not already run.
-An approval record does not record tool execution.
+Recovering an approved request is safe: the adapter still has to consume the approval before the call starts.
+If another attempt already consumed it, the provider refuses with `already_consumed` and the call does not run again.

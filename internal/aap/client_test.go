@@ -7,8 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -102,11 +100,10 @@ func TestConcurrentAndRestartReplay(t *testing.T) {
 	if allowed.Load() != 1 {
 		t.Fatalf("granted %d times", allowed.Load())
 	}
-	next := p.Client(t)
-	next.StateDir = c.StateDir
-	d, err := next.Decide(context.Background(), input())
-	if err == nil || d.Allows() {
-		t.Fatal("replayed across clients")
+	// A second client stands in for a restarted process or another replica.
+	d, err := p.Client(t).Decide(context.Background(), input())
+	if err != nil || d.Allows() || d.Status != aap.StatusConsumed {
+		t.Fatalf("replayed across clients: %+v %v", d, err)
 	}
 	fresh := input()
 	fresh.Context["call_id"] = "another-call"
@@ -128,15 +125,67 @@ func TestMissingCallIDRequestsFreshApproval(t *testing.T) {
 		}
 	}
 }
-func TestConsumptionFailureBlocks(t *testing.T) {
-	p := testprovider.New(t)
-	c := p.Client(t)
-	c.StateDir = filepath.Join(t.TempDir(), "file")
-	os.WriteFile(c.StateDir, []byte("x"), 0600)
-	d, err := c.Decide(context.Background(), input())
-	if err == nil || d.Allows() {
-		t.Fatal("storage failure permitted execution")
+func TestConsumeConflictsBlock(t *testing.T) {
+	for code, want := range map[string]aap.Status{"approval_expired": aap.StatusExpired, "already_consumed": aap.StatusConsumed, "not_approved": ""} {
+		t.Run(code, func(t *testing.T) {
+			p := testprovider.New(t)
+			c := consumeProxy(t, p, func(w http.ResponseWriter) bool {
+				w.WriteHeader(http.StatusConflict)
+				io.WriteString(w, `{"error":{"type":"conflict","code":"`+code+`","message":"refused","request_id":"1184dfc5-0e86-4f88-9b68-882b1dc60467"}}`)
+				return true
+			})
+			d, err := c.Decide(context.Background(), input())
+			if d.Allows() || d.Status != want || (want == "") != (err != nil) {
+				t.Fatalf("%+v %v", d, err)
+			}
+		})
 	}
+}
+func TestConsumeRetryKeepsKey(t *testing.T) {
+	p := testprovider.New(t)
+	var keys []string
+	c := consumeProxy(t, p, func(w http.ResponseWriter) bool {
+		if len(keys) == 1 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return true
+		}
+		return false
+	}, &keys)
+	d, err := c.Decide(context.Background(), input())
+	if err != nil || !d.Allows() {
+		t.Fatalf("%+v %v", d, err)
+	}
+	if len(keys) != 2 || keys[0] == "" || keys[0] != keys[1] {
+		t.Fatalf("consume keys %q", keys)
+	}
+}
+
+// consumeProxy forwards to the provider, letting answer replace the response
+// to consume requests. It records each consume Idempotency-Key in keys.
+func consumeProxy(t *testing.T, p *testprovider.Provider, answer func(http.ResponseWriter) bool, keys ...*[]string) *aap.Client {
+	t.Helper()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/consume") {
+			for _, k := range keys {
+				*k = append(*k, r.Header.Get("Idempotency-Key"))
+			}
+			if answer(w) {
+				return
+			}
+		}
+		req, _ := http.NewRequest(r.Method, p.Server.URL+r.URL.String(), r.Body)
+		req.Header = r.Header
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		defer resp.Body.Close()
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}))
+	t.Cleanup(server.Close)
+	return aap.NewClient(server.URL+"/custom/aap", "test-token")
 }
 func TestGlobAndURL(t *testing.T) {
 	p := testprovider.New(t)
@@ -180,9 +229,11 @@ func TestRetryPreservesSubmissionAndKey(t *testing.T) {
 	var keys, bodies []string
 	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw, _ := io.ReadAll(r.Body)
-		keys = append(keys, r.Header.Get("Idempotency-Key"))
-		bodies = append(bodies, string(raw))
-		if len(keys) == 1 {
+		if r.URL.Path == "/custom/aap/v1/requests" {
+			keys = append(keys, r.Header.Get("Idempotency-Key"))
+			bodies = append(bodies, string(raw))
+		}
+		if len(keys) == 1 && r.URL.Path == "/custom/aap/v1/requests" {
 			w.Header().Set("Retry-After", "0")
 			w.WriteHeader(503)
 			return
@@ -201,7 +252,6 @@ func TestRetryPreservesSubmissionAndKey(t *testing.T) {
 	}))
 	defer proxy.Close()
 	c := aap.NewClient(proxy.URL+"/custom/aap", "test-token")
-	c.StateDir = t.TempDir()
 	d, err := c.Decide(context.Background(), input())
 	if err != nil || !d.Allows() {
 		t.Fatalf("%+v %v", d, err)
@@ -256,7 +306,6 @@ func TestMalformedWireObjectsRejected(t *testing.T) {
 			}))
 			defer server.Close()
 			c := aap.NewClient(server.URL+"/custom/aap", "test-token")
-			c.StateDir = t.TempDir()
 			d, err := c.Decide(context.Background(), input())
 			if err == nil || d.Allows() {
 				t.Fatal("malformed response accepted")
@@ -273,7 +322,6 @@ func TestRedirectDoesNotSendCredential(t *testing.T) {
 	}))
 	defer server.Close()
 	c := aap.NewClient(server.URL, "test-token")
-	c.StateDir = t.TempDir()
 	if d, err := c.Decide(context.Background(), input()); err == nil || d.Allows() {
 		t.Fatal("redirect accepted")
 	}
@@ -288,7 +336,6 @@ func TestRefusedCredentialIsReported(t *testing.T) {
 	}{{http.StatusUnauthorized, true}, {http.StatusForbidden, true}, {http.StatusNotFound, false}} {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(tc.status) }))
 		c := aap.NewClient(server.URL, "test-token")
-		c.StateDir = t.TempDir()
 		c.EjectCommand = "provider agent eject pi"
 		d, err := c.Decide(context.Background(), input())
 		server.Close()

@@ -13,7 +13,7 @@ In this specification, "must" describes a requirement.
 ## Execution Boundary
 
 The adapter must intercept the call before it causes side effects.
-Only a valid `approved` result for that request permits execution, and the call must start before `decision.expires_at`.
+Only a valid `approved` result for that request permits execution, and only after the adapter consumes it before `decision.expires_at`.
 
 A pending request, an unknown status, an invalid response or a network failure must not permit the call to run.
 The adapter must validate that the returned request ID and decision match the request it is waiting for.
@@ -23,6 +23,7 @@ The adapter must prevent later middleware or agent output from changing them aft
 
 Approval applies to that execution attempt.
 It must not become a general permission to invoke the same tool again.
+The provider enforces this by allowing each approval to be [consumed](5_http.md#consume-an-approval) once.
 
 ## Trust
 
@@ -107,10 +108,10 @@ A conforming synchronous adapter must:
 1. Authenticate as an instance and submit the intercepted tool call accurately.
 2. Retain the same idempotency key when recovering the same request.
 3. Handle both immediate decisions and requests that require polling.
-4. Enforce the terminal outcome, check approval validity immediately before execution and keep the approved arguments unchanged.
+4. Enforce the terminal outcome, check approval validity and consume the approval immediately before execution, and keep the approved arguments unchanged.
 5. Prevent execution when no valid approval has been obtained.
 6. Distinguish a denial from expiry, cancellation or failure to obtain a decision.
-7. Avoid executing a call again when the same approval is retrieved more than once.
+7. Start the call only after consumption succeeds, using a new consumption key for each execution attempt.
 8. Attempt to cancel pending requests when execution is abandoned.
 
 ## Provider Requirements
@@ -118,7 +119,7 @@ A conforming synchronous adapter must:
 A conforming provider must:
 
 1. Authenticate credentials and authorize access to requests.
-2. Support request creation, retrieval, long polling and cancellation.
+2. Support request creation, retrieval, long polling, cancellation, consumption and outcome reports.
 3. Preserve request identity across retries and reject conflicting reuse of an idempotency key.
 4. Record only one terminal outcome for each request.
 5. Expire requests that remain pending at their deadline.
@@ -129,6 +130,7 @@ A conforming provider must:
 10. Set a fixed `expires_at` later than `decided_at` on every approved decision and preserve it across reads and retries.
 11. Revoke credentials, cancel pending requests and stop delivery when an instance is deleted, without changing existing terminal outcomes.
 12. Make instance updates and deletion safe to retry without restoring a deleted instance or overwriting a later update.
+13. Consume each approval at most once, atomically, only for its creating instance and only before `decision.expires_at`.
 
 ## Asynchronous Requirements
 
@@ -148,10 +150,10 @@ An asynchronous adapter and its receiving service must meet the shared identity,
 1. Keep the receiver available whilst execution is suspended and protect the signing secret from the agent.
 2. Verify signatures, delivery timestamps, message IDs and the expected instance before accepting messages.
 3. Accept verification challenges only for expected registrations.
-4. Acknowledge notifications only after durable receipt, and handle duplicates without repeating execution.
+4. Treat a notification only as a prompt to resume, never as a decision.
 5. Save enough execution state to handle a notification arriving before suspension finishes.
-6. Retrieve the authoritative request and check approval expiry before execution starts.
-7. Discard notifications for abandoned execution and retain duplicate tracking through the retry window and grace period.
+6. Retrieve the authoritative request, check approval expiry and consume the approval before execution starts.
+7. Recover executions whose notification was missed or lost by periodically retrieving suspended requests.
 
 The notification prompts an authenticated read of the decision.
 Only the adapter's execution checks can permit the saved call to run:
@@ -159,20 +161,20 @@ Only the adapter's execution checks can permit the saved call to run:
 ```mermaid
 sequenceDiagram
     accTitle: A notification does not grant permission to execute
-    accDescr: The provider records the decision and notification together. The receiver verifies and durably records the notification before acknowledging it. For an execution still waiting, the adapter fetches the authoritative request through the authenticated API and applies all execution checks. Duplicate notifications do not repeat execution.
+    accDescr: The provider records the decision and notification together. The receiver verifies the notification and acknowledges it. For an execution still waiting, the adapter fetches the authoritative request through the authenticated API, applies all execution checks and consumes the approval. Duplicate notifications cannot repeat execution because an approval is consumed once.
     participant Provider
     participant Receiver
     participant Adapter
     Provider->>Provider: Record decision and notification together
     Provider->>Receiver: Signed notification
     Receiver->>Receiver: Verify signature, timestamp, ID and instance
-    Receiver->>Receiver: Durably record and deduplicate
     Receiver-->>Provider: Acknowledge receipt
     opt Execution still waiting
         Receiver->>Adapter: Resume saved execution
         Adapter->>Provider: Authenticated GET /v1/requests/{id}
         Provider-->>Adapter: Authoritative request and decision
         Adapter->>Adapter: Apply all execution boundary checks
+        Adapter->>Provider: POST /v1/requests/{id}/consume
     end
-    Note over Receiver,Adapter: Duplicate notifications must not repeat execution
+    Note over Receiver,Adapter: Consumption stops duplicate notifications repeating execution
 ```

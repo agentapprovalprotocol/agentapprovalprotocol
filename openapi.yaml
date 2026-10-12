@@ -325,6 +325,90 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/requests/{id}/consume:
+    parameters:
+      - $ref: '#/components/parameters/ApprovalRequestID'
+    post:
+      operationId: consumeApproval
+      tags: [Requests]
+      summary: Consume an approval
+      description: |
+        Records that the adapter is starting the approved call. The adapter must
+        consume an approval before the call starts, and must not start it unless
+        this succeeds. It succeeds once per request, only for its creating
+        instance, while the request is approved and before decision.expires_at
+        by the provider's clock. Concurrent attempts cannot both succeed.
+
+        Use a new idempotency key for each execution attempt and reuse it only
+        to retry the same attempt. Repeating a successful consume with the same
+        key returns the request again, even after expiry. Another key returns
+        409 with code already_consumed. The request body is empty.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: The consumed request, including on an idempotent replay.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsumedApprovalRequest'
+              examples:
+                consumed:
+                  $ref: '#/components/examples/ConsumedRequest'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/requests/{id}/outcome:
+    parameters:
+      - $ref: '#/components/parameters/ApprovalRequestID'
+    post:
+      operationId: reportOutcome
+      tags: [Requests]
+      summary: Report an outcome
+      description: |
+        Records whether a consumed call succeeded or failed. Reporting is
+        optional and does not change the request's status or decision. Only the
+        creating instance may report, once, after consuming the approval.
+        Repeating the same report returns the request again; a different report
+        returns 409 with code outcome_conflict. No idempotency key is needed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutcomeReport'
+            example:
+              status: succeeded
+              note: Refund issued.
+      responses:
+        '200':
+          description: The request with its outcome, including on a repeated report.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsumedApprovalRequest'
+              examples:
+                reported:
+                  $ref: '#/components/examples/ReportedRequest'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 webhooks:
   verifyReceiver:
     post:
@@ -617,11 +701,13 @@ components:
         created_at: { $ref: '#/components/schemas/Timestamp' }
         deadline_at: { $ref: '#/components/schemas/Timestamp' }
         decision: { $ref: '#/components/schemas/Decision' }
+        consumption: { $ref: '#/components/schemas/Consumption' }
       oneOf:
         - title: Pending
           properties:
             status: { const: pending }
             decision: false
+            consumption: false
         - title: Approved
           required: [decision]
           properties:
@@ -636,6 +722,7 @@ components:
             decision:
               properties:
                 status: { const: denied }
+            consumption: false
         - title: Expired
           required: [decision]
           properties:
@@ -643,6 +730,7 @@ components:
             decision:
               properties:
                 status: { const: expired }
+            consumption: false
         - title: Cancelled
           required: [decision]
           properties:
@@ -650,6 +738,48 @@ components:
             decision:
               properties:
                 status: { const: cancelled }
+            consumption: false
+    Consumption:
+      type: object
+      additionalProperties: false
+      description: |
+        Present once an adapter has consumed the approval. An approval consumed by
+        another attempt cannot be used again.
+      required: [consumed_at]
+      properties:
+        consumed_at: { $ref: '#/components/schemas/Timestamp' }
+        outcome: { $ref: '#/components/schemas/Outcome' }
+    OutcomeStatus:
+      type: string
+      enum: [succeeded, failed]
+    OutcomeNote:
+      type: string
+      minLength: 1
+      maxLength: 1000
+      description: A short summary for reviewers. Never include secrets or the full tool result.
+    OutcomeReport:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { $ref: '#/components/schemas/OutcomeStatus' }
+        note: { $ref: '#/components/schemas/OutcomeNote' }
+    Outcome:
+      type: object
+      additionalProperties: false
+      description: The adapter's report of whether the consumed call succeeded.
+      required: [status, reported_at]
+      properties:
+        status: { $ref: '#/components/schemas/OutcomeStatus' }
+        note: { $ref: '#/components/schemas/OutcomeNote' }
+        reported_at: { $ref: '#/components/schemas/Timestamp' }
+    ConsumedApprovalRequest:
+      allOf:
+        - $ref: '#/components/schemas/ApprovalRequest'
+        - type: object
+          required: [consumption]
+          properties:
+            status: { const: approved }
     CancelledApprovalRequest:
       allOf:
         - $ref: '#/components/schemas/ApprovalRequest'
@@ -918,6 +1048,11 @@ components:
         means the key was used with different input. Code already_terminal means
         the request was approved, denied or expired before cancellation.
         Code instance_deleted means a provisioning replay refers to a deleted instance.
+        Consume returns already_consumed when another attempt consumed the
+        approval, not_approved when the request is not approved, and
+        approval_expired after decision.expires_at. Outcome reports return
+        not_consumed before consumption and outcome_conflict when a different
+        outcome was reported.
       headers:
         X-Request-ID: { $ref: '#/components/headers/RequestID' }
       content:
@@ -1030,6 +1165,52 @@ components:
           note: The duplicate charge has been confirmed.
           decided_at: '2026-09-16T12:02:00Z'
           expires_at: '2026-09-16T12:07:00Z'
+    ConsumedRequest:
+      summary: Consumed by the requesting instance
+      value:
+        id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
+        tool: issue_refund
+        server: stripe
+        arguments:
+          payment_id: payment_123
+          amount: 4900
+          currency: GBP
+        timeout: 30m
+        status: approved
+        created_at: '2026-09-16T12:00:00Z'
+        deadline_at: '2026-09-16T12:30:00Z'
+        decision:
+          status: approved
+          note: The duplicate charge has been confirmed.
+          decided_at: '2026-09-16T12:02:00Z'
+          expires_at: '2026-09-16T12:07:00Z'
+        consumption:
+          consumed_at: '2026-09-16T12:02:05Z'
+    ReportedRequest:
+      summary: Consumed, with a reported outcome
+      value:
+        id: 7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71
+        tool: issue_refund
+        server: stripe
+        arguments:
+          payment_id: payment_123
+          amount: 4900
+          currency: GBP
+        timeout: 30m
+        status: approved
+        created_at: '2026-09-16T12:00:00Z'
+        deadline_at: '2026-09-16T12:30:00Z'
+        decision:
+          status: approved
+          note: The duplicate charge has been confirmed.
+          decided_at: '2026-09-16T12:02:00Z'
+          expires_at: '2026-09-16T12:07:00Z'
+        consumption:
+          consumed_at: '2026-09-16T12:02:05Z'
+          outcome:
+            status: succeeded
+            note: Refund issued.
+            reported_at: '2026-09-16T12:02:07Z'
     CancelledRequest:
       summary: Withdrawn by the requesting instance
       value:

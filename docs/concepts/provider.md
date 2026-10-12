@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-12
 ---
 
 # Provider
@@ -16,7 +16,7 @@ For example, A provider can apply a policy automatically, ask a human to review 
 
 AAP defines the request, the outcome and how they are exchanged. The provider chooses its review process and interface.
 
-The provider records permission to execute. The adapter enforces that permission, and the harness or adapter tracks whether execution has happened.
+The provider records permission to execute and records when an adapter consumes it, so each approval starts at most one call. The adapter enforces that permission.
 
 ```mermaid
 flowchart TD
@@ -46,7 +46,7 @@ Retries with the same idempotency key recover the existing request. They do not 
 
 ## Returning the result
 
-Every provider supports request creation, retrieval, long polling and cancellation. It can return a decision immediately or let the adapter wait through [synchronous polling](../specification/6_sync.md).
+Every provider supports request creation, retrieval, long polling, cancellation, consumption and outcome reports. It can return a decision immediately or let the adapter wait through [synchronous polling](../specification/6_sync.md).
 
 A provider that supports [asynchronous mode](../specification/7_async.md) also verifies configured receivers and sends signed webhook notifications when requests reach a terminal outcome. The notification prompts the adapter to retrieve the decision through the authenticated API; it carries no permission to execute.
 

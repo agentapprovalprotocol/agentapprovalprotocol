@@ -2,7 +2,6 @@
 package storage
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -34,20 +33,6 @@ func Write(path string, raw []byte, mode os.FileMode) error {
 		return err
 	}
 	return syncDir(filepath.Dir(path))
-}
-func Consume(dir, key string) error {
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return err
-	}
-	f, err := os.OpenFile(filepath.Join(dir, key), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
-	if err != nil {
-		return err
-	}
-	// Even an empty or partially written marker remains consumed after a crash.
-	_, writeErr := f.WriteString("consumed\n")
-	syncErr := f.Sync()
-	closeErr := f.Close()
-	return errors.Join(writeErr, syncErr, closeErr, syncDir(dir))
 }
 func syncDir(path string) error {
 	f, err := os.Open(path)

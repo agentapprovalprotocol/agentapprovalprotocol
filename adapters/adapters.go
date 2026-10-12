@@ -325,7 +325,6 @@ func (a *Adapter) RunHook(ctx context.Context, stdin io.Reader, stdout io.Writer
 	}
 	client := aap.NewClient(cfg.BaseURL, cfg.Token)
 	client.ToolGlob = cfg.ToolGlob
-	client.StateDir = filepath.Join(a.manager.env.ConfigDir, "consumed")
 	client.CacheDir = filepath.Join(a.manager.env.ConfigDir, "cache")
 	if cfg.Executable != "" {
 		client.EjectCommand = filepath.Base(cfg.Executable) + " agent eject " + a.Key()
