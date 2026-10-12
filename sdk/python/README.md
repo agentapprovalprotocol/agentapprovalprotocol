@@ -75,3 +75,23 @@ Every tool call the agent makes goes to the provider, including MCP and other to
 Tools that run at the model provider, such as native web search or code execution, cannot be sent for approval. A run that includes one stops with an error. Use a local tool instead.
 
 To pause instead of waiting, use `ApprovalCapability(..., mode="async")` and add `DeferredToolRequests` to the agent's `output_type`. When a run ends with `DeferredToolRequests`, save `result.conversation`. Mount a `Receiver` with `resumers={"pydantic-ai": resumer(agent, load=load, save=save)}`, where `load(conversation_id)` returns the saved conversation and `save(conversation)` stores the resumed one. Calls inside a sub-agent wait instead of pausing. Continuing a conversation any other way cannot approve a call: the capability asks the provider again, and an approval with edited arguments is refused.
+
+## Google Agent Development Kit
+
+```sh
+pip install "agentapprovalprotocol[adk]"
+```
+
+```python
+from agentapprovalprotocol.adk import ApprovalPlugin, check_coverage
+
+approvals = ApprovalPlugin("https://approvals.example.com/api/aap", token)
+app = App(name="support", root_agent=agent, plugins=[approvals])
+check_coverage(app, approvals)
+```
+
+Every tool call from every agent in the app goes to the provider, including sub-agents and agents used as tools. A denied call returns the reason to the model as the tool result. Register the plugin first, and don't change tool arguments in later plugins or `before_tool_callback`.
+
+`check_coverage` raises an error for agents whose calls the plugin cannot see: code executors, remote agents, and agents used as tools with `include_plugins=False`. Gemini built-in tools such as `google_search` run on Google's servers, so the plugin stops the run when an agent uses one.
+
+To pause instead of waiting, use `ApprovalPlugin(..., mode="async")`, set `resumability_config=ResumabilityConfig(is_resumable=True)` on the app, and mount a `Receiver` with `resumers={"adk": resumer(runner)}`. Calls inside an agent used as a tool, and calls in live (streaming audio or video) runs, wait instead of pausing. For a runner in another process, such as `adk api_server`, send `wake_message(session.events, request.id)` as the new message from your own resumer. Answering the confirmation any other way cannot approve a call: the plugin asks the provider again.
