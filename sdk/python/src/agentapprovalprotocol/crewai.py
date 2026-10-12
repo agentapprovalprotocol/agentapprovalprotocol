@@ -161,6 +161,8 @@ class ApprovalHooks:
     ):
         if gate is None and (base_url is None or token is None):
             raise ValueError("pass base_url and token, or a gate")
+        if gate_options.get("mode") == "async":
+            raise ValueError("CrewAI cannot pause a run at a tool call, so it only supports sync mode")
         self.gate = gate if gate is not None else Gate(Client(base_url, token), **gate_options)
         self.context = {"framework": "crewai", **(context or {})}
         self._run = uuid.uuid4().hex

@@ -43,6 +43,11 @@ claude-agent-sdk = [
 crewai = [
     { name = "crewai", marker = "python_full_version < '3.14'" },
 ]
+deep-agents = [
+    { name = "deepagents", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "langchain" },
+    { name = "langgraph" },
+]
 langgraph = [
     { name = "langchain" },
     { name = "langgraph" },
@@ -66,14 +71,17 @@ dev = [
 requires-dist = [
     { name = "claude-agent-sdk", marker = "extra == 'claude-agent-sdk'", specifier = ">=0.2.165" },
     { name = "crewai", marker = "python_full_version < '3.14' and extra == 'crewai'", specifier = ">=1.15" },
+    { name = "deepagents", marker = "python_full_version >= '3.11' and extra == 'deep-agents'", specifier = ">=0.7.24" },
     { name = "google-adk", marker = "extra == 'adk'", specifier = ">=2.11" },
     { name = "httpx", specifier = ">=0.27" },
+    { name = "langchain", marker = "extra == 'deep-agents'", specifier = ">=1.0" },
     { name = "langchain", marker = "extra == 'langgraph'", specifier = ">=1.0" },
+    { name = "langgraph", marker = "extra == 'deep-agents'", specifier = ">=1.0" },
     { name = "langgraph", marker = "extra == 'langgraph'", specifier = ">=1.0" },
     { name = "openai-agents", marker = "extra == 'openai-agents'", specifier = ">=0.23" },
     { name = "pydantic-ai-slim", marker = "python_full_version >= '3.11' and extra == 'pydantic-ai'", specifier = ">=2.55" },
 ]
-provides-extras = ["claude-agent-sdk", "langgraph", "pydantic-ai", "adk", "openai-agents", "crewai"]
+provides-extras = ["claude-agent-sdk", "langgraph", "deep-agents", "pydantic-ai", "adk", "openai-agents", "crewai"]
 
 [package.metadata.requires-dev]
 dev = [
