@@ -105,46 +105,91 @@ For an MCP tool, also pass `server` with the server's name.
 
 In pause mode, a receiver resumes runs when decisions arrive. It is an HTTPS endpoint in your application. Your provider sends it a signed notification when a paused call is decided. The receiver checks the signature and wakes the run. The run then asks the provider for the decision before anything runs, so a notification alone cannot approve a call.
 
-To set it up:
+To set it up, start the receiver, then register it with your provider. On later starts, give it the saved credential.
 
-1. Register the receiver with your provider: its URL, a signing secret that starts with `whsec_` and a registration ID. How you do this depends on your provider. See [delivery configuration](../specification/7_async.md#delivery-configuration).
-2. Create a `Receiver` with the same secret and registration ID, and the resumer from your framework's guide.
-3. Serve it at the registered URL. Your provider must be able to reach it. For local development, expose it through an HTTPS tunnel.
+### Start the receiver
+
+Start the receiver before registering it, because the provider checks that it answers. Serve it at a public HTTPS URL that your provider can reach. For local development, expose it through an HTTPS tunnel.
 
 ```python
-import os
 from fastapi import FastAPI
-from agentapprovalprotocol import AsyncClient, Receiver
+from agentapprovalprotocol import Receiver
 from agentapprovalprotocol.langgraph import resumer  # the resumer for your framework
 
-receiver = Receiver(
-    secret=os.environ["AAP_SIGNING_SECRET"],
-    registration_id=os.environ["AAP_REGISTRATION_ID"],
-    client=AsyncClient("https://approvals.example.com/api/aap", os.environ["AAP_INSTANCE_TOKEN"]),
-    resumers={"langgraph": resumer(agent)},
-)
+receiver = Receiver(resumers={"langgraph": resumer(agent)})
 
 app = FastAPI()
-app.mount("/aap/events", receiver.asgi())
+app.add_route("/aap/events", receiver.asgi(), methods=["POST"])
 ```
 
-`receiver.asgi()` works with any ASGI framework. FastAPI and Starlette redirect a mounted path without its trailing slash, and providers do not follow redirects, so register the URL with the slash: `https://agents.example.com/aap/events/`.
+Add the receiver as a route, as shown. `app.mount` redirects `/aap/events` to `/aap/events/`, and providers do not follow redirects. `receiver.asgi()` works with any ASGI framework.
 
 ```ts
-import { Client, Receiver } from "@agentapprovalprotocol/sdk";
+import { Receiver } from "@agentapprovalprotocol/sdk";
 import { resumer } from "@agentapprovalprotocol/mastra"; // the resumer for your framework
 
-const receiver = new Receiver({
-  secret: process.env.AAP_SIGNING_SECRET!,
-  registrationId: process.env.AAP_REGISTRATION_ID,
-  client: new Client("https://approvals.example.com/api/aap", process.env.AAP_INSTANCE_TOKEN!),
-  resumers: { mastra: resumer(agent) },
-});
+const receiver = new Receiver({ resumers: { mastra: resumer(agent) } });
 
 export const POST = receiver.handler; // a Next.js route handler
 ```
 
 `receiver.handler` also works with Hono, Bun, Deno and Workers. On Node.js `http` or Express, use `nodeListener(receiver)` from `@agentapprovalprotocol/sdk/node`. On serverless platforms, pass `waitUntil` so the run can resume after the response is sent.
+
+### Register it
+
+Once the server is accepting requests, register the receiver from the same process with a provisioner token from your provider:
+
+```python
+provisioned = await receiver.provision(
+    provider_url="https://approvals.example.com/api/aap",
+    provisioner_token=os.environ["AAP_PROVISIONER_TOKEN"],
+    url="https://agents.example.com/aap/events",
+)
+```
+
+```ts
+const provisioned = await receiver.provision({
+  providerUrl: "https://approvals.example.com/api/aap",
+  provisionerToken: process.env.AAP_PROVISIONER_TOKEN!,
+  url: "https://agents.example.com/aap/events",
+});
+```
+
+This creates an instance whose notifications come to this receiver, and the receiver starts using its credential. Save the token, secret, registration ID and instance ID from the result: nothing is saved for you. Use the saved token as your agent's instance token too, so its paused calls notify this receiver.
+
+If registration fails with `WebhookVerificationFailed`, check that the receiver is reachable at `url` and call `provision` again.
+
+To register in your provider's app instead, start the receiver with the signing secret and registration ID you enter there. Without the registration ID, the receiver refuses the provider's check. See [delivery configuration](../specification/7_async.md#delivery-configuration).
+
+### Restart with the credential
+
+On later starts, pass the saved values. `client` can be a function, called the first time a run is woken:
+
+```python
+from agentapprovalprotocol import AsyncClient
+
+receiver = Receiver(
+    secret=secret,
+    registration_id=registration_id,
+    instance_id=instance_id,
+    client=lambda: AsyncClient("https://approvals.example.com/api/aap", load_token()),
+    resumers={"langgraph": resumer(agent)},
+)
+```
+
+```ts
+import { Client, Receiver } from "@agentapprovalprotocol/sdk";
+
+const receiver = new Receiver({
+  secret,
+  registrationId,
+  instanceId,
+  client: async () => new Client("https://approvals.example.com/api/aap", await loadToken()),
+  resumers: { mastra: resumer(agent) },
+});
+```
+
+A receiver without a client still answers the provider, but cannot wake runs.
 
 The resumer continues the run in the receiver's process. Read the result from where your framework stores the run, not from the call that started it.
 
@@ -178,4 +223,4 @@ Use `provider.async_client()` for an `AsyncGate`. To test resuming, decide the r
 
 - **Every call denied with a refused credential:** The agent may have been archived or disabled, or its token revoked. Ask whoever manages it in your provider for a new token.
 - **The client refuses the AAP URL:** Use the complete AAP URL from your provider over HTTPS. Plain HTTP works only on `localhost`.
-- **Paused runs never resume:** Check that your provider can reach the receiver URL without a redirect, and that the secret and registration ID match the ones you registered. If a notification was missed, call `receiver.wake(request_id)` with the paused request's ID.
+- **Paused runs never resume:** Check that your provider can reach the receiver URL without a redirect, that the secret and registration ID match the registration, and that the receiver has a client. If a notification was missed, call `receiver.wake(request_id)` with the paused request's ID.

@@ -32,7 +32,7 @@ To stop sending calls for approval, call `approvals.uninstall()`. You can also u
 
 ## Waiting for decisions
 
-CrewAI cannot pause a run at a tool call, so every call waits for its decision. In `akickoff` and other async runs, the wait blocks the event loop. Run crews that need long reviews in their own worker thread or process.
+CrewAI cannot pause a run at a tool call, so every call waits for its decision. `ApprovalHooks` refuses `mode="async"` with an error. In `akickoff` and other async runs, the wait blocks the event loop. Run crews that need long reviews in their own worker thread or process.
 
 ## Sub-agents
 

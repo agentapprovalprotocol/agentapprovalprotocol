@@ -12,7 +12,11 @@ Send every tool call of a LangChain, LangGraph or Deep Agents agent to your appr
 pip install "agentapprovalprotocol[langgraph]"
 ```
 
-For Deep Agents, also install `deepagents`, which needs Python 3.11 or later.
+For Deep Agents, which needs Python 3.11 or later, install the `deep-agents` extra instead:
+
+```sh
+pip install "agentapprovalprotocol[deep-agents]"
+```
 
 ## Set up
 
