@@ -89,7 +89,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: npm
-      - run: npm ci --workspace sdk/typescript
+      - run: npm ci --workspace sdk/typescript --workspace sdk/typescript-ai-sdk
       - run: npm run check --workspace sdk/typescript
       - run: npm test --workspace sdk/typescript
       - run: npm run build --workspace sdk/typescript
+      # The AI SDK needs Node.js 22 or later.
+      - if: matrix.node != 20
+        run: npm run check --workspace sdk/typescript-ai-sdk
+      - if: matrix.node != 20
+        run: npm test --workspace sdk/typescript-ai-sdk
+      - if: matrix.node != 20
+        run: npm run build --workspace sdk/typescript-ai-sdk
