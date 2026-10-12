@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-10-12
 ---
 
 # Identity and Authentication
@@ -54,9 +54,6 @@ The asynchronous section describes [updating and removing delivery](7_async.md#u
 Deleting an instance revokes its credentials, cancels its pending requests and stops notification delivery and retries.
 Existing terminal outcomes remain unchanged.
 Deletion does not stop a tool call that has already started.
-
-Deletion must not race with creation of requests or configuration updates in a way that leaves pending requests, active credentials or a replacement receiver behind.
-Request and idempotency records remain subject to the normal retention rules.
 
 The operations are described in the [HTTP API](5_http.md#provision-an-instance).
 The [OpenAPI schema](../../openapi.yaml) defines the instance and credential objects.
