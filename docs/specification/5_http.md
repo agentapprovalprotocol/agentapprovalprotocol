@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-10-12
 ---
 
 # HTTP API
@@ -211,6 +211,9 @@ Existing terminal requests remain unchanged.
 These cancellations do not generate notifications because the receiving configuration is being retired too.
 Attempts already in flight may still arrive.
 The harness must treat its pending executions as abandoned when retiring the instance.
+
+Deletion is atomic.
+A request, decision or configuration update that arrives at the same time either completes first and is then cleaned up by the deletion, or is rejected as if the instance were already deleted.
 
 The response is `204 No Content`.
 No idempotency key is required.
