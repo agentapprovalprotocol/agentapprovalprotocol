@@ -351,3 +351,8 @@ def test_a_failed_text_tool_call_is_not_retried_under_the_same_approval():
     # The tool is restored after the call.
     (structured,) = seen
     assert not getattr(structured.func, "__aap_once__", False)
+
+
+def test_async_mode_is_refused():
+    with pytest.raises(ValueError, match="only supports sync mode"):
+        ApprovalHooks("https://approvals.example.com/api/aap", "token", mode="async")

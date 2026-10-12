@@ -45,7 +45,7 @@ agent = create_agent(model, tools=tools, middleware=[approvals])
 
 Every tool call the agent makes goes to the provider. A denied call returns the reason to the model as the tool result.
 
-For Deep Agents, also add the middleware to every subagent:
+For Deep Agents (Python 3.11 or later), install `agentapprovalprotocol[deep-agents]` and add the middleware to every subagent:
 
 ```python
 from agentapprovalprotocol.langgraph import deep_agent_subagents
