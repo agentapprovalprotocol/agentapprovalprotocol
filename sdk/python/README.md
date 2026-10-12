@@ -138,3 +138,30 @@ Every tool call the agent makes goes to the provider, including built-in tools, 
 To pause instead of waiting, use `ApprovalHooks(..., mode="async")`. A call without a decision ends the run with `stop_reason="tool_deferred"`. Mount a `Receiver` with `resumers={"claude-agent-sdk": resumer(options)}` on the machine that stores the session, and it resumes the session when the decision arrives. Calls made by subagents, and a second call in the same turn, wait for their decision instead of pausing.
 
 Tools that the Claude API runs itself, such as the advisor, never reach the hooks, so they are not sent for approval.
+
+## CrewAI
+
+CrewAI and the OpenAI Agents SDK need different major versions of `openai`, so the `crewai` and `openai-agents` extras can't be installed together.
+
+```sh
+pip install "agentapprovalprotocol[crewai]"
+```
+
+CrewAI supports Python 3.10 to 3.13.
+
+```python
+from agentapprovalprotocol.crewai import ApprovalHooks
+
+ApprovalHooks("https://approvals.example.com/api/aap", token).install()
+crew.kickoff()
+```
+
+Every tool call any crew, agent or flow in the process makes goes to the provider, including delegation to coworkers. A denied call returns the reason to the model as the tool result.
+
+CrewAI cannot pause a run at a tool call, so each call waits for the decision. In `akickoff` the wait blocks the event loop.
+
+Limitations:
+
+- Register any hook that changes tool arguments before `install()`. A hook registered later, including one from a `@CrewBase` crew, runs after the approval. If it changes the arguments, the call is reported to the provider as failed.
+- Models with `builtin_tools` run those tools at the model provider, where they cannot be checked. Runs that use such a model stop with an error.
+- Tools you run yourself with `llm.call(available_functions=...)` are not checked.
