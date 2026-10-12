@@ -54,3 +54,24 @@ agent = create_deep_agent(model, tools=tools, middleware=[approvals], subagents=
 ```
 
 To pause instead of waiting, use `ApprovalMiddleware(..., mode="async")` with a checkpointer, and mount a `Receiver` with `resumers={"langgraph": resumer(agent)}`. On LangSmith Deployment, use `deployment_resumer(get_client())` in a custom route instead. Resuming a thread any other way cannot approve a call: the middleware asks the provider again.
+
+## Pydantic AI
+
+```sh
+pip install "agentapprovalprotocol[pydantic-ai]"
+```
+
+Needs Python 3.11 or later.
+
+```python
+from agentapprovalprotocol.pydantic_ai import ApprovalCapability
+
+approvals = ApprovalCapability("https://approvals.example.com/api/aap", token)
+agent = Agent(model, tools=tools, capabilities=[approvals])
+```
+
+Every tool call the agent makes goes to the provider, including MCP and other toolset tools. A denied call returns the reason to the model as a failed tool result. Add the same capability to every agent you run as a sub-agent.
+
+Tools that run at the model provider, such as native web search or code execution, cannot be sent for approval. A run that includes one stops with an error. Use a local tool instead.
+
+To pause instead of waiting, use `ApprovalCapability(..., mode="async")` and add `DeferredToolRequests` to the agent's `output_type`. When a run ends with `DeferredToolRequests`, save `result.conversation`. Mount a `Receiver` with `resumers={"pydantic-ai": resumer(agent, load=load, save=save)}`, where `load(conversation_id)` returns the saved conversation and `save(conversation)` stores the resumed one. Calls inside a sub-agent wait instead of pausing. Continuing a conversation any other way cannot approve a call: the capability asks the provider again, and an approval with edited arguments is refused.
