@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-06
+lastModified: 2026-10-12
 ---
 
 # Pi
@@ -15,8 +15,6 @@ aap agent install pi --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https://
 ```
 
 Start a new Pi session to load the adapter.
-
-If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Then start a new agent session.
 
 ## What to expect
 
