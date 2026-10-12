@@ -75,3 +75,21 @@ jobs:
       - run: uv sync --locked --all-extras
       - run: uv run --all-extras pytest --timeout 60
       - run: uv build
+
+  typescript-sdk:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --workspace sdk/typescript
+      - run: npm run check --workspace sdk/typescript
+      - run: npm test --workspace sdk/typescript
+      - run: npm run build --workspace sdk/typescript

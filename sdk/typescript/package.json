@@ -1,0 +1,33 @@
+{
+  "name": "@agentapprovalprotocol/sdk",
+  "version": "0.1.0",
+  "description": "Put an AI agent's tool calls behind an Agent Approval Protocol (AAP) approval provider.",
+  "license": "Apache-2.0",
+  "homepage": "https://agentapprovalprotocol.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agentapprovalprotocol/agentapprovalprotocol.git",
+    "directory": "sdk/typescript"
+  },
+  "keywords": ["ai", "agents", "approval", "human-in-the-loop", "aap"],
+  "type": "module",
+  "sideEffects": false,
+  "engines": { "node": ">=20" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./testing": { "types": "./dist/testing.d.ts", "default": "./dist/testing.js" },
+    "./node": { "types": "./dist/node.d.ts", "default": "./dist/node.js" }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.3"
+  }
+}

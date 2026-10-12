@@ -21,6 +21,9 @@ langgraph = [
     "langchain>=1.0",
     "langgraph>=1.0",
 ]
+pydantic-ai = [
+    "pydantic-ai-slim>=2.55 ; python_full_version >= '3.11'",
+]
 
 [dependency-groups]
 dev = [
