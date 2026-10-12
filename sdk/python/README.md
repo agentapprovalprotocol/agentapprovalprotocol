@@ -115,3 +115,26 @@ result = await Runner.run(agent, "Refund the duplicate charge")
 `protect` refuses tools that run inside OpenAI's response, such as web search, file search and code interpreter, because their calls cannot be stopped. It also refuses local shell, computer and apply patch tools: wrap the action in a function tool instead. Hosted MCP servers are supported, and their calls always wait for the decision.
 
 To pause instead of waiting, use `Approvals(..., mode="async", save=save, load=load)`, where `save(run_id, state)` and `load(run_id)` keep each run's state on your server. Start runs with `await approvals.run(agent, input, run_id=run_id)` and mount a `Receiver` with `resumers={"openai-agents": approvals.resumer(agent)}`. Approving the run state any other way cannot run a call: only a decision from the provider can.
+
+## Claude Agent SDK
+
+```sh
+pip install "agentapprovalprotocol[claude-agent-sdk]"
+```
+
+```python
+from agentapprovalprotocol.claude_agent_sdk import ApprovalHooks
+
+approvals = ApprovalHooks("https://approvals.example.com/api/aap", token)
+options = approvals.options(ClaudeAgentOptions(mcp_servers=servers))
+async for message in query(prompt=prompt, options=options):
+    ...
+```
+
+Every tool call the agent makes goes to the provider, including built-in tools, MCP tools and calls made by subagents. A denied call returns the reason to the model.
+
+`options()` does not load your user settings (`~/.claude/settings.json`) unless you set `setting_sources` yourself. If the Claude Code approval hook is installed there, loading them asks for approval twice for every call.
+
+To pause instead of waiting, use `ApprovalHooks(..., mode="async")`. A call without a decision ends the run with `stop_reason="tool_deferred"`. Mount a `Receiver` with `resumers={"claude-agent-sdk": resumer(options)}` on the machine that stores the session, and it resumes the session when the decision arrives. Calls made by subagents, and a second call in the same turn, wait for their decision instead of pausing.
+
+Tools that the Claude API runs itself, such as the advisor, never reach the hooks, so they are not sent for approval.

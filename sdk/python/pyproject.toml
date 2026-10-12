@@ -17,6 +17,7 @@ Homepage = "https://agentapprovalprotocol.io"
 Source = "https://github.com/agentapprovalprotocol/agentapprovalprotocol"
 
 [project.optional-dependencies]
+claude-agent-sdk = ["claude-agent-sdk>=0.2.165"]
 langgraph = [
     "langchain>=1.0",
     "langgraph>=1.0",
