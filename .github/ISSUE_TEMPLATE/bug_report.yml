@@ -1,0 +1,57 @@
+name: Bug report
+description: Something in the aap CLI, an adapter or the installer does not work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report security vulnerabilities privately by following the [security policy](https://github.com/agentapprovalprotocol/agentapprovalprotocol/security/policy), not in an issue. Do not paste instance tokens or other credentials.
+  - type: input
+    id: version
+    attributes:
+      label: aap version
+      description: Output of `aap version`.
+      placeholder: aap 0.2.0
+    validations:
+      required: true
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Agent runtime
+      options:
+        - Claude Code
+        - Codex
+        - OpenClaw
+        - Pi
+        - Hermes Agent
+        - DeepSeek Harness
+        - Not runtime specific
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system and architecture
+      placeholder: macOS 26 arm64
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the commands you ran and the tool call your agent made, if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: Include error messages or the reason shown to the agent.
+    validations:
+      required: true

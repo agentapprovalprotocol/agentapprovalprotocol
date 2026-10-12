@@ -24,6 +24,6 @@ checksum:
 changelog:
   disable: true
 
-# Artifacts are public on R2; the source repository can remain private.
+# Release artifacts are published to R2 by scripts/publish-release.sh, not to GitHub Releases.
 release:
   disable: true

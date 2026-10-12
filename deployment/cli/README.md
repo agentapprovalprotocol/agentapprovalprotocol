@@ -60,7 +60,8 @@ on the same release during publication.
 The `Release CLI` GitHub Actions workflow runs for `vMAJOR.MINOR.PATCH` tags. It
 checks that the tagged commit is on `main`, tests adapters and the installer,
 uses GoReleaser to build all four targets and generate checksums, retains an
-Actions artifact, and uploads to R2.
+Actions artifact, and uploads to R2. It reads the R2 account, bucket and
+credentials from repository variables and secrets that the maintainers manage.
 Use its manual dispatch with an existing tag to retry a failed release.
 
 After the PR checks pass and its changes land on `main`:
@@ -89,24 +90,3 @@ To upload a tagged release locally, export the same R2 settings and credentials
 as CI and run `sh scripts/publish-release.sh 0.1.0`. This requires the AWS CLI
 and `jq`. Snapshot versions cannot be published. A repeated upload refuses to
 replace a published version with different checksums.
-
-## Cloudflare and GitHub configuration
-
-The `aap-downloads` bucket is in the same Cloudflare account as the
-`agentapprovalprotocol.io` zone, with `downloads.agentapprovalprotocol.io`
-attached as its public custom domain. It contains only public CLI artifacts.
-The `r2.dev` endpoint is not needed.
-
-Configure these GitHub Actions values in this repository:
-
-| Kind | Name | Value |
-| --- | --- | --- |
-| Variable | `R2_ACCOUNT_ID` | Cloudflare account ID. |
-| Variable | `R2_PUBLIC_BUCKET` | `aap-downloads`. |
-| Secret | `R2_ACCESS_KEY_ID` | R2 S3 access key ID. |
-| Secret | `R2_SECRET_ACCESS_KEY` | R2 S3 secret access key. |
-
-Use an R2 credential with Object Read & Write permission restricted to this
-bucket. The workflow does not need permission to create buckets or change DNS.
-Versioned artifacts use a one-year immutable cache policy, the installer uses a
-five-minute cache policy, and all latest URLs require revalidation.

@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   turbopack: { root: path.join(__dirname, "..") },
   async redirects() {
     return [
+      { source: "/", destination: "/docs/getting-started/introduction", permanent: true },
       { source: "/docs/specification/:path*", destination: "/specification/:path*", permanent: true },
       { source: "/docs/reference/:path*", destination: "/specification/reference/:path*", permanent: true },
     ];

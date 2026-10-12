@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-06
+lastModified: 2026-10-12
 ---
 
 # OpenClaw
@@ -15,8 +15,6 @@ aap agent install openclaw --instance-token "YOUR_INSTANCE_TOKEN" --base-url "ht
 ```
 
 Follow any manual setup instructions printed by the installer, then restart the OpenClaw Gateway.
-
-If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Apply any manual settings printed by the installer, then restart the OpenClaw Gateway.
 
 ## What to expect
 

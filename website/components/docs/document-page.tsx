@@ -10,10 +10,15 @@ import { getAdjacentDocs, getDoc } from "@/lib/docs";
 import { externalLinkProps } from "@/lib/links";
 import { site } from "@/site.config";
 
+// A page-level openGraph object replaces the inherited one, including the root image.
+const socialImages = [{ url: "/opengraph-image", width: 1200, height: 630, alt: site.name }];
+
 export function documentMetadata(slug: string): Metadata {
   const doc = getDoc(slug);
   if (!doc) return {};
-  return { title: doc.title, description: doc.description, alternates: { canonical: `/${doc.slug}`, types: { "text/markdown": `/${doc.slug}/index.md` } }, openGraph: { title: doc.title, description: doc.description, url: `${site.url}/${doc.slug}` } };
+  // Titles that already name the protocol skip the site name suffix.
+  const title = doc.title.includes(site.name) ? { absolute: doc.title } : doc.title;
+  return { title, description: doc.metaDescription, alternates: { canonical: `/${doc.slug}`, types: { "text/markdown": `/${doc.slug}/index.md` } }, openGraph: { title: doc.title, description: doc.metaDescription, url: `${site.url}/${doc.slug}`, siteName: site.name, type: "article", locale: "en_US", images: socialImages } };
 }
 
 export function DocumentPage({ slug }: { slug: string }) {

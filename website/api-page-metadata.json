@@ -1,7 +1,7 @@
 {
-  "specification/reference/instances": { "lastModified": "2026-09-17" },
-  "specification/reference/requests": { "lastModified": "2026-09-22" },
-  "specification/reference/webhooks": { "lastModified": "2026-09-16" },
-  "specification/reference/schemas": { "lastModified": "2026-09-22" },
-  "specification/reference/openapi": { "lastModified": "2026-09-22" }
+  "specification/reference/instances": { "lastModified": "2026-09-17", "metaDescription": "AAP API reference for instances: provision, retrieve, update and delete agent instances, with the request and response schemas for each operation." },
+  "specification/reference/requests": { "lastModified": "2026-09-22", "metaDescription": "AAP API reference for approval requests: submit a proposed tool call, retrieve its outcome or cancel it, with the full request and response schemas." },
+  "specification/reference/webhooks": { "lastModified": "2026-09-16", "metaDescription": "AAP API reference for webhooks: verify webhook receivers and notify them when approval requests reach a terminal state, with payload schemas." },
+  "specification/reference/schemas": { "lastModified": "2026-09-22", "metaDescription": "Every object, type and constraint defined by the AAP OpenAPI contract, including instances, approval requests, decisions and webhook payloads." },
+  "specification/reference/openapi": { "lastModified": "2026-09-22", "metaDescription": "Read or download the complete AAP OpenAPI 3.1 contract in YAML, the source of truth for every operation, field and type in the protocol." }
 }

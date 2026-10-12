@@ -21,12 +21,19 @@ export function getDocsNav(area?: DocsArea): DocsNavSection[] {
     { area: "specification", title: "Protocol", pages: markdownPages.filter((page) => page.section === "Protocol") },
     { area: "specification", title: "API reference", pages: [
       markdownPages.find((page) => page.slug === "specification/reference/overview")!,
-      ...getApiGroups().map((group) => ({ slug: `specification/reference/${group.slug}`, area: "specification" as const, section: "API reference", title: group.title, description: group.description })),
-      { slug: "specification/reference/schemas", area: "specification", section: "API reference", title: "Schemas", description: "The objects, types and constraints defined by the OpenAPI contract." },
-      { slug: "specification/reference/openapi", area: "specification", section: "API reference", title: "OpenAPI schema", description: "Read or download the complete OpenAPI contract for AAP." },
+      ...getApiGroups().map((group) => ({ slug: `specification/reference/${group.slug}`, area: "specification" as const, section: "API reference", title: group.title, description: group.description, metaDescription: generatedMetaDescription(`specification/reference/${group.slug}`) })),
+      { slug: "specification/reference/schemas", area: "specification", section: "API reference", title: "Schemas", description: "The objects, types and constraints defined by the OpenAPI contract.", metaDescription: generatedMetaDescription("specification/reference/schemas") },
+      { slug: "specification/reference/openapi", area: "specification", section: "API reference", title: "OpenAPI schema", description: "Read or download the complete OpenAPI contract for AAP.", metaDescription: generatedMetaDescription("specification/reference/openapi") },
     ] },
   ];
   return area ? sections.filter((section) => section.area === area) : sections;
+}
+
+function generatedMetaDescription(slug: string): string {
+  const metadata: Record<string, { metaDescription?: string }> = apiPageMetadata;
+  const value = metadata[slug]?.metaDescription;
+  if (!value) throw new Error(`metaDescription in website/api-page-metadata.json (${slug}) is required`);
+  return value;
 }
 
 export function getAllDocs(area?: DocsArea): DocMeta[] { return getDocsNav(area).flatMap((section) => section.pages); }

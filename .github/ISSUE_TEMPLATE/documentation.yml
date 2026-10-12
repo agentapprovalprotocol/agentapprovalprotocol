@@ -1,0 +1,17 @@
+name: Documentation
+description: Report a mistake or gap in the documentation or specification text.
+labels: [documentation]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Link to the page on agentapprovalprotocol.io or the file in this repository.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing
+    validations:
+      required: true

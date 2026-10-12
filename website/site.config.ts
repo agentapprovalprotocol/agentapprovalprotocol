@@ -4,6 +4,6 @@ export const site = {
   version: "1",
   url: "https://agentapprovalprotocol.io",
   repository: "https://github.com/agentapprovalprotocol/agentapprovalprotocol",
-  discord: "https://discord.gg/3ahDGxYvTZ",
+  discord: "https://discord.com/invite/3ahDGxYvTZ",
     description: "An open protocol for approving agent tool calls and actions.",
 } as const;

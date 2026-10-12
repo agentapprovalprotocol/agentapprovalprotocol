@@ -26,7 +26,7 @@ export function DocsSidebar({ nav }: { nav: DocsNavSection[] }) {
 
   return <aside className="docs-rail">
     <div className="docs-brand-row">
-      <Link href="/" className="site-wordmark" aria-label={site.name}>
+      <Link href="/docs/getting-started/introduction" className="site-wordmark" aria-label={site.name}>
         <Logo className="site-logo" />
       </Link>
       <button className="docs-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="docs-navigation" onClick={() => setMenuOpen(!menuOpen)}>
