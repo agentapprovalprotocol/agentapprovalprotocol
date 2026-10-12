@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-12
 ---
 
 # Structure
@@ -24,6 +24,3 @@ The HTTP API section explains how to use that contract.
 The mode sections explain how to use it.
 
 Guides, SDK documentation and provider-specific setup belong outside this specification.
-
-When a field or wire format changes, update the OpenAPI schema first and keep the examples aligned with it.
-Run `make api-lint` from the repository root to validate the schema and its examples.
