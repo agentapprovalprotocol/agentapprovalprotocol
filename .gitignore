@@ -11,3 +11,7 @@ playwright-report/
 /bin/
 /dist/
 /.wrangler/
+/sdk/python/.venv/
+/sdk/python/dist/
+__pycache__/
+/sdk/python/.pytest_cache/

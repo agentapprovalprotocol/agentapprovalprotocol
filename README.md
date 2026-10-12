@@ -77,7 +77,7 @@ Follow the setup guide for your agent:
 
 The [version 1 specification](https://agentapprovalprotocol.io/specification/overview) defines how adapters and providers work together. The [OpenAPI contract](https://agentapprovalprotocol.io/specification/reference/openapi) describes the HTTP API. Use these to add approval support to your agent or implement a provider.
 
-The adapters are also available as a [Go library](https://agentapprovalprotocol.io/docs/adapters/cli#use-as-a-go-library). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
+The adapters are also available as a [Go library](https://agentapprovalprotocol.io/docs/adapters/cli#use-as-a-go-library). To put an agent you build in Python behind approvals, use the [Python SDK](sdk/python). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
 
 ## Contribute
 
