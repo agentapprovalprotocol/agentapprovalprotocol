@@ -27,6 +27,9 @@ pydantic-ai = [
 adk = [
     "google-adk>=2.11",
 ]
+openai-agents = [
+    "openai-agents>=0.23",
+]
 
 [dependency-groups]
 dev = [

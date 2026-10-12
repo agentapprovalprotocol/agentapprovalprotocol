@@ -95,3 +95,23 @@ Every tool call from every agent in the app goes to the provider, including sub-
 `check_coverage` raises an error for agents whose calls the plugin cannot see: code executors, remote agents, and agents used as tools with `include_plugins=False`. Gemini built-in tools such as `google_search` run on Google's servers, so the plugin stops the run when an agent uses one.
 
 To pause instead of waiting, use `ApprovalPlugin(..., mode="async")`, set `resumability_config=ResumabilityConfig(is_resumable=True)` on the app, and mount a `Receiver` with `resumers={"adk": resumer(runner)}`. Calls inside an agent used as a tool, and calls in live (streaming audio or video) runs, wait instead of pausing. For a runner in another process, such as `adk api_server`, send `wake_message(session.events, request.id)` as the new message from your own resumer. Answering the confirmation any other way cannot approve a call: the plugin asks the provider again.
+
+## OpenAI Agents SDK
+
+```sh
+pip install "agentapprovalprotocol[openai-agents]"
+```
+
+```python
+from agentapprovalprotocol.openai_agents import Approvals
+
+approvals = Approvals("https://approvals.example.com/api/aap", token)
+agent = approvals.protect(Agent(name="Support", tools=tools, handoffs=handoffs))
+result = await Runner.run(agent, "Refund the duplicate charge")
+```
+
+`protect` covers the agent's tools, its local MCP servers, its handoff targets and agents it uses as tools. Call it after the agent is fully configured. A denied call returns the reason to the model as the tool result.
+
+`protect` refuses tools that run inside OpenAI's response, such as web search, file search and code interpreter, because their calls cannot be stopped. It also refuses local shell, computer and apply patch tools: wrap the action in a function tool instead. Hosted MCP servers are supported, and their calls always wait for the decision.
+
+To pause instead of waiting, use `Approvals(..., mode="async", save=save, load=load)`, where `save(run_id, state)` and `load(run_id)` keep each run's state on your server. Start runs with `await approvals.run(agent, input, run_id=run_id)` and mount a `Receiver` with `resumers={"openai-agents": approvals.resumer(agent)}`. Approving the run state any other way cannot run a call: only a decision from the provider can.
