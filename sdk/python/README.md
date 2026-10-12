@@ -29,3 +29,28 @@ with gate.guard(Call(key=f"{run_id}:{tool_call.id}", tool=tool_call.name, argume
 With `mode="async"`, `check` returns `Pending` when there is no decision yet, so the run can pause and the process can exit. Mount a `Receiver` where the provider can reach it. When a decision arrives it wakes the run, and the gate checks the decision again before anything runs.
 
 Framework integrations handle pausing and resuming for you.
+
+## LangChain, LangGraph and Deep Agents
+
+```sh
+pip install "agentapprovalprotocol[langgraph]"
+```
+
+```python
+from agentapprovalprotocol.langgraph import ApprovalMiddleware
+
+approvals = ApprovalMiddleware("https://approvals.example.com/api/aap", token)
+agent = create_agent(model, tools=tools, middleware=[approvals])
+```
+
+Every tool call the agent makes goes to the provider. A denied call returns the reason to the model as the tool result.
+
+For Deep Agents, also add the middleware to every subagent:
+
+```python
+from agentapprovalprotocol.langgraph import deep_agent_subagents
+
+agent = create_deep_agent(model, tools=tools, middleware=[approvals], subagents=deep_agent_subagents(approvals, my_subagents))
+```
+
+To pause instead of waiting, use `ApprovalMiddleware(..., mode="async")` with a checkpointer, and mount a `Receiver` with `resumers={"langgraph": resumer(agent)}`. On LangSmith Deployment, use `deployment_resumer(get_client())` in a custom route instead. Resuming a thread any other way cannot approve a call: the middleware asks the provider again.
