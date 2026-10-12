@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Put a Mastra agent's tool calls behind an Agent Approval Protocol (AAP) approval provider.",
   "license": "Apache-2.0",
+  "publishConfig": { "access": "public" },
   "homepage": "https://agentapprovalprotocol.io",
   "repository": {
     "type": "git",

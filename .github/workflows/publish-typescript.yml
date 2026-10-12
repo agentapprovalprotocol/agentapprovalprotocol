@@ -1,0 +1,68 @@
+name: Publish TypeScript SDKs
+
+on:
+  push:
+    tags: ['sdk-typescript-v[0-9]*.[0-9]*.[0-9]*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check the tag matches every package version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          for dir in sdk/typescript sdk/typescript-ai-sdk sdk/typescript-mastra; do
+            version=$(node -p "require('./$dir/package.json').version")
+            test "$TAG" = "sdk-typescript-v$version" || { echo "$dir is $version, tag is $TAG"; exit 1; }
+          done
+      - run: npm ci --workspace sdk/typescript --workspace sdk/typescript-ai-sdk --workspace sdk/typescript-mastra
+      - run: |
+          for workspace in sdk/typescript sdk/typescript-ai-sdk sdk/typescript-mastra; do
+            npm run check -w "$workspace"
+            npm test -w "$workspace"
+            npm run build -w "$workspace"
+          done
+      - run: |
+          mkdir -p packages
+          for workspace in sdk/typescript sdk/typescript-ai-sdk sdk/typescript-mastra; do
+            npm pack -w "$workspace" --pack-destination packages
+          done
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: packages
+          path: packages/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@11.6.2
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: packages
+          path: packages/
+      # The SDK first: the integrations declare it as a peer dependency.
+      - run: |
+          npm publish packages/agentapprovalprotocol-sdk-*.tgz
+          npm publish packages/agentapprovalprotocol-ai-sdk-*.tgz
+          npm publish packages/agentapprovalprotocol-mastra-*.tgz
