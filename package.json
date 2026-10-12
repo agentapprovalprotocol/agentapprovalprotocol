@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "Apache-2.0",
   "private": true,
-  "workspaces": ["website", "sdk/typescript", "sdk/typescript-ai-sdk"],
+  "workspaces": ["website", "sdk/typescript", "sdk/typescript-ai-sdk", "sdk/typescript-mastra"],
   "engines": { "node": ">=22.14" },
   "scripts": {
     "dev": "npm run dev --workspace website",

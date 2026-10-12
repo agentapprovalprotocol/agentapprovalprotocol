@@ -1,0 +1,38 @@
+{
+  "name": "@agentapprovalprotocol/mastra",
+  "version": "0.1.0",
+  "description": "Put a Mastra agent's tool calls behind an Agent Approval Protocol (AAP) approval provider.",
+  "license": "Apache-2.0",
+  "homepage": "https://agentapprovalprotocol.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agentapprovalprotocol/agentapprovalprotocol.git",
+    "directory": "sdk/typescript-mastra"
+  },
+  "keywords": ["ai", "agents", "approval", "human-in-the-loop", "aap", "mastra"],
+  "type": "module",
+  "sideEffects": false,
+  "engines": { "node": ">=22.13" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "@agentapprovalprotocol/sdk": "^0.1.0",
+    "@mastra/core": "^1.76.0"
+  },
+  "devDependencies": {
+    "@agentapprovalprotocol/sdk": "^0.1.0",
+    "@mastra/core": "^1.76.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.3",
+    "zod": "^4.6.6"
+  }
+}

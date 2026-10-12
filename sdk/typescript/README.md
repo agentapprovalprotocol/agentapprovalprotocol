@@ -40,6 +40,10 @@ export const POST = receiver.handler; // a Next.js route handler
 
 `receiver.handler` takes a `Request` and returns a `Response`, the interface Hono, Bun, Deno and Workers also use. On Node.js `http` or Express, use `nodeListener(receiver)` from `@agentapprovalprotocol/sdk/node`. On serverless platforms, pass `waitUntil` so the run can resume after the response is sent.
 
+## Mastra
+
+For Mastra agents, use [`@agentapprovalprotocol/mastra`](../typescript-mastra/README.md). It gates every tool call and handles pausing and resuming for you.
+
 ## Testing
 
 `FakeProvider` from `@agentapprovalprotocol/sdk/testing` is an in-memory provider. Use `provider.client()` in place of a real client, and `provider.decide(requestId, "approved")` to decide a request.

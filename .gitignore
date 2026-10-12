@@ -15,5 +15,6 @@ playwright-report/
 /sdk/python/dist/
 /sdk/typescript/dist/
 /sdk/typescript-ai-sdk/dist/
+/sdk/typescript-mastra/dist/
 __pycache__/
 /sdk/python/.pytest_cache/
