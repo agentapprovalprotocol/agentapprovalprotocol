@@ -40,6 +40,26 @@ export class NotFound extends AAPError {
   override name = "NotFound";
 }
 
+/**
+ * Provisioning an instance failed. `status` is the HTTP status and `code`
+ * the provider's error code, when the provider answered with them.
+ */
+export class ProvisionError extends AAPError {
+  override name = "ProvisionError";
+  readonly status?: number;
+  readonly code?: string;
+  constructor(message: string, options: { status?: number; code?: string; cause?: unknown } = {}) {
+    super(message, options.cause === undefined ? undefined : { cause: options.cause });
+    this.status = options.status;
+    this.code = options.code;
+  }
+}
+
+/** The provider could not verify the receiver (HTTP 422, `webhook_verification_failed`). */
+export class WebhookVerificationFailed extends ProvisionError {
+  override name = "WebhookVerificationFailed";
+}
+
 /** A request submission, in wire field names. */
 export interface Submission {
   tool: string;
@@ -84,7 +104,8 @@ function retryAfter(response: Response): number | undefined {
   return Number.isNaN(at) ? undefined : Math.max(0, (at - Date.now()) / 1000);
 }
 
-async function read(response: Response): Promise<{ raw: Uint8Array<ArrayBuffer>; tooLarge: boolean }> {
+/** Read a response body, stopping at the size limit. */
+export async function read(response: Response): Promise<{ raw: Uint8Array<ArrayBuffer>; tooLarge: boolean }> {
   if (!response.body) return { raw: new Uint8Array(), tooLarge: false };
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];

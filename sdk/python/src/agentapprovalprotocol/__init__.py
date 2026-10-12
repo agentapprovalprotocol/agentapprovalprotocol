@@ -5,10 +5,10 @@ Put an agent's tool calls behind an AAP approval provider. ``Gate`` and
 on them. See https://agentapprovalprotocol.io.
 """
 
-from ._client import AAPError, AsyncClient, Client, ConflictError, CredentialRefused, NotFound
+from ._client import AAPError, AsyncClient, Client, ConflictError, CredentialRefused, NotFound, ProvisionError, WebhookVerificationFailed
 from ._gate import Allow, AsyncGate, Call, Deny, Gate, Pending, Verdict
 from ._wire import Consumption, Decision, Outcome, ProtocolError, Request
-from .receiver import Receiver
+from .receiver import Provisioned, Receiver
 
 __all__ = [
     "AAPError",
@@ -27,7 +27,10 @@ __all__ = [
     "Outcome",
     "Pending",
     "ProtocolError",
+    "Provisioned",
+    "ProvisionError",
     "Receiver",
     "Request",
     "Verdict",
+    "WebhookVerificationFailed",
 ]

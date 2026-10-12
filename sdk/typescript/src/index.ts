@@ -6,7 +6,18 @@
  * https://agentapprovalprotocol.io.
  */
 
-export { AAPError, Client, type ClientOptions, ConflictError, CredentialRefused, type Fetch, NotFound, type Submission } from "./client.js";
+export {
+  AAPError,
+  Client,
+  type ClientOptions,
+  ConflictError,
+  CredentialRefused,
+  type Fetch,
+  NotFound,
+  ProvisionError,
+  type Submission,
+  WebhookVerificationFailed,
+} from "./client.js";
 export {
   type Allow,
   type Call,
@@ -20,7 +31,19 @@ export {
   type Pending,
   type Verdict,
 } from "./gate.js";
-export { type HeadersInput, Receiver, type ReceiverOptions, type Reply, type Resumer, WebhookError, sign, verify } from "./receiver.js";
+export {
+  type ClientFactory,
+  type HeadersInput,
+  type ProvisionOptions,
+  type Provisioned,
+  Receiver,
+  type ReceiverOptions,
+  type Reply,
+  type Resumer,
+  WebhookError,
+  sign,
+  verify,
+} from "./receiver.js";
 export {
   type ApprovalRequest,
   type Consumption,

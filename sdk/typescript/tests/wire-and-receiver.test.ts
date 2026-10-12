@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { test } from "node:test";
 
-import { Gate, ProtocolError, Receiver, WebhookError, sign, verify } from "../src/index.js";
+import { Gate, ProtocolError, ProvisionError, Receiver, WebhookError, WebhookVerificationFailed, sign, verify } from "../src/index.js";
 import { nodeListener } from "../src/node.js";
-import { FakeProvider, SECRET } from "../src/testing.js";
+import { BASE_URL, FakeProvider, PROVISIONER_TOKEN, SECRET } from "../src/testing.js";
 import { type Raw, RawNumber, dumps, loads, parseRequest, same } from "../src/wire.js";
 
 const SPEC = new URL("../../../docs/specification/7_async.md", import.meta.url);
@@ -194,4 +194,180 @@ test("the Node listener answers webhooks", async () => {
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
+});
+
+const RECEIVER_URL = "https://agent.test/aap/events";
+const REGISTRATION = "8246931c-4ce0-4c15-a94a-e9c078ad06e2";
+
+async function verification(registrationId: string, secret = SECRET): Promise<[Record<string, string>, string]> {
+  const messageId = crypto.randomUUID();
+  const body = JSON.stringify({
+    id: messageId,
+    type: "webhook.verification",
+    registration_id: registrationId,
+    instance_id: crypto.randomUUID(),
+    created_at: "2026-09-16T11:59:00Z",
+    challenge: "2edc34d7",
+  });
+  const stamp = Math.floor(Date.now() / 1000);
+  return [{ "webhook-id": messageId, "webhook-timestamp": String(stamp), "webhook-signature": await sign(secret, messageId, stamp, body) }, body];
+}
+
+async function pendingRequest(provider: FakeProvider): Promise<string> {
+  await new Gate(provider.client(), { mode: "async" }).check({ key: "k", tool: "t", arguments: {}, resume: { framework: "test" } });
+  return provider.only().id;
+}
+
+function recording() {
+  const lines: string[] = [];
+  return { lines, logger: { warn: (m: string) => void lines.push(m), error: (m: string) => void lines.push(m) } };
+}
+
+test("receiver without a client answers verification and skips wakes", async () => {
+  const provider = new FakeProvider();
+  const woken: string[] = [];
+  const tasks: Promise<unknown>[] = [];
+  const { lines, logger } = recording();
+  const receiver = new Receiver({
+    secret: SECRET,
+    registrationId: REGISTRATION,
+    resumers: { test: (_, request) => void woken.push(request.id) },
+    logger,
+    waitUntil: (t) => tasks.push(t),
+  });
+  assert.deepEqual(await receiver.handle(...(await verification(REGISTRATION))), { status: 200, body: '{"challenge":"2edc34d7"}' });
+  const requestId = await pendingRequest(provider);
+  const { headers, body } = await provider.webhook(requestId);
+  assert.equal((await receiver.handle(headers, body)).status, 204);
+  await Promise.all(tasks);
+  assert.deepEqual(woken, []);
+  assert.equal(await receiver.wake(requestId), false);
+  assert.ok(lines.some((line) => line.includes("has no client yet")));
+});
+
+test("receiver without a secret refuses deliveries", async () => {
+  const receiver = new Receiver({ resumers: {}, registrationId: REGISTRATION });
+  assert.equal((await receiver.handle(...(await verification(REGISTRATION)))).status, 401);
+});
+
+for (const asynchronous of [false, true]) {
+  test(`client factory is called once on first wake (${asynchronous ? "async" : "sync"})`, async () => {
+    const provider = new FakeProvider();
+    let made = 0;
+    const make = () => {
+      made++;
+      return provider.client();
+    };
+    const woken: string[] = [];
+    const receiver = new Receiver({
+      secret: SECRET,
+      client: asynchronous ? async () => make() : make,
+      resumers: { test: (_, request) => void woken.push(request.id) },
+    });
+    assert.equal(receiver.client, undefined);
+    assert.equal(made, 0);
+    const requestId = await pendingRequest(provider);
+    assert.deepEqual(await Promise.all([receiver.wake(requestId), receiver.wake(requestId)]), [true, true]);
+    assert.equal(await receiver.wake(requestId), true);
+    assert.equal(made, 1);
+    assert.deepEqual(woken, [requestId, requestId, requestId]);
+  });
+}
+
+test("a failing factory is retried on the next wake", async () => {
+  const provider = new FakeProvider();
+  let attempts = 0;
+  const receiver = new Receiver({
+    secret: SECRET,
+    client: () => {
+      attempts++;
+      if (attempts === 1) throw new Error("credential not saved yet");
+      return provider.client();
+    },
+    resumers: { test: () => {} },
+    logger: quiet,
+  });
+  const requestId = await pendingRequest(provider);
+  assert.equal(await receiver.wake(requestId), false);
+  assert.equal(await receiver.wake(requestId), true);
+  assert.equal(attempts, 2);
+});
+
+test("provision registers the receiver and installs the credential", async () => {
+  const provider = new FakeProvider();
+  const woken: string[] = [];
+  const tasks: Promise<unknown>[] = [];
+  const receiver = new Receiver({ resumers: { test: (_, request) => void woken.push(request.id) }, waitUntil: (t) => tasks.push(t) });
+  provider.receivers.set(RECEIVER_URL, receiver.handler);
+  const provisioned = await receiver.provision({
+    providerUrl: BASE_URL,
+    provisionerToken: PROVISIONER_TOKEN,
+    url: RECEIVER_URL,
+    instanceName: "codex-chris-laptop",
+    fetch: provider.fetch,
+  });
+  assert.equal(provisioned.instanceName, "codex-chris-laptop");
+  assert.equal(provisioned.token, "test-token");
+  assert.ok(provisioned.expiresAt);
+  assert.match(provisioned.secret, /^whsec_[A-Za-z0-9+/]{42}[AEIMQUYcgkosw048]=$/);
+  assert.equal(provisioned.registrationId, receiver.registrationId);
+  assert.equal(receiver.instanceId, provisioned.instanceId);
+  assert.ok(receiver.client);
+  assert.deepEqual(provider.instances.get(provisioned.instanceId)?.delivery, {
+    type: "webhook",
+    url: RECEIVER_URL,
+    registration_id: provisioned.registrationId,
+    signing_secret: provisioned.secret,
+  });
+
+  const requestId = await pendingRequest(provider);
+  const event = await provider.webhook(requestId, { instanceId: provisioned.instanceId, secret: provisioned.secret });
+  assert.equal((await receiver.handle(event.headers, event.body)).status, 204);
+  await Promise.all(tasks);
+  assert.deepEqual(woken, [requestId]);
+  const other = await provider.webhook(requestId, { secret: provisioned.secret });
+  assert.equal((await receiver.handle(other.headers, other.body)).status, 403);
+});
+
+test("provision surfaces verification failure and retries with the same key", async () => {
+  const provider = new FakeProvider();
+  const receiver = new Receiver({ secret: SECRET, resumers: {} });
+  const options = { providerUrl: BASE_URL, provisionerToken: PROVISIONER_TOKEN, url: RECEIVER_URL, fetch: provider.fetch };
+  await assert.rejects(receiver.provision(options), (err: unknown) => {
+    assert.ok(err instanceof WebhookVerificationFailed);
+    assert.equal(err.status, 422);
+    assert.equal(err.code, "webhook_verification_failed");
+    return true;
+  });
+  assert.equal(receiver.client, undefined);
+  assert.equal(receiver.instanceId, undefined);
+  assert.equal(provider.instances.size, 0);
+  const registrationId = receiver.registrationId;
+  assert.ok(registrationId);
+
+  provider.receivers.set(RECEIVER_URL, receiver.handler);
+  const provisioned = await receiver.provision(options);
+  assert.equal(provisioned.registrationId, registrationId);
+  assert.equal(provisioned.secret, SECRET);
+  assert.deepEqual([...provider.provisions.keys()], [registrationId]);
+});
+
+test("provision refuses a receiver expecting another registration", async () => {
+  const provider = new FakeProvider();
+  const receiver = new Receiver({ secret: SECRET, resumers: {} });
+  provider.receivers.set(RECEIVER_URL, new Receiver({ secret: SECRET, registrationId: "00000000-0000-4000-8000-000000000000", resumers: {} }).handler);
+  await assert.rejects(receiver.provision({ providerUrl: BASE_URL, provisionerToken: PROVISIONER_TOKEN, url: RECEIVER_URL, fetch: provider.fetch }), WebhookVerificationFailed);
+  assert.equal((await receiver.handle(...(await verification("00000000-0000-4000-8000-000000000000")))).status, 403);
+});
+
+test("provision surfaces other errors", async () => {
+  const provider = new FakeProvider();
+  const receiver = new Receiver({ resumers: {} });
+  provider.receivers.set(RECEIVER_URL, receiver.handler);
+  await assert.rejects(receiver.provision({ providerUrl: BASE_URL, provisionerToken: "wrong", url: RECEIVER_URL, fetch: provider.fetch }), (err: unknown) => {
+    assert.ok(err instanceof ProvisionError && !(err instanceof WebhookVerificationFailed));
+    assert.equal(err.status, 401);
+    assert.equal(err.message, "provisioning failed (HTTP 401)");
+    return true;
+  });
 });
