@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-06
+lastModified: 2026-10-12
 ---
 
 # Codex
@@ -15,8 +15,6 @@ aap agent install codex --instance-token "YOUR_INSTANCE_TOKEN" --base-url "https
 ```
 
 Start a new Codex session and run `/hooks` to check that AAP is enabled.
-
-If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Then start a new agent session.
 
 ## What to expect
 

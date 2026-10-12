@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-06
+lastModified: 2026-10-12
 ---
 
 # DeepSeek Harness
@@ -17,8 +17,6 @@ aap agent install deepseek --instance-token "YOUR_INSTANCE_TOKEN" --base-url "ht
 ```
 
 Start a new `dsh` session using the profile shown in the installation notes. The adapter applies to that profile.
-
-If you installed an earlier version, update the AAP CLI and repeat the install command to apply the one-week approval window. Then start a new agent session.
 
 ## What to expect
 
