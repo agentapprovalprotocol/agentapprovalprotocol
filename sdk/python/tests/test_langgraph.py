@@ -5,6 +5,8 @@ import sys
 from typing import Any
 
 import pytest
+
+pytest.importorskip("langgraph")
 from langchain.agents import create_agent
 from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage

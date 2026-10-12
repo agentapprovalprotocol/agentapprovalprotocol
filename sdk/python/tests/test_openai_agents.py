@@ -4,7 +4,10 @@ from typing import Any
 
 import httpx
 import pytest
-from agents import (
+
+pytest.importorskip("agents", reason="the openai-agents extra is not installed")
+
+from agents import (  # noqa: E402
     Agent,
     AgentHooks,
     CodeInterpreterTool,

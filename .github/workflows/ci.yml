@@ -72,8 +72,9 @@ jobs:
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: ${{ matrix.python }}
-      - run: uv sync --locked --all-extras
-      - run: uv run --all-extras pytest --timeout 60
+      - run: uv sync --locked --all-extras --no-extra crewai
+      - run: uv run --all-extras --no-extra crewai pytest --timeout 60
+      - run: uv run --extra crewai pytest --timeout 60 tests/test_crewai.py tests/test_gate.py
       - run: uv build
 
   typescript-sdk:
