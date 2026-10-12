@@ -41,13 +41,13 @@ async function send(threadId: string, messages: ModelMessage[]) {
 }
 
 const receiver = new Receiver({
-  secret,
-  client,
   resumers: {
     "ai-sdk": resumer({ load: db.loadMessages, save: db.saveMessages, run: send }),
   },
 });
 ```
+
+Serve the receiver where the provider can reach it, then register it with `receiver.provision(...)` or in your provider's app. On later starts, pass the saved secret, registration ID and client. See [pausing in the TypeScript SDK](../typescript/README.md#pause-instead-of-waiting).
 
 The resumer adds the decision to the thread and calls `send` again. If several calls are paused in one step, it waits until all of them are decided. Without a thread ID, calls wait instead of pausing.
 

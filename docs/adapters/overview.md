@@ -1,10 +1,12 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-12
 ---
 
 # Adapters overview
 
 An adapter connects your agent to an [approval provider](../providers/overview.md), so tool calls can be reviewed before they run. Your provider can approve routine actions automatically and ask you to review others.
+
+For an agent you build in code, use the [SDKs](../sdks/overview.md) instead.
 
 ## Choose your agent
 

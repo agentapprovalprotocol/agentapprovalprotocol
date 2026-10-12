@@ -40,8 +40,10 @@ Mount a `Receiver` where the provider can reach it, with a resumer for the agent
 import { Receiver } from "@agentapprovalprotocol/sdk";
 import { resumer } from "@agentapprovalprotocol/mastra";
 
-const receiver = new Receiver({ secret, client, resumers: { mastra: resumer(agent, { onResult }) } });
+const receiver = new Receiver({ resumers: { mastra: resumer(agent, { onResult }) } });
 ```
+
+Once it is serving, register it with `receiver.provision(...)` or in your provider's app. On later starts, pass the saved secret, registration ID and client. See [pausing in the TypeScript SDK](../typescript/README.md#pause-instead-of-waiting).
 
 When the decision arrives, the run continues in that process. `onResult` receives its output. Resuming a run any other way, such as `approveToolCall` or `resumeStream`, cannot approve a call: the provider is asked again.
 

@@ -72,7 +72,9 @@ Follow the setup guide for your agent:
 
 The [version 1 specification](https://agentapprovalprotocol.io/specification/overview) defines how adapters and providers work together. The [OpenAPI contract](https://agentapprovalprotocol.io/specification/reference/openapi) describes the HTTP API. Use these to add approval support to your agent or implement a provider.
 
-The adapters are also available as a [Go library](https://agentapprovalprotocol.io/docs/adapters/cli#use-as-a-go-library). To put an agent you build in Python or TypeScript behind approvals, use the [Python SDK](sdk/python) or the [TypeScript SDK](sdk/typescript). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
+The adapters are also available as a [Go library](https://agentapprovalprotocol.io/docs/adapters/cli#use-as-a-go-library). See the [embedding requirements](CONTRIBUTING.md#embedding-the-library) when using it in your own application.
+
+To put an agent you build in Python or TypeScript behind approvals, use the [SDKs](https://agentapprovalprotocol.io/docs/sdks/overview). They cover [LangGraph and Deep Agents](https://agentapprovalprotocol.io/docs/sdks/langgraph), [Pydantic AI](https://agentapprovalprotocol.io/docs/sdks/pydantic-ai), [Google ADK](https://agentapprovalprotocol.io/docs/sdks/adk), the [OpenAI Agents SDK](https://agentapprovalprotocol.io/docs/sdks/openai-agents), the [Claude Agent SDK](https://agentapprovalprotocol.io/docs/sdks/claude-agent-sdk), [CrewAI](https://agentapprovalprotocol.io/docs/sdks/crewai), the [Vercel AI SDK](https://agentapprovalprotocol.io/docs/sdks/ai-sdk) and [Mastra](https://agentapprovalprotocol.io/docs/sdks/mastra). The source is in [`sdk/`](sdk).
 
 ## Contribute
 
