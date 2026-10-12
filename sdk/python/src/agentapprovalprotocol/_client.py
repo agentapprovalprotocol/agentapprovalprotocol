@@ -42,6 +42,23 @@ class NotFound(AAPError):
     """The request is unknown or unavailable to this instance."""
 
 
+class ProvisionError(AAPError):
+    """Provisioning an instance failed.
+
+    ``status`` is the HTTP status and ``code`` the provider's error code,
+    when the provider answered with them.
+    """
+
+    def __init__(self, message: str, *, status: int | None = None, code: str | None = None):
+        super().__init__(message)
+        self.status = status
+        self.code = code
+
+
+class WebhookVerificationFailed(ProvisionError):
+    """The provider could not verify the receiver (HTTP 422, ``webhook_verification_failed``)."""
+
+
 def validate_base_url(base_url: str) -> str:
     parts = urlsplit(base_url)
     if not parts.netloc or parts.username or parts.password or parts.query or parts.fragment:

@@ -30,6 +30,45 @@ With `mode="async"`, `check` returns `Pending` when there is no decision yet, so
 
 Framework integrations handle pausing and resuming for you.
 
+Start the receiver first, because the provider checks that it answers before registering it:
+
+```python
+from fastapi import FastAPI
+from agentapprovalprotocol import Receiver
+
+receiver = Receiver(resumers={"langgraph": resumer(agent)})
+app = FastAPI()
+app.add_route("/aap/events", receiver.asgi(), methods=["POST"])
+```
+
+Add it as a route, as shown. `app.mount("/aap/events", ...)` redirects `/aap/events` to `/aap/events/`, and providers do not follow redirects.
+
+Once the server is running, register the receiver:
+
+```python
+provisioned = await receiver.provision(
+    provider_url="https://approvals.example.com/api/aap",
+    provisioner_token=provisioner_token,
+    url="https://agent.example.com/aap/events",
+)
+```
+
+`provision` creates the signing secret and registration ID, and the receiver starts using the new instance credential. Save `token`, `secret`, `registration_id` and `instance_id` from the result. Nothing is saved for you. If it raises `WebhookVerificationFailed`, check the receiver is reachable at `url` and call `provision` again.
+
+On later starts, pass the saved values. `client` can be a function, called the first time a run is woken:
+
+```python
+receiver = Receiver(
+    secret=secret,
+    registration_id=registration_id,
+    instance_id=instance_id,
+    client=lambda: AsyncClient("https://approvals.example.com/api/aap", load_token()),
+    resumers={"langgraph": resumer(agent)},
+)
+```
+
+To register in your provider's app instead, start the receiver with the secret and registration ID you enter there. Without the registration ID, the receiver refuses the provider's check.
+
 ## LangChain, LangGraph and Deep Agents
 
 ```sh

@@ -4,17 +4,22 @@
 and outcome, as an httpx transport, so ``Client`` and ``AsyncClient`` talk
 to it without a network. Framework shims run the conformance scenarios in
 their own tests against it.
+
+It also provisions instances with webhook delivery through the async
+transport: register a receiver's handler in ``receivers`` under its URL, and
+``POST /v1/instances`` sends it a signed verification message first.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 import threading
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable
 
 import httpx
 
@@ -23,6 +28,7 @@ from .receiver import sign
 
 BASE_URL = "https://provider.test/aap"
 TOKEN = "test-token"
+PROVISIONER_TOKEN = "test-provisioner-token"
 SECRET = "whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
 
 
@@ -69,6 +75,12 @@ class FakeProvider:
     calls: list[tuple[str, str]] = field(default_factory=list)
     #: Optional hook to replace a response: return an httpx.Response to use it.
     intercept: Callable[[httpx.Request], httpx.Response | None] | None = None
+    #: Receivers by URL for delivery verification, such as ``Receiver.handle``.
+    receivers: dict[str, Callable[[dict[str, str], bytes], Awaitable[tuple[int, bytes]]]] = field(default_factory=dict)
+    #: Provisioned instances by ID, each with its ``name`` and ``delivery``.
+    instances: dict[str, dict[str, Any]] = field(default_factory=dict)
+    #: Provisioning results by idempotency key: the submission and the response body.
+    provisions: dict[str, tuple[dict[str, Any], dict[str, Any]]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self._lock = threading.Lock()
@@ -87,7 +99,11 @@ class FakeProvider:
         return Client(BASE_URL, TOKEN, http=httpx.Client(transport=httpx.MockTransport(self.handle)), **kwargs)
 
     def async_client(self, **kwargs: Any) -> AsyncClient:
-        return AsyncClient(BASE_URL, TOKEN, http=httpx.AsyncClient(transport=httpx.MockTransport(self.handle)), **kwargs)
+        return AsyncClient(BASE_URL, TOKEN, http=self.async_http(), **kwargs)
+
+    def async_http(self) -> httpx.AsyncClient:
+        """An httpx client routed to this provider, for ``Receiver.provision(http=...)``."""
+        return httpx.AsyncClient(transport=httpx.MockTransport(self.handle_async))
 
     def webhook(self, request_id: str, *, instance_id: str = "b29a43a7-1949-4b9f-9d61-b7ae66f85d31", secret: str = SECRET) -> tuple[dict[str, str], bytes]:
         """Headers and body of a signed request.resolved notification."""
@@ -104,6 +120,53 @@ class FakeProvider:
         now = datetime.now(timezone.utc)
         stored.status, stored.note, stored.decided_at = status, note, now
         stored.expires_at = now + self.validity if status == "approved" else None
+
+    async def handle_async(self, request: httpx.Request) -> httpx.Response:
+        """The async transport, which also provisions instances."""
+        if request.url.path != "/aap/v1/instances":
+            return self.handle(request)
+        if self.intercept and (replaced := self.intercept(request)) is not None:
+            return replaced
+        return await self._provision(request)
+
+    async def _provision(self, request: httpx.Request) -> httpx.Response:
+        self.calls.append((request.method, "/instances"))
+        if request.headers.get("authorization") != f"Bearer {PROVISIONER_TOKEN}":
+            return httpx.Response(401)
+        if request.method != "POST":
+            return httpx.Response(405)
+        key = request.headers.get("idempotency-key")
+        if not key:
+            return _error(400, "invalid_request", "missing_idempotency_key")
+        body = json.loads(request.content)
+        if key in self.provisions:
+            original, response = self.provisions[key]
+            return httpx.Response(200, json=response) if original == body else _error(409, "conflict", "idempotency_conflict")
+        instance_id = str(uuid.uuid4())
+        delivery = body.get("delivery")
+        if delivery is not None and not await self._verify(delivery, instance_id):
+            return _error(422, "invalid_request", "webhook_verification_failed")
+        name = body.get("instance_name") or f"instance-{instance_id[:8]}"
+        self.instances[instance_id] = {"name": name, "delivery": delivery}
+        response = {"instance": {"id": instance_id, "name": name}, "credential": {"token": TOKEN, "expires_at": _stamp(datetime.now(timezone.utc) + timedelta(days=30))}}
+        self.provisions[key] = (body, response)
+        return httpx.Response(201, json=response)
+
+    async def _verify(self, delivery: dict[str, Any], instance_id: str) -> bool:
+        """Send a signed verification message and check the challenge comes back."""
+        receiver = self.receivers.get(delivery.get("url", ""))
+        if receiver is None:
+            return False
+        message_id, challenge = str(uuid.uuid4()), str(uuid.uuid4())
+        message = {"id": message_id, "type": "webhook.verification", "registration_id": delivery["registration_id"], "instance_id": instance_id, "created_at": _stamp(datetime.now(timezone.utc)), "challenge": challenge}
+        raw = json.dumps(message).encode()
+        stamp = int(time.time())
+        headers = {"content-type": "application/json", "webhook-id": message_id, "webhook-timestamp": str(stamp), "webhook-signature": sign(delivery["signing_secret"], message_id, stamp, raw)}
+        try:
+            status, answer = await asyncio.wait_for(receiver(headers, raw), 10)
+            return status == 200 and json.loads(answer) == {"challenge": challenge}
+        except (asyncio.TimeoutError, ValueError):
+            return False
 
     def handle(self, request: httpx.Request) -> httpx.Response:
         if self.intercept and (replaced := self.intercept(request)) is not None:

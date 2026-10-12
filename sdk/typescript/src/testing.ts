@@ -5,6 +5,10 @@
  * and outcome, as a `fetch`-compatible function, so a `Client` talks to it
  * without a network. Framework integrations run the conformance scenarios in
  * their own tests against it.
+ *
+ * It also provisions instances with webhook delivery: register a receiver's
+ * handler in `receivers` under its URL, and `POST /v1/instances` sends it a
+ * signed verification message first.
  */
 
 import { Client, type ClientOptions } from "./client.js";
@@ -13,6 +17,7 @@ import { type RawObject, dumps, loads, nowMicros, plain } from "./wire.js";
 
 export const BASE_URL = "https://provider.test/aap";
 export const TOKEN = "test-token";
+export const PROVISIONER_TOKEN = "test-provisioner-token";
 export const SECRET = "whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=";
 const INSTANCE_ID = "b29a43a7-1949-4b9f-9d61-b7ae66f85d31";
 
@@ -77,6 +82,12 @@ export class FakeProvider {
   readonly calls: [method: string, path: string][] = [];
   /** Optional hook to replace a response: return a Response to use it, or throw to fail the transport. */
   intercept?: (request: Request) => Response | undefined | Promise<Response | undefined>;
+  /** Receivers by URL for delivery verification, such as `receiver.handler`. */
+  readonly receivers = new Map<string, (request: Request) => Promise<Response>>();
+  /** Provisioned instances by ID. */
+  readonly instances = new Map<string, { name: string; delivery?: Body }>();
+  /** Provisioning results by idempotency key: the submission and the response body. */
+  readonly provisions = new Map<string, { submission: string; response: Body }>();
 
   constructor(options: FakeProviderOptions = {}) {
     this.auto = options.auto === undefined ? "approved" : options.auto;
@@ -132,6 +143,7 @@ export class FakeProvider {
 
   /** Answer one request as the provider would, ignoring `intercept`. */
   async respond(request: Request): Promise<Response> {
+    if (new URL(request.url).pathname === "/aap/v1/instances") return this.#provision(request);
     const text = await request.text();
     // Everything below runs without awaiting, so concurrent calls see a consistent store.
     if (request.headers.get("authorization") !== `Bearer ${TOKEN}`) return new Response(null, { status: 401 });
@@ -186,6 +198,67 @@ export class FakeProvider {
       return json(200, stored.wire());
     }
     return new Response(null, { status: 405 });
+  }
+
+  async #provision(request: Request): Promise<Response> {
+    this.calls.push([request.method, "/instances"]);
+    if (request.headers.get("authorization") !== `Bearer ${PROVISIONER_TOKEN}`) return new Response(null, { status: 401 });
+    if (request.method !== "POST") return new Response(null, { status: 405 });
+    const key = request.headers.get("idempotency-key");
+    if (!key) return error(400, "invalid_request", "missing_idempotency_key");
+    const text = await request.text();
+    const body = JSON.parse(text) as Body;
+    const submission = JSON.stringify(body);
+    const existing = this.provisions.get(key);
+    if (existing !== undefined) {
+      return existing.submission === submission ? json(200, existing.response) : error(409, "conflict", "idempotency_conflict");
+    }
+    const instanceId = crypto.randomUUID();
+    const delivery = body.delivery as Body | undefined;
+    if (delivery !== undefined && !(await this.#verify(delivery, instanceId))) return error(422, "invalid_request", "webhook_verification_failed");
+    const name = typeof body.instance_name === "string" ? body.instance_name : `instance-${instanceId.slice(0, 8)}`;
+    this.instances.set(instanceId, { name, ...(delivery ? { delivery } : {}) });
+    const expiresAt = stamp(nowMicros() + 30n * 24n * 3600n * 1_000_000n);
+    const response = { instance: { id: instanceId, name }, credential: { token: TOKEN, expires_at: expiresAt } };
+    this.provisions.set(key, { submission, response });
+    return json(201, response);
+  }
+
+  /** Send a signed verification message and check the challenge comes back. */
+  async #verify(delivery: Body, instanceId: string): Promise<boolean> {
+    const receiver = this.receivers.get(String(delivery.url));
+    if (receiver === undefined) return false;
+    const messageId = crypto.randomUUID();
+    const challenge = crypto.randomUUID();
+    const body = JSON.stringify({
+      id: messageId,
+      type: "webhook.verification",
+      registration_id: delivery.registration_id,
+      instance_id: instanceId,
+      created_at: stamp(nowMicros()),
+      challenge,
+    });
+    const at = Math.floor(Date.now() / 1000);
+    const headers = {
+      "content-type": "application/json",
+      "webhook-id": messageId,
+      "webhook-timestamp": String(at),
+      "webhook-signature": await sign(String(delivery.signing_secret), messageId, at, body),
+    };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error("timed out")), 10_000);
+    });
+    try {
+      const response = await Promise.race([receiver(new Request(String(delivery.url), { method: "POST", headers, body })), timeout]);
+      if (response.status !== 200) return false;
+      const answer = (await response.json()) as Body;
+      return Object.keys(answer).length === 1 && answer.challenge === challenge;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 }
 
