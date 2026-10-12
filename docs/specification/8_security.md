@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-12
 ---
 
 # Security and Conformance
@@ -43,11 +43,30 @@ They must not be returned by instance reads, exposed to the agent or reused as A
 A valid webhook signature proves the sender knows the configured secret.
 It does not authorize tool execution or prove that the receiver consented to registration.
 Receivers must verify expected registrations and fetch decisions through the authenticated API.
-Providers must apply the [webhook abuse controls](7_async.md#abuse-prevention) to verification and delivery.
+Providers must apply the [webhook abuse controls](#webhook-abuse-prevention) to verification and delivery.
 
 Tool arguments may themselves contain sensitive information.
 An adapter must not silently remove or replace arguments whilst claiming that the submitted payload is the complete call.
 AAP version 1 does not define a representation or approval semantics for redacted arguments.
+
+## Webhook Abuse Prevention
+
+A signing secret authenticates a message but does not prove that a destination has agreed to receive traffic.
+The provider must complete [receiver verification](7_async.md#receiver-verification) before sending notifications to a new destination.
+
+Providers must limit registration attempts, approval creation, delivery rates and concurrency per provisioning account and destination, across instances.
+Limits must cover verification traffic and retries as well as first delivery attempts.
+Changing URL paths or creating more instances must not bypass destination limits; providers must also bound aggregate traffic to destination hosts and addresses.
+Request and response sizes must be bounded.
+Numerical limits are provider policy and must be documented.
+
+Before every outbound connection, including verification and retries, the provider must validate the URL and its resolved addresses.
+URLs must use HTTPS and must not contain userinfo or fragments.
+Reject loopback, private, link-local, cloud metadata and other non-public addresses, including IPv6.
+The actual connection must use an address that passed these checks, so a DNS change cannot bypass validation.
+Redirects must not be followed.
+
+These checks follow [OWASP's SSRF prevention guidance](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
 
 ## Enforcement Limits
 
@@ -122,7 +141,7 @@ An asynchronous provider must also:
 5. Retry failed notifications for the seven-day window, respect acknowledgements and rate limits, and enforce bounded attempts.
 6. Move queued notifications to a verified replacement receiver without restarting the retry window or replaying completed delivery.
 7. Apply the additional 24-hour delivery grace period to request, idempotency and notification retention.
-8. Verify receiver consent and enforce the destination, registration and traffic restrictions in the asynchronous contract.
+8. Verify receiver consent and enforce the destination, registration and traffic restrictions in [webhook abuse prevention](#webhook-abuse-prevention).
 
 An asynchronous adapter and its receiving service must meet the shared identity, execution and cancellation requirements above and must also:
 
