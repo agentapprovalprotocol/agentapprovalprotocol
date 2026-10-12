@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-22
+lastModified: 2026-10-12
 ---
 
 # Requests and Decisions
@@ -75,7 +75,7 @@ A request has one of five states:
 | State | Meaning | May the call run? |
 | --- | --- | --- |
 | `pending` | The provider has not recorded an outcome. | No. |
-| `approved` | The provider permits the call. | Only before `decision.expires_at`. |
+| `approved` | The provider permits the call. | Once, after consuming the approval before `decision.expires_at`. |
 | `denied` | The provider refused the call. | No. |
 | `expired` | The approval window ended without a decision. | No. |
 | `cancelled` | The request was withdrawn or its instance was deleted. | No. |
@@ -146,14 +146,26 @@ If a decision, cancellation and expiry race, the provider must record only one t
 An approval applies to exactly one submitted tool, arguments and execution attempt.
 If the proposed call changes, the adapter must request approval again.
 
-Receiving the same approval twice must not cause the tool to run twice.
-The harness or adapter must track whether the call has already executed.
+### Consumption
+
+Before an approved call starts, the adapter must consume the approval.
+Consuming records with the provider that this approval is being used.
+It succeeds once per request, so receiving the same approval twice cannot cause the tool to run twice.
+This holds across retries, restarts and replicas: a second attempt, by any process, is refused.
+
+The adapter must not start the call unless consumption succeeds.
+A consumption that cannot be confirmed means the call does not run.
+Once an approval is consumed, the request includes `consumption.consumed_at`.
+
+Consumption gives at-most-once execution.
+If the adapter consumes an approval and then fails before the call completes, that approval cannot be used again.
+A new attempt requires a new approval request and idempotency key.
 
 The deadline limits how long the provider may take to decide.
 
 `decision.expires_at` limits how long the adapter has to start an approved call.
-The adapter must check this time immediately before allowing execution.
-At or after `expires_at`, the call must not start using that approval.
+The adapter must check this time immediately before consuming the approval.
+The provider must refuse consumption at or after `expires_at`.
 A call that has already started may finish after this time.
 
 The recorded request remains `approved` after its permission expires.
@@ -161,3 +173,10 @@ The `expired` request state means that no decision was reached before `deadline_
 
 Reading the decision again or replaying the original request does not extend `expires_at`.
 If a new execution attempt is needed after expiry, it requires a new approval request and idempotency key.
+
+### Outcome
+
+After the call finishes, the adapter may report whether it succeeded or failed.
+The report appears in `consumption.outcome` and is optional.
+It informs reviewers and audit records only.
+It never changes the request's status or decision.

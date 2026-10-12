@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-10-12
 ---
 
 # API reference overview
@@ -28,7 +28,7 @@ The token you need depends on the operation:
 | Credential | Used for |
 | --- | --- |
 | Provisioner token | Creating, retrieving, updating and deleting instances. |
-| Instance credential | Creating, retrieving and cancelling approval requests for that instance. |
+| Instance credential | Creating, retrieving, cancelling and consuming approval requests for that instance, and reporting their outcomes. |
 
 [Provisioning an instance](5_http.md#provision-an-instance) returns its instance credential.
 The provider derives the instance identity from that credential when the adapter submits a request.
@@ -71,14 +71,18 @@ Both execution modes use the same request and decision objects.
 - In [asynchronous mode](7_async.md), configure a webhook receiver on the instance, suspend execution and resume when a verified notification arrives. Retrieve the request to obtain its authoritative state.
 
 Only execute the approved call when its status is `approved` and the current time is before `decision.expires_at`.
+Then [consume the approval](5_http.md#consume-an-approval) with `POST /v1/requests/{id}/consume`, and start the call only if that succeeds.
+Each approval can be consumed once, so a retried or replayed attempt cannot run the call again.
 The other terminal states, `denied`, `expired` and `cancelled`, do not permit execution.
+
+After the call finishes, you can [report its outcome](5_http.md#report-an-outcome).
 See [requests and decisions](4_requests.md) for the complete lifecycle.
 
 ## Retries and errors
 
-Creating an instance, updating an instance and creating an approval request require an `Idempotency-Key`.
+Creating an instance, updating an instance, creating an approval request and consuming an approval require an `Idempotency-Key`.
 Keep the same key and input when retrying an operation after a lost response.
-For approval requests, use a new key for each distinct execution attempt.
+For approval requests and consumption, use a new key for each distinct execution attempt.
 Reusing a key with different input returns `409 Conflict`.
 
 An HTTP error does not grant approval.

@@ -16,13 +16,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/storage"
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/tool"
 	"github.com/google/uuid"
 )
 
 type Client struct {
-	BaseURL, Token, ToolGlob, StateDir string
+	BaseURL, Token, ToolGlob string
 	// CacheDir is where hooks keep local caches they can rebuild, such as
 	// the Codex tool name listings; empty disables them.
 	CacheDir string
@@ -141,13 +140,29 @@ func (c *Client) Decide(ctx context.Context, in CreateInput) (Decision, error) {
 	if !d.Allows() {
 		return Decision{Status: StatusExpired}, nil
 	}
-	if c.StateDir == "" {
-		return Decision{}, errors.New("approval consumption store is required")
+	if req.Consumption != nil {
+		return Decision{Status: StatusConsumed}, nil
 	}
-	// Persist before emitting any permission. A crash can lose permission, never duplicate it.
-	scope := digest(c.BaseURL)
-	if err := storage.Consume(c.StateDir, scope+"-"+digest(req.ID)); err != nil {
-		return Decision{}, errors.New("approval already consumed or consumption storage unavailable")
+	// Consume before emitting any permission. The provider records it once,
+	// so neither a crash nor another replica can start the call again. The
+	// key is fresh for this attempt and reused only for transport retries.
+	consumeCtx, consumeCancel := context.WithDeadline(work, d.ExpiresAt)
+	defer consumeCancel()
+	consumed, err := c.exchange(consumeCtx, http.MethodPost, "/v1/requests/"+req.ID+"/consume", nil, uuid.NewString(), in, req)
+	var conflict *ConflictError
+	switch {
+	case errors.As(err, &conflict) && conflict.Code == "already_consumed":
+		return Decision{Status: StatusConsumed}, nil
+	case errors.As(err, &conflict) && conflict.Code == "approval_expired":
+		return Decision{Status: StatusExpired}, nil
+	case err != nil && ctx.Err() != nil:
+		return Decision{Status: StatusCancelled}, nil
+	case err != nil && consumeCtx.Err() != nil:
+		return Decision{Status: StatusExpired}, nil
+	case err != nil:
+		return Decision{}, err
+	case consumed.Status != StatusApproved || consumed.Consumption == nil:
+		return Decision{}, errors.New("invalid AAP response")
 	}
 	if ctx.Err() != nil {
 		return Decision{Status: StatusCancelled}, nil
@@ -195,6 +210,19 @@ func (c *Client) exchange(ctx context.Context, method, endpoint string, body []b
 			resp.Body.Close()
 			return prev, fmt.Errorf("%w (HTTP %d)", ErrCredentialRefused, resp.StatusCode)
 		}
+		if resp.StatusCode == http.StatusConflict {
+			var envelope struct {
+				Error struct {
+					Code string `json:"code"`
+				} `json:"error"`
+			}
+			raw, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
+			resp.Body.Close()
+			if json.Unmarshal(raw, &envelope) != nil || envelope.Error.Code == "" {
+				return prev, errors.New("AAP request failed (HTTP 409)")
+			}
+			return prev, &ConflictError{Code: envelope.Error.Code}
+		}
 		validCode := resp.StatusCode == http.StatusOK || (method == http.MethodPost && resp.StatusCode == http.StatusCreated)
 		if !validCode {
 			resp.Body.Close()
@@ -216,6 +244,13 @@ func (c *Client) exchange(ctx context.Context, method, endpoint string, body []b
 		return out, nil
 	}
 }
+
+// ConflictError is a 409 answer, identified by the provider's error code,
+// such as already_consumed or approval_expired.
+type ConflictError struct{ Code string }
+
+func (e *ConflictError) Error() string { return "AAP request conflict: " + e.Code }
+
 func (c *Client) do(ctx context.Context, method, endpoint string, body []byte, key string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, c.BaseURL+endpoint, bytes.NewReader(body))
 	if err != nil {

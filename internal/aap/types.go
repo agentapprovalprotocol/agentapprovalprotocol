@@ -22,6 +22,9 @@ const (
 	StatusDenied    Status = "denied"
 	StatusExpired   Status = "expired"
 	StatusCancelled Status = "cancelled"
+	// StatusConsumed is never sent by a provider. Decide reports it when the
+	// approval was already used, by another attempt or another replica.
+	StatusConsumed Status = "consumed"
 )
 
 type CreateInput struct {
@@ -45,6 +48,19 @@ type Request struct {
 	CreatedAt      string         `json:"created_at"`
 	DeadlineAt     string         `json:"deadline_at"`
 	Decision       *WireDecision  `json:"decision,omitempty"`
+	Consumption    *Consumption   `json:"consumption,omitempty"`
+}
+
+// Consumption records that an approved call was started. The provider sets
+// it once, when an adapter consumes the approval.
+type Consumption struct {
+	ConsumedAt string   `json:"consumed_at"`
+	Outcome    *Outcome `json:"outcome,omitempty"`
+}
+type Outcome struct {
+	Status     string `json:"status"`
+	Note       string `json:"note,omitempty"`
+	ReportedAt string `json:"reported_at"`
 }
 type WireDecision struct {
 	Status    Status `json:"status"`
@@ -155,8 +171,20 @@ func validate(r *Request, in CreateInput, previous *Request) error {
 		if err != nil || !strings.HasSuffix(r.Decision.ExpiresAt, "Z") || !expiry.After(decided) {
 			return bad
 		}
-	} else if r.Decision.ExpiresAt != "" {
+	} else if r.Decision.ExpiresAt != "" || r.Consumption != nil {
 		return bad
+	}
+	if r.Consumption != nil {
+		consumed, err := time.Parse(time.RFC3339Nano, r.Consumption.ConsumedAt)
+		if err != nil || !strings.HasSuffix(r.Consumption.ConsumedAt, "Z") || consumed.Before(decided) {
+			return bad
+		}
+		if o := r.Consumption.Outcome; o != nil {
+			reported, err := time.Parse(time.RFC3339Nano, o.ReportedAt)
+			if (o.Status != "succeeded" && o.Status != "failed") || err != nil || !strings.HasSuffix(o.ReportedAt, "Z") || reported.Before(consumed) {
+				return bad
+			}
+		}
 	}
 	return nil
 }
@@ -193,6 +221,8 @@ func BoundaryText(d Decision) string {
 		return "The call was cancelled before execution."
 	case StatusExpired:
 		return "The approval window or permission to start this call expired. The call was not run."
+	case StatusConsumed:
+		return "This approved call was already attempted, so it was not run again. Request approval again if it still needs to happen."
 	default:
 		return FailClosedText
 	}

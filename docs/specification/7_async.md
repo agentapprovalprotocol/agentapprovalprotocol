@@ -9,7 +9,7 @@ This lets an approval outlive the agent process or its network connection, which
 
 When a decision is made, the provider sends a signed webhook to a receiver.
 The receiver is an HTTPS endpoint, part of the harness or a separate service, that stays reachable whilst the agent is suspended.
-It verifies and records the notification, then wakes the suspended execution, which fetches the decision and continues.
+It verifies the notification, then wakes the suspended execution, which fetches the decision and continues.
 
 A provider supporting asynchronous mode must support webhook delivery.
 
@@ -29,12 +29,14 @@ sequenceDiagram
     Adapter->>Adapter: Save pending execution and suspend
     Provider->>Provider: Save decision and notification
     Provider->>Receiver: Signed request.resolved notification
-    Receiver->>Receiver: Verify signature and durably queue notification
+    Receiver->>Receiver: Verify signature
     Receiver-->>Provider: 204 No Content
     Receiver->>Adapter: Resume pending execution
     Adapter->>Provider: GET /v1/requests/{id}
     Provider-->>Adapter: Request with recorded decision
     alt Approved and approval still valid
+        Adapter->>Provider: POST /v1/requests/{id}/consume
+        Provider-->>Adapter: Consumed request
         Adapter->>Tool: Execute approved call
         Tool-->>Adapter: Result
         Adapter-->>Agent: Result
@@ -171,14 +173,14 @@ webhook-signature: v1,zgT2qt+QiEEonu9tmZqEuKzoa83SGE9ZcCgUHzqSPZ8=
 }
 ```
 
-The receiver verifies the signature and durably queues the notification before acknowledging it:
+The receiver verifies the signature and acknowledges the notification:
 
 ```http
 HTTP/1.1 204 No Content
 ```
 
 The adapter then [retrieves the request](5_http.md#retrieve-a-request).
-Its decision expires at `12:07:00Z`, so the saved call must start before then.
+Its decision expires at `12:07:00Z`, so the adapter must [consume the approval](5_http.md#consume-an-approval) before then.
 
 ## Signing
 
@@ -204,9 +206,10 @@ The provider never sends instance credentials or provisioner tokens to the recei
 
 ## Acknowledgements and Retries
 
-The receiver verifies a notification and durably saves it before returning any `2xx`, such as `204 No Content`.
+The receiver verifies a notification before returning any `2xx`, such as `204 No Content`.
 Acknowledgement confirms receipt only, and the provider ignores the response body.
-Duplicates of a saved notification also receive `2xx`.
+The receiver may acknowledge before it resumes execution, and should, because each delivery attempt has a ten second limit.
+Duplicates also receive `2xx`.
 
 The provider delivers promptly and retries failures with exponential backoff and jitter until acknowledged, for up to seven days after `decision.decided_at`.
 Each event has at most one attempt outstanding, and each attempt times out within ten seconds and ends by the retry deadline.
@@ -218,17 +221,18 @@ Delivery continues after the approval expires, and extends how long the provider
 ## Resuming Execution
 
 Before suspending, the harness saves the approval request ID, the original idempotency key and the exact pending tool call.
-The receiver must keep a notification that arrives before suspension finishes.
+A notification can arrive before suspension finishes; the resumed execution then finds the request already decided.
 
-On resuming, the adapter must retrieve the request rather than act on the event, and check `decision.expires_at` immediately before the call starts.
+On resuming, the adapter must retrieve the request rather than act on the event, check `decision.expires_at` and [consume the approval](5_http.md#consume-an-approval) before the call starts.
 
-A repeated event must never resume or execute the same call again.
-The receiver must keep event IDs for at least eight days after `created_at`, which covers the retry window and delivery grace period.
-The harness must remember whether execution has started or been abandoned, and acknowledge but discard notifications for abandoned execution.
+A notification only wakes execution.
+Receivers do not need to remember event IDs: a repeated or forged event at most wakes an execution again, and consumption ensures the call runs at most once.
+Execution that was abandoned simply finds nothing to resume.
 
 ## Recovery
 
-If an event is missed, the harness can retrieve its pending requests by their saved IDs.
+If an event is missed, or the receiver acknowledged it and then failed before resuming, the execution stays suspended.
+The harness recovers by periodically retrieving its suspended requests by their saved IDs and resuming those that are terminal.
 Decisions remain readable for the [retention period](5_http.md#retention) whether or not delivery succeeded, but only with a valid credential.
 
 If execution is abandoned, the adapter must attempt to cancel the pending request.

@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-16
+lastModified: 2026-10-12
 ---
 
 # HTTP API
@@ -32,7 +32,7 @@ The schema defines their accepted format.
 Protocol objects reject unknown fields.
 Tool arguments and runtime context are extensible objects whose contents are defined by the tool and adapter.
 
-All approval operations require an instance credential in the `Authorization` header.
+All approval operations, including consumption and outcome reports, require an instance credential in the `Authorization` header.
 Instance creation, retrieval, updates and deletion use a provisioner token instead.
 
 Responses return the resource directly.
@@ -128,7 +128,7 @@ A terminal response to the example above could be:
 }
 ```
 
-The adapter must start the approved call before `decision.expires_at`.
+The adapter must [consume the approval](#consume-an-approval) before `decision.expires_at` and before the call starts.
 Retrieving an approved request after that time does not renew permission to execute it.
 
 ## Cancel a Request
@@ -142,6 +142,79 @@ The recorded outcome is unchanged.
 
 Cancellation ends any long polls waiting for a decision on that request.
 Those polls return the cancelled resource.
+
+## Consume an Approval
+
+`POST /v1/requests/{id}/consume`
+
+The adapter consumes an approved request immediately before the call starts.
+Only the creating instance may consume it.
+The request has no body and requires an `Idempotency-Key` header.
+
+```http
+POST /v1/requests/7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71/consume HTTP/1.1
+Host: approvals.example.com
+Authorization: Bearer <instance_credential>
+Idempotency-Key: 0c6f0d1e-2f5e-4c0a-9d0f-4a3c9a5b7e21
+```
+
+A successful consumption returns `200 OK` with the request, now including `consumption`:
+
+```json
+{
+  "id": "7ab8c8ec-7b2d-4fd6-9b52-752f9515eb71",
+  "status": "approved",
+  "decision": {
+    "status": "approved",
+    "decided_at": "2026-09-16T12:02:00Z",
+    "expires_at": "2026-09-16T12:07:00Z"
+  },
+  "consumption": {
+    "consumed_at": "2026-09-16T12:02:05Z"
+  }
+}
+```
+
+Other request fields are omitted from this example.
+
+The provider must consume each request at most once.
+It performs the check and the record together, so concurrent attempts cannot both succeed.
+It refuses consumption with `409 Conflict` when:
+
+| Code | Meaning |
+| --- | --- |
+| `already_consumed` | Another execution attempt consumed this approval. |
+| `not_approved` | The request is pending, denied, expired or cancelled. |
+| `approval_expired` | The request is approved, but `decision.expires_at` has passed. |
+
+The adapter generates a new idempotency key for each execution attempt.
+It reuses that key only to retry the same consumption after a lost response.
+Repeating a successful consumption with the same key returns the request again, even after `decision.expires_at`.
+A restarted or replayed attempt uses a new key, so the provider refuses it with `already_consumed`.
+
+## Report an Outcome
+
+`POST /v1/requests/{id}/outcome`
+
+After a consumed call finishes, the adapter may report whether it succeeded.
+The body is an `OutcomeReport` with a `status` of `succeeded` or `failed` and an optional `note`:
+
+```json
+{
+  "status": "succeeded",
+  "note": "Refund issued."
+}
+```
+
+The provider returns `200 OK` with the request, including `consumption.outcome` and its `reported_at` time.
+Only the creating instance may report, and only once.
+Repeating the same report returns the request again.
+A different report returns `409 Conflict` with code `outcome_conflict`.
+Reporting before consumption returns `409 Conflict` with code `not_consumed`.
+
+The note is shown to reviewers.
+It must not contain credentials or the tool's full result.
+Reporting is optional and never changes the request's status or decision.
 
 ## Provision an Instance
 
@@ -237,10 +310,10 @@ A lost response is therefore recoverable by submitting the same request with the
 The adapter must not create a new key simply because a connection failed.
 
 A distinct execution attempt requires a new key and a new approval request, even if its tool and arguments are identical.
-Reusing a key does not permit repeating an already executed action.
+Reusing a key does not permit repeating an already executed action: each approval can be [consumed](#consume-an-approval) once.
 
 Reads can be retried after a temporary failure.
-Request creation can be retried with the original idempotency key.
+Request creation and consumption can be retried with their original idempotency keys.
 Retries should use increasing delays and must fit within the adapter's waiting limit.
 If the provider sends `Retry-After`, the adapter must respect it or stop waiting.
 
