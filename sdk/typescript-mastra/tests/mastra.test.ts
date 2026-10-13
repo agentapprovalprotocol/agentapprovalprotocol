@@ -134,7 +134,7 @@ test("a denied call returns the reason to the model and does not run", async () 
   const { agent } = setup(provider, model);
   await agent.generate("Refund it");
   assert.deepEqual(ran, []);
-  assert.match(JSON.stringify(toolResults(model)), /The Agent Approval Protocol \(AAP\) provider denied this call: Refunds over 40 GBP need a manager\./);
+  assert.match(JSON.stringify(toolResults(model)), /The AAP provider denied this call: Refunds over 40 GBP need a manager\./);
 });
 
 test("a replayed call is refused after its approval was consumed", async () => {
