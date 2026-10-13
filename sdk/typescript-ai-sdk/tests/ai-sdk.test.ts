@@ -126,7 +126,7 @@ test("a denied call returns the reason to the model and does not run", async () 
   const result = await generateText({ model: m, prompt: "Refund it", tools: { refund }, stopWhen: stepCountIs(3), ...approvals({ gate: new Gate(provider.client()) }) });
   assert.deepEqual(ran, []);
   assert.equal(result.text, "Understood.");
-  assert.match(toolResults(m), /execution-denied.*Approval for this call was denied, so it was not run\. Reason: Refunds over 40 GBP need a manager\./);
+  assert.match(toolResults(m), /execution-denied.*The Agent Approval Protocol \(AAP\) provider denied this call: Refunds over 40 GBP need a manager\./);
 });
 
 test("a replay after consumption does not run again", async () => {
@@ -257,7 +257,7 @@ test("parallel paused calls resume together once both are decided", async () => 
   await receiver.wake(ids.get("payment_123")!);
   assert.deepEqual(ran, [{ payment_id: "payment_456", amount: 100 }]);
   assert.equal(provider.requests.size, 2);
-  assert.match(toolResults(m), /Approval for this call was denied, so it was not run\. Reason: Not this one\./);
+  assert.match(toolResults(m), /The Agent Approval Protocol \(AAP\) provider denied this call: Not this one\./);
   assert.equal(lastText(store.get("t2")!), "Done.");
 });
 
@@ -299,7 +299,7 @@ test("a denied gated tool shows the reason to the model", async () => {
   const m = model([REFUND], "Understood.");
   await new ToolLoopAgent({ model: m, tools: gatedTools({ refund }, { gate: new Gate(provider.client()) }) }).generate({ prompt: "Refund it" });
   assert.deepEqual(ran, []);
-  assert.match(toolResults(m), /Approval for this call was denied, so it was not run\./);
+  assert.match(toolResults(m), /The Agent Approval Protocol \(AAP\) provider denied this call\./);
 });
 
 test("approvals leave gated tools to their own gate", async () => {
