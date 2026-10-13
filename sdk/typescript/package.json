@@ -1,6 +1,6 @@
 {
   "name": "@agentapprovalprotocol/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Put an AI agent's tool calls behind an Agent Approval Protocol (AAP) approval provider.",
   "license": "Apache-2.0",
   "publishConfig": { "access": "public" },

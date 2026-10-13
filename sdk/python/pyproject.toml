@@ -1,6 +1,6 @@
 [project]
 name = "agentapprovalprotocol"
-version = "0.3.0"
+version = "0.3.1"
 description = "Put an AI agent's tool calls behind an Agent Approval Protocol (AAP) approval provider."
 readme = "README.md"
 license = "Apache-2.0"
