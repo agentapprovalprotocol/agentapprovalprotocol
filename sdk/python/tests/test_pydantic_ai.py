@@ -106,7 +106,7 @@ async def test_denied_call_returns_the_reason_to_the_model():
     result = await agent(provider, turn(REFUND), done("Understood.")).run("Refund it")
     assert ran == []
     (part,) = returns(result.all_messages())
-    assert part.outcome == "failed" and part.content == "The provider denied this call."
+    assert part.outcome == "failed" and part.content == "The AAP provider denied this call."
     assert result.output == "Understood."
 
 

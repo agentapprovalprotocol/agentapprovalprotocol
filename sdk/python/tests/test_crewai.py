@@ -157,7 +157,7 @@ def test_denied_call_returns_the_reason_to_the_model():
     hooks(provider)
     crew(llm)[0].kickoff()
     assert ran == []
-    assert llm.tool_results() == ["The provider denied this call: Not this one."]
+    assert llm.tool_results() == ["The AAP provider denied this call: Not this one."]
 
 
 def test_text_tool_calls_are_gated():
@@ -166,7 +166,7 @@ def test_text_tool_calls_are_gated():
     hooks(provider)
     out = crew(llm)[0].kickoff()
     assert ran == [] and out.raw == "Not refunded."
-    assert "The provider denied this call." in llm.tool_results()[-1]
+    assert "The AAP provider denied this call." in llm.tool_results()[-1]
 
     provider.auto = "approved"
     llm = Scripted(model="scripted", native=False, turns=[react("refund", REFUND[2]), "Thought: done\nFinal Answer: Refunded."])
@@ -204,7 +204,7 @@ def test_parallel_calls_get_their_own_decisions():
     hooks(provider)
     crew(llm)[0].kickoff()
     assert ran == [{"payment_id": "payment_456", "amount": 100}]
-    assert sorted(llm.tool_results()) == ["The provider denied this call: Too large.", "refunded payment_456"]
+    assert sorted(llm.tool_results()) == ["The AAP provider denied this call: Too large.", "refunded payment_456"]
     assert len(provider.requests) == 2
 
 
@@ -223,7 +223,7 @@ def test_delegated_coworker_calls_are_gated():
     Crew(agents=[lead, billing], tasks=[task]).kickoff()
     assert ran == []
     assert sorted(s.body["tool"] for s in provider.requests.values()) == ["delegate_work_to_coworker", "refund"]
-    assert billing_llm.tool_results() == ["The provider denied this call: No refunds today."]
+    assert billing_llm.tool_results() == ["The AAP provider denied this call: No refunds today."]
     assert "The refund was denied." in lead_llm.tool_results()[0]
     delegated = next(s for s in provider.requests.values() if s.body["tool"] == "delegate_work_to_coworker")
     assert delegated.outcome["status"] == "succeeded"
@@ -235,7 +235,7 @@ def test_agent_kickoff_is_gated():
     hooks(provider)
     Agent(role="Support", goal="Refunds", backstory="b", llm=llm, tools=[refund]).kickoff("Refund payment_123")
     assert ran == [] and len(provider.requests) == 1
-    assert llm.tool_results() == ["The provider denied this call."]
+    assert llm.tool_results() == ["The AAP provider denied this call."]
 
 
 def test_mcp_tools_send_the_server_and_original_name():

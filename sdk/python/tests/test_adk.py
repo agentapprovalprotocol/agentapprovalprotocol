@@ -119,7 +119,7 @@ async def test_denied_call_returns_the_reason_to_the_model():
     runner, _ = build(provider, LlmAgent(name="support", model=Scripted(turn(REFUND), say("Understood.")), tools=[refund]))
     _, events = await start(runner)
     assert ran == []
-    assert responses(events, "refund") == [{"error": "The provider denied this call."}]
+    assert responses(events, "refund") == [{"error": "The AAP provider denied this call."}]
     assert last_text(events) == "Understood."
 
 
@@ -204,7 +204,7 @@ async def test_async_denial_wakes_and_returns_the_reason():
     await resumer(runner)(provider.only().body["context"]["resume"], await provider.async_client().get(request_id))
     events = await session_events(runner, session_id)
     assert ran == []
-    assert responses(events, "refund")[-1] == {"error": "The provider denied this call: Not this one."}
+    assert responses(events, "refund")[-1] == {"error": "The AAP provider denied this call: Not this one."}
     assert last_text(events) == "Understood."
 
 
@@ -312,7 +312,7 @@ async def test_invented_tool_names_are_gated():
     runner, _ = build(provider, LlmAgent(name="support", model=Scripted(turn(("c1", "wire_money", {"to": "x"})), say("Ok.")), tools=[refund]))
     _, events = await start(runner)
     assert provider.only().body["tool"] == "wire_money"
-    assert responses(events, "wire_money") == [{"error": "The provider denied this call."}]
+    assert responses(events, "wire_money") == [{"error": "The AAP provider denied this call."}]
 
 
 async def test_gemini_built_in_tools_are_refused():

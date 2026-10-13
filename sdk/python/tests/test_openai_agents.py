@@ -90,7 +90,7 @@ async def test_denied_call_returns_the_reason_to_the_model():
     agent = approvals(provider).protect(Agent(name="support", model=model, tools=[refund]))
     await Runner.run(agent, "Refund it")
     assert ran == []
-    assert outputs(model) == ["The provider denied this call."]
+    assert outputs(model) == ["The AAP provider denied this call."]
 
 
 async def test_a_replayed_call_does_not_run_again():
@@ -181,7 +181,7 @@ async def test_async_mode_denial_returns_the_reason():
     receiver = Receiver(secret=SECRET, client=provider.async_client(), resumers={"openai-agents": gate.resumer(agent)})
     assert await receiver.wake(stored.id)
     assert ran == [] and model.remaining_steps == 0
-    assert outputs(model) == ["The provider denied this call: Not today."]
+    assert outputs(model) == ["The AAP provider denied this call: Not today."]
 
 
 async def test_parallel_calls_wait_for_their_own_decisions():
@@ -204,7 +204,7 @@ async def test_parallel_calls_wait_for_their_own_decisions():
     await receiver.wake(ids["payment_123"])
     assert ran == [second]
     assert model.remaining_steps == 0
-    assert sorted(outputs(model)) == ["The provider denied this call: Not this one.", "refunded payment_456"]
+    assert sorted(outputs(model)) == ["The AAP provider denied this call: Not this one.", "refunded payment_456"]
     assert len(provider.requests) == 2
 
 
@@ -341,7 +341,7 @@ async def test_local_mcp_denial_does_not_call_the_server():
     agent = approvals(provider).protect(Agent(name="support", model=model, mcp_servers=[crm]))
     await Runner.run(agent, "Update the contact")
     assert crm.calls == []
-    assert outputs(model) == ["The provider denied this call."]
+    assert outputs(model) == ["The AAP provider denied this call."]
 
 
 @pytest.mark.parametrize("status", ["approved", "denied"])

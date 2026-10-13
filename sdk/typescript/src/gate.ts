@@ -129,7 +129,7 @@ export async function idempotencyKey(call: Call, body: Submission): Promise<stri
 function settled(request: ApprovalRequest): Deny | undefined {
   if (request.status === DENIED) {
     const note = request.decision?.note;
-    return deny(note ? `The provider denied this call: ${note}` : "The provider denied this call.", DENIED, request.id);
+    return deny(note ? `The AAP provider denied this call: ${note}` : "The AAP provider denied this call.", DENIED, request.id);
   }
   if (request.status === CANCELLED) return deny(CANCELLED_TEXT, CANCELLED, request.id);
   if (request.status === EXPIRED) return deny(EXPIRED_TEXT, EXPIRED, request.id);
