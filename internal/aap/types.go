@@ -214,9 +214,9 @@ func BoundaryText(d Decision) string {
 	switch d.Status {
 	case StatusDenied:
 		if d.Note != "" {
-			return "The provider denied this call: " + d.Note
+			return "Approval for this call was denied, so it was not run. Reason: " + d.Note
 		}
-		return "The provider denied this call."
+		return "Approval for this call was denied, so it was not run."
 	case StatusCancelled:
 		return "The call was cancelled before execution."
 	case StatusExpired:

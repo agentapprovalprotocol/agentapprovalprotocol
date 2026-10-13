@@ -117,7 +117,7 @@ def _settled(request: Request) -> Deny | None:
     """The deny for a terminal request, or None when it may be consumed."""
     if request.status == DENIED:
         note = request.decision.note if request.decision else None
-        return Deny(f"The provider denied this call: {note}" if note else "The provider denied this call.", DENIED, request.id)
+        return Deny(f"Approval for this call was denied, so it was not run. Reason: {note}" if note else "Approval for this call was denied, so it was not run.", DENIED, request.id)
     if request.status == CANCELLED:
         return Deny(CANCELLED_TEXT, CANCELLED, request.id)
     if request.status == EXPIRED:

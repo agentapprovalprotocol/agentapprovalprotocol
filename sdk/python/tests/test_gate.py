@@ -42,7 +42,7 @@ def test_denial_carries_the_reviewers_note():
     provider.decide(pending.request_id, "denied", "Refunds over 40 GBP need a manager.")
     verdict = gate.check(call())
     assert isinstance(verdict, Deny) and verdict.status == "denied"
-    assert verdict.reason == "The provider denied this call: Refunds over 40 GBP need a manager."
+    assert verdict.reason == "Approval for this call was denied, so it was not run. Reason: Refunds over 40 GBP need a manager."
 
 
 def test_same_call_cannot_run_twice_across_replicas():
