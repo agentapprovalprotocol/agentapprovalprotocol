@@ -30,8 +30,6 @@ button, input { font: inherit; }
 .docs-github:hover { background: var(--color-fill); color: var(--color-ink); }
 .docs-github:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 .docs-github-mark { width: 16px; height: 16px; color: var(--color-ink); }
-.docs-github-stars { display: inline-flex; align-items: center; gap: 4px; padding-left: 8px; border-left: .5px solid var(--color-edge); font-variant-numeric: tabular-nums; }
-.docs-github-stars svg { width: 14px; height: 14px; }
 .docs-version { display: inline-flex; align-items: center; flex-shrink: 0; gap: 6px; min-height: 32px; padding: 6px 8px; border: .5px solid var(--color-edge); border-radius: 8px; background: var(--color-surface); color: var(--color-ink-muted); font-size: 12px; white-space: nowrap; cursor: pointer; }
 .docs-version:hover, .docs-version[data-popup-open] { background: var(--color-fill); color: var(--color-ink); }
 .docs-version:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
