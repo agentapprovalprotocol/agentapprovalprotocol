@@ -141,7 +141,8 @@ class ApprovalCapability(AbstractCapability[Any]):
         tool_call_id = ctx.tool_call_id or "-"
         found = _response_with(ctx.messages, tool_call_id)
         resume = None
-        if conversation is not None:
+        # A call inside a running tool never pauses, so nothing should wake a run for it.
+        if conversation is not None and not _in_tool.get():
             resume = {"framework": FRAMEWORK, "conversation_id": conversation}
         call = Call(
             key=f"{conversation or '-'}:{tool_call_id}",
