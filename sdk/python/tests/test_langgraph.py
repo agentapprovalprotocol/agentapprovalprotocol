@@ -67,7 +67,7 @@ def test_denied_call_returns_the_reason_to_the_model():
     result = agent(provider, turn(REFUND), AIMessage("Understood.")).invoke({"messages": [HumanMessage("Refund it")]})
     assert ran == []
     message = next(m for m in result["messages"] if isinstance(m, ToolMessage))
-    assert message.status == "error" and message.content == "The AAP provider denied this call."
+    assert message.status == "error" and message.content == "A reviewer at the AAP (Agent Approval Protocol) provider denied this call."
 
 
 def test_async_mode_pauses_ignores_forged_resumes_and_wakes_on_the_decision():
