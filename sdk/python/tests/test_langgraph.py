@@ -150,7 +150,75 @@ def test_deep_agent_subagent_calls_are_gated():
     graph = create_deep_agent(model=model, tools=[refund], middleware=[middleware], subagents=deep_agent_subagents(middleware))
     graph.invoke({"messages": [HumanMessage("Refund payment_123")]})
     assert ran == [{"payment_id": "payment_123", "amount": 4900}]
-    assert sorted(s.body["tool"] for s in provider.requests.values()) == ["refund", "task"]
+    # task only delegates; the subagent's own call is the one sent for approval.
+    assert [s.body["tool"] for s in provider.requests.values()] == ["refund"]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="Deep Agents needs Python 3.11")
+def test_deep_agent_subagent_calls_pause_in_async_mode():
+    from deepagents import create_deep_agent
+
+    provider = FakeProvider(auto=None)
+    middleware = ApprovalMiddleware(gate=Gate(provider.client(), mode="async"), async_gate=AsyncGate(provider.async_client(), mode="async"))
+    model = Scripted(
+        messages=iter(
+            [
+                turn(("t1", "task", {"description": "Refund payment_123", "subagent_type": "general-purpose"})),
+                turn(REFUND),
+                AIMessage("Refunded."),
+                AIMessage("The subagent refunded it."),
+            ]
+        )
+    )
+    graph = create_deep_agent(model=model, tools=[refund], middleware=[middleware], subagents=deep_agent_subagents(middleware), checkpointer=InMemorySaver())
+    config = {"configurable": {"thread_id": "t3"}}
+    paused = graph.invoke({"messages": [HumanMessage("Refund payment_123")]}, config)
+    (pending,) = paused["__interrupt__"]
+    assert pending.value["tool"] == "refund" and ran == []
+
+    provider.decide(pending.value["aap_request_id"])
+    receiver = Receiver(secret=SECRET, client=provider.async_client(), resumers={"langgraph": resumer(graph)})
+    assert asyncio.run(receiver.wake(pending.value["aap_request_id"]))
+    # task runs again on resume, and the subagent continues from its own checkpoint.
+    assert ran == [{"payment_id": "payment_123", "amount": 4900}]
+    assert [(s.body["tool"], s.outcome["status"]) for s in provider.requests.values()] == [("refund", "succeeded")]
+    state = graph.get_state(config)
+    assert not state.interrupts and state.values["messages"][-1].content == "The subagent refunded it."
+
+
+def test_calls_inside_a_running_tool_wait_in_async_mode():
+    provider = FakeProvider(auto=None)
+    middleware = ApprovalMiddleware(gate=Gate(provider.client(), mode="async"), async_gate=AsyncGate(provider.async_client(), mode="async"))
+    inner = create_agent(Scripted(messages=iter([turn(REFUND), AIMessage("Refunded.")])), tools=[refund], middleware=[middleware])
+
+    def billing(request: str) -> str:
+        """Ask the billing agent to do something."""
+        return inner.invoke({"messages": [HumanMessage(request)]})["messages"][-1].content
+
+    def approve_the_waiting_refund(request):
+        if request.method == "GET":
+            for stored in provider.requests.values():
+                if stored.body["tool"] == "refund":
+                    provider._decide(stored, "approved", None)
+
+    provider.intercept = approve_the_waiting_refund
+    outer = create_agent(
+        Scripted(messages=iter([turn(("b1", "billing", {"request": "Refund payment_123"})), AIMessage("Billing refunded it.")])),
+        tools=[billing],
+        middleware=[middleware],
+        checkpointer=InMemorySaver(),
+    )
+    config = {"configurable": {"thread_id": "t4"}}
+    (pending,) = outer.invoke({"messages": [HumanMessage("Refund payment_123")]}, config)["__interrupt__"]
+    assert pending.value["tool"] == "billing"
+
+    provider.decide(pending.value["aap_request_id"])
+    receiver = Receiver(secret=SECRET, client=provider.async_client(), resumers={"langgraph": resumer(outer)})
+    assert asyncio.run(receiver.wake(pending.value["aap_request_id"]))
+    # The refund waited inside the approved billing call: pausing would run billing again, refused as consumed.
+    assert ran == [{"payment_id": "payment_123", "amount": 4900}]
+    assert sorted((s.body["tool"], s.outcome["status"]) for s in provider.requests.values()) == [("billing", "succeeded"), ("refund", "succeeded")]
+    assert outer.get_state(config).values["messages"][-1].content == "Billing refunded it."
 
 
 @pytest.mark.skipif(sys.version_info < (3, 11), reason="Deep Agents needs Python 3.11")

@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-12
+lastModified: 2026-10-14
 ---
 
 # LangGraph and Deep Agents
@@ -51,6 +51,8 @@ agent = create_deep_agent(
 )
 ```
 
+The `task` tool that hands work to a subagent is not sent for approval. The subagent's own tool calls are.
+
 ## Pause instead of waiting
 
 Use pause mode with a checkpointer, and run each conversation on a thread:
@@ -87,6 +89,7 @@ Add the same `ApprovalMiddleware` instance to every agent you run as a sub-agent
 
 - **Compiled or remote Deep Agents subagents:** `deep_agent_subagents` refuses subagents that run their own graph. Add `ApprovalMiddleware` to those graphs yourself.
 - **No checkpointer or thread ID:** In pause mode, calls wait instead of pausing. Pass a checkpointer and a `thread_id`.
+- **An agent one of your tools runs:** Its tool calls cannot pause the run. Each one waits for its decision while the run stays open. Decide them within the [wait limit](overview.md#wait-or-pause). Subagents built with `deep_agent_subagents` pause like any other call.
 - **Middleware that changes arguments:** Middleware listed after `approvals` can change arguments after they were approved. List it before `approvals`.
 
 ## Test without a provider

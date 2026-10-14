@@ -13,11 +13,13 @@ Install with ``pip install "agentapprovalprotocol[langgraph]"``.
 from __future__ import annotations
 
 import asyncio
+import contextvars
 from typing import Any, Awaitable, Callable, Iterable, Literal, Mapping, Sequence
 
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.runnables.config import var_child_runnable_config
+from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command, interrupt
 
@@ -26,6 +28,15 @@ from ._gate import Allow, AsyncGate, Call, Deny, Gate, Pending, Verdict
 from ._wire import Request
 
 INTERRUPT_KEY = "aap_request_id"
+
+# Set while an approved tool runs. A call made inside it, such as one by an
+# agent the tool invokes, waits instead of pausing: on resume LangGraph would
+# run the outer tool again, and its approval is already consumed.
+_running = contextvars.ContextVar("aap_running_tool", default=False)
+
+# Deep Agents' delegation tool. It changes nothing itself, so once every
+# subagent is gated it runs without approval, and its subagents can pause.
+DEEP_AGENTS_TASK_TOOL = "task"
 
 Handler = Callable[[ToolCallRequest], "ToolMessage | Command"]
 AsyncHandler = Callable[[ToolCallRequest], Awaitable["ToolMessage | Command"]]
@@ -103,6 +114,7 @@ class ApprovalMiddleware(AgentMiddleware):
         self._async_gate = async_gate
         self._make = lambda client_cls, gate_cls: gate_cls(client_cls(base_url, token), mode=mode, **gate_options)
         self.mode = mode
+        self._ungated: set[str] = set()
 
     @property
     def gate(self) -> Gate:
@@ -132,9 +144,11 @@ class ApprovalMiddleware(AgentMiddleware):
             context=self.context,
             resume=resume,
         )
-        return call, thread is not None
+        return call, thread is not None and not _running.get()
 
     def wrap_tool_call(self, request: ToolCallRequest, handler: Handler) -> ToolMessage | Command:
+        if request.tool_call["name"] in self._ungated:
+            return handler(request)
         call, can_pause = self._call(request)
         verdict: Verdict = self.gate.check(call, can_pause=can_pause)
         while isinstance(verdict, Pending):
@@ -142,17 +156,24 @@ class ApprovalMiddleware(AgentMiddleware):
             verdict = self.gate.check(call, can_pause=can_pause)
         if isinstance(verdict, Deny):
             return _denied(request, verdict)
+        running = _running.set(True)
         try:
             result = handler(request)
+        except GraphBubbleUp:
+            raise  # an interrupt or a command for the parent graph, not a failure
         except BaseException:
             if self.gate.report_outcomes:
                 verdict.report("failed")
             raise
+        finally:
+            _running.reset(running)
         if self.gate.report_outcomes:
             verdict.report("failed" if _failed(result) else "succeeded")
         return result
 
     async def awrap_tool_call(self, request: ToolCallRequest, handler: AsyncHandler) -> ToolMessage | Command:
+        if request.tool_call["name"] in self._ungated:
+            return await handler(request)
         call, can_pause = self._call(request)
         verdict: Verdict = await self.async_gate.check(call, can_pause=can_pause)
         while isinstance(verdict, Pending):
@@ -161,12 +182,17 @@ class ApprovalMiddleware(AgentMiddleware):
         if isinstance(verdict, Deny):
             return _denied(request, verdict)
         assert isinstance(verdict, Allow)
+        running = _running.set(True)
         try:
             result = await handler(request)
+        except GraphBubbleUp:
+            raise  # an interrupt or a command for the parent graph, not a failure
         except BaseException:
             if self.async_gate.report_outcomes:
                 await verdict.report("failed")
             raise
+        finally:
+            _running.reset(running)
         if self.async_gate.report_outcomes:
             await verdict.report("failed" if _failed(result) else "succeeded")
         return result
@@ -242,6 +268,11 @@ def deep_agent_subagents(middleware: ApprovalMiddleware, subagents: Sequence[Map
     the default general-purpose subagent with the same spec plus approvals.
     Compiled and async subagents run their own graphs and are refused: add
     the middleware to those graphs yourself.
+
+    With every subagent gated, the middleware stops gating the ``task`` tool
+    that delegates to them. ``task`` changes nothing itself, and gating it
+    would stop its subagents' calls from pausing: on resume LangGraph runs
+    ``task`` again, and its approval would already be consumed.
     """
     from deepagents.middleware.subagents import GENERAL_PURPOSE_SUBAGENT
 
@@ -252,4 +283,5 @@ def deep_agent_subagents(middleware: ApprovalMiddleware, subagents: Sequence[Map
         out.append({**spec, "middleware": [*spec.get("middleware", []), middleware]})
     if not any(spec.get("name") == GENERAL_PURPOSE_SUBAGENT["name"] for spec in out):
         out.append({**GENERAL_PURPOSE_SUBAGENT, "middleware": [middleware]})
+    middleware._ungated.add(DEEP_AGENTS_TASK_TOOL)
     return out
