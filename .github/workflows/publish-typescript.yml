@@ -62,7 +62,8 @@ jobs:
           name: packages
           path: packages/
       # The SDK first: the integrations declare it as a peer dependency.
+      # The ./ matters: npm reads packages/<file> as a GitHub owner/repo.
       - run: |
-          npm publish packages/agentapprovalprotocol-sdk-*.tgz
-          npm publish packages/agentapprovalprotocol-ai-sdk-*.tgz
-          npm publish packages/agentapprovalprotocol-mastra-*.tgz
+          npm publish ./packages/agentapprovalprotocol-sdk-*.tgz
+          npm publish ./packages/agentapprovalprotocol-ai-sdk-*.tgz
+          npm publish ./packages/agentapprovalprotocol-mastra-*.tgz
