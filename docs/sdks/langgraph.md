@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-12
+lastModified: 2026-10-14
 ---
 
 # LangGraph and Deep Agents
@@ -87,6 +87,7 @@ Add the same `ApprovalMiddleware` instance to every agent you run as a sub-agent
 
 - **Compiled or remote Deep Agents subagents:** `deep_agent_subagents` refuses subagents that run their own graph. Add `ApprovalMiddleware` to those graphs yourself.
 - **No checkpointer or thread ID:** In pause mode, calls wait instead of pausing. Pass a checkpointer and a `thread_id`.
+- **Sub-agent calls:** In pause mode, calls a sub-agent makes wait for their decision instead of pausing.
 - **Middleware that changes arguments:** Middleware listed after `approvals` can change arguments after they were approved. List it before `approvals`.
 
 ## Test without a provider

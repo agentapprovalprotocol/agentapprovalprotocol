@@ -13,11 +13,13 @@ Install with ``pip install "agentapprovalprotocol[langgraph]"``.
 from __future__ import annotations
 
 import asyncio
+import contextvars
 from typing import Any, Awaitable, Callable, Iterable, Literal, Mapping, Sequence
 
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.runnables.config import var_child_runnable_config
+from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command, interrupt
 
@@ -26,6 +28,11 @@ from ._gate import Allow, AsyncGate, Call, Deny, Gate, Pending, Verdict
 from ._wire import Request
 
 INTERRUPT_KEY = "aap_request_id"
+
+# Set while an approved tool runs. A call made inside it, such as a
+# subagent's, waits instead of pausing: on resume LangGraph would run the
+# outer tool again, and its approval is already consumed.
+_running = contextvars.ContextVar("aap_running_tool", default=False)
 
 Handler = Callable[[ToolCallRequest], "ToolMessage | Command"]
 AsyncHandler = Callable[[ToolCallRequest], Awaitable["ToolMessage | Command"]]
@@ -132,7 +139,7 @@ class ApprovalMiddleware(AgentMiddleware):
             context=self.context,
             resume=resume,
         )
-        return call, thread is not None
+        return call, thread is not None and not _running.get()
 
     def wrap_tool_call(self, request: ToolCallRequest, handler: Handler) -> ToolMessage | Command:
         call, can_pause = self._call(request)
@@ -142,12 +149,17 @@ class ApprovalMiddleware(AgentMiddleware):
             verdict = self.gate.check(call, can_pause=can_pause)
         if isinstance(verdict, Deny):
             return _denied(request, verdict)
+        running = _running.set(True)
         try:
             result = handler(request)
+        except GraphBubbleUp:
+            raise  # an interrupt or a command for the parent graph, not a failure
         except BaseException:
             if self.gate.report_outcomes:
                 verdict.report("failed")
             raise
+        finally:
+            _running.reset(running)
         if self.gate.report_outcomes:
             verdict.report("failed" if _failed(result) else "succeeded")
         return result
@@ -161,12 +173,17 @@ class ApprovalMiddleware(AgentMiddleware):
         if isinstance(verdict, Deny):
             return _denied(request, verdict)
         assert isinstance(verdict, Allow)
+        running = _running.set(True)
         try:
             result = await handler(request)
+        except GraphBubbleUp:
+            raise  # an interrupt or a command for the parent graph, not a failure
         except BaseException:
             if self.async_gate.report_outcomes:
                 await verdict.report("failed")
             raise
+        finally:
+            _running.reset(running)
         if self.async_gate.report_outcomes:
             await verdict.report("failed" if _failed(result) else "succeeded")
         return result
