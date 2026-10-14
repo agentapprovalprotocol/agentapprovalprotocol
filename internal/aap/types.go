@@ -214,9 +214,9 @@ func BoundaryText(d Decision) string {
 	switch d.Status {
 	case StatusDenied:
 		if d.Note != "" {
-			return "The AAP provider denied this call: " + d.Note
+			return "A reviewer at the AAP (Agent Approval Protocol) provider denied this call. Their note: " + d.Note
 		}
-		return "The AAP provider denied this call."
+		return "A reviewer at the AAP (Agent Approval Protocol) provider denied this call."
 	case StatusCancelled:
 		return "The call was cancelled before execution."
 	case StatusExpired:

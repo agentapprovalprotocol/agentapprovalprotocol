@@ -198,7 +198,7 @@ async def test_denied_call_returns_the_reason_to_the_model(cli):
     (result,) = await run(hooks(provider).options(base))
     assert ran == [] and result.result == "Understood."
     (denied,) = api.tool_results()
-    assert denied["is_error"] and "The AAP provider denied this call." in json.dumps(denied["content"])
+    assert denied["is_error"] and "A reviewer at the AAP (Agent Approval Protocol) provider denied this call." in json.dumps(denied["content"])
 
 
 @needs_cli

@@ -50,7 +50,7 @@ test("denial carries the reviewer's note", async () => {
   let ran = false;
   const verdict = denied(await gate.guard(call(), () => (ran = true)));
   assert.equal(verdict.status, "denied");
-  assert.equal(verdict.reason, "The AAP provider denied this call: Refunds over 40 GBP need a manager.");
+  assert.equal(verdict.reason, "A reviewer at the AAP (Agent Approval Protocol) provider denied this call. Their note: Refunds over 40 GBP need a manager.");
   assert.equal(ran, false);
 });
 
