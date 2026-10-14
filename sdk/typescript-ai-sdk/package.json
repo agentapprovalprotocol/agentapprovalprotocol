@@ -1,6 +1,6 @@
 {
   "name": "@agentapprovalprotocol/ai-sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Put a Vercel AI SDK agent's tool calls behind an Agent Approval Protocol (AAP) approval provider.",
   "license": "Apache-2.0",
   "publishConfig": { "access": "public" },

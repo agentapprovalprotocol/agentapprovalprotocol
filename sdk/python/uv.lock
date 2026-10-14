@@ -27,7 +27,7 @@ constraints = [{ name = "onnxruntime", marker = "python_full_version < '3.11'", 
 
 [[package]]
 name = "agentapprovalprotocol"
-version = "0.3.2"
+version = "0.3.3"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
