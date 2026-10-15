@@ -63,6 +63,6 @@ jobs:
           path: packages/
       # The SDK first: the integrations declare it as a peer dependency.
       - run: |
-          npm publish packages/agentapprovalprotocol-sdk-*.tgz
-          npm publish packages/agentapprovalprotocol-ai-sdk-*.tgz
-          npm publish packages/agentapprovalprotocol-mastra-*.tgz
+          npm publish ./packages/agentapprovalprotocol-sdk-*.tgz
+          npm publish ./packages/agentapprovalprotocol-ai-sdk-*.tgz
+          npm publish ./packages/agentapprovalprotocol-mastra-*.tgz
