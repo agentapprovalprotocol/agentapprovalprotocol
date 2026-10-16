@@ -11,6 +11,8 @@ import (
 // hermes wires Hermes Agent: the last hooks.pre_tool_call entry in
 // ~/.hermes/config.yaml with fail_closed, and plugins.hook_callback_timeout
 // raised so the outer watchdog contains the shell hook's 300 seconds.
+// Hermes splits the command into arguments and runs it without a shell,
+// so the hook goes through env(1) to set AAP_CONFIG_DIR.
 type hermes struct{}
 
 func (hermes) Key() catalog.Key { return catalog.Hermes }
@@ -39,7 +41,7 @@ func (h hermes) Detect(env Env) (Detection, error) {
 	if err != nil {
 		return det, nil
 	}
-	det.AlreadyHooked = h.installed(root, env.hookCommand(h.Key()))
+	det.AlreadyHooked = h.installed(root, env.execHookCommand(h.Key()))
 	return det, nil
 }
 
@@ -100,7 +102,7 @@ func (h hermes) Install(env Env, _ Detection, _ HookPlan) (InstallResult, error)
 		}
 	}
 	seq.Content = append(kept, yamlMapping(
-		yamlScalar("command"), yamlScalar(env.hookCommand(h.Key())),
+		yamlScalar("command"), yamlScalar(env.execHookCommand(h.Key())),
 		yamlScalar("timeout"), yamlIntNode(hermesHookTimeout),
 		yamlScalar("fail_closed"), yamlBool(true),
 	))

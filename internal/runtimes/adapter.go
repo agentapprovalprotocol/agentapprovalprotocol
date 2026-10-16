@@ -77,6 +77,15 @@ func (e Env) hookCommand(key catalog.Key) string {
 	return fmt.Sprintf("AAP_CONFIG_DIR=%s %s hook %s", shellQuote(e.ConfigDir), shellQuote(e.Binary), key)
 }
 
+// envCommand runs a hook command through env(1), so a runtime that splits
+// the command into arguments and executes it without a shell still sets
+// the variable. A shell runs the same line identically.
+const envCommand = "/usr/bin/env "
+
+// execHookCommand is hookCommand for a runtime that runs its hook without
+// a shell.
+func (e Env) execHookCommand(key catalog.Key) string { return envCommand + e.hookCommand(key) }
+
 // hookCommandMarker identifies our hook entries whatever binary path they
 // carry, so eject and re-install find entries an older setup wrote.
 func hookCommandMarker(key catalog.Key) string { return " hook " + string(key) }
@@ -84,6 +93,7 @@ func hookCommandMarker(key catalog.Key) string { return " hook " + string(key) }
 // isOurHookCommand reports whether a configured command is an AAP
 // hook for the runtime.
 func isOurHookCommand(command string, key catalog.Key) bool {
+	command = strings.TrimPrefix(command, envCommand)
 	return strings.HasSuffix(command, hookCommandMarker(key)) && strings.HasPrefix(command, "AAP_CONFIG_DIR=")
 }
 
