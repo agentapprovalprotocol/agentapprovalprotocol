@@ -219,6 +219,9 @@ def test_calls_inside_a_running_tool_wait_in_async_mode():
     assert ran == [{"payment_id": "payment_123", "amount": 4900}]
     assert sorted((s.body["tool"], s.outcome["status"]) for s in provider.requests.values()) == [("billing", "succeeded"), ("refund", "succeeded")]
     assert outer.get_state(config).values["messages"][-1].content == "Billing refunded it."
+    # The refund waited, so it names no run for a receiver to wake.
+    resumes = {s.body["tool"]: "resume" in s.body["context"] for s in provider.requests.values()}
+    assert resumes == {"billing": True, "refund": False}
 
 
 @pytest.mark.skipif(sys.version_info < (3, 11), reason="Deep Agents needs Python 3.11")
