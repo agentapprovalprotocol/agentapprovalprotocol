@@ -239,6 +239,13 @@ func TestHookCommandQuotesPaths(t *testing.T) {
 	if !isOurHookCommand(got, catalog.ClaudeCode) || isOurHookCommand(got, catalog.Codex) {
 		t.Fatal("isOurHookCommand misidentified the command")
 	}
+	direct := env.execHookCommand(catalog.Hermes)
+	if want := "/usr/bin/env AAP_CONFIG_DIR='' '/Applications/with human/aap' hook hermes"; direct != want {
+		t.Fatalf("execHookCommand = %q, want %q", direct, want)
+	}
+	if !isOurHookCommand(direct, catalog.Hermes) || !isOurHookCommand(env.hookCommand(catalog.Hermes), catalog.Hermes) {
+		t.Fatal("isOurHookCommand missed a Hermes hook command")
+	}
 }
 
 // fixtureEnv copies testdata/<name>/before into a temporary home and

@@ -6,7 +6,7 @@ hooks:
   pre_tool_call:
     - command: "audit-log --pre"
       timeout: 10
-    - command: AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook hermes
+    - command: /usr/bin/env AAP_CONFIG_DIR={{CONFIG}} {{BINARY}} hook hermes
       timeout: 300
       fail_closed: true
 mcp_servers:
