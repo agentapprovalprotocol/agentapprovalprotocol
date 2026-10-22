@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-12
+lastModified: 2026-10-22
 ---
 
 # Requests and Decisions
@@ -40,6 +40,8 @@ They must not be replaced with the agent's description of what it intends to do.
 
 The provider may use `agent_reasoning` to help a reviewer understand the request.
 However, it is a claim from the agent and must be presented as such.
+Agents should keep it to one or two sentences on why they make the call.
+It should not repeat the arguments.
 
 `context` is information collected by the adapter.
 
