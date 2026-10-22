@@ -47,8 +47,9 @@ export interface Logger {
  * One tool call the gate is asked about.
  *
  * `key` must identify this tool call within its run and stay the same when
- * the call is seen again after a resume or replay. `resume` is how a
- * receiver wakes the run later, in async mode.
+ * the call is seen again after a resume or replay. `reasoning` is one or two
+ * sentences on why the agent makes the call, without repeating the
+ * arguments. `resume` is how a receiver wakes the run later, in async mode.
  */
 export interface Call {
   key: string;

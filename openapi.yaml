@@ -624,7 +624,7 @@ components:
       description: The exact tool arguments. Their keys and nested JSON values retain their original spelling and types.
     AgentReasoning:
       type: string
-      description: The agent's explanation, presented as a claim from the agent.
+      description: The agent's explanation, presented as a claim from the agent. One or two sentences on why it makes the call, without repeating the arguments.
     RuntimeContext:
       type: object
       additionalProperties: true
