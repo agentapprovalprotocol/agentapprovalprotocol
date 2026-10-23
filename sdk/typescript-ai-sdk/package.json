@@ -31,9 +31,9 @@
   "devDependencies": {
     "@agentapprovalprotocol/sdk": "^0.1.0",
     "@types/node": "^24.0.0",
-    "ai": "^7.0.137",
+    "ai": "^7.0.146",
     "tsx": "^4.23.15",
     "typescript": "^5.8.3",
-    "zod": "^4.1.8"
+    "zod": "^4.6.7"
   }
 }
