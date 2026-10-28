@@ -192,7 +192,7 @@ func TestHermesPluginLifecycle(t *testing.T) {
 		t.Fatalf("plugin directory remains: %v", err)
 	}
 	raw, _ = os.ReadFile(config)
-	if strings.Contains(string(raw), "example") || !strings.Contains(string(raw), "notes") || !strings.Contains(string(raw), "compact") {
+	if strings.Contains(string(raw), "example") || strings.Contains(string(raw), "hook_callback_timeout") || !strings.Contains(string(raw), "notes") || !strings.Contains(string(raw), "compact") {
 		t.Fatalf("ejected config.yaml =\n%s", raw)
 	}
 }

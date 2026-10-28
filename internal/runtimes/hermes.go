@@ -287,11 +287,18 @@ func (h hermes) Eject(env Env, entry ManifestEntry) error {
 			return nil, false, err
 		}
 		changed := h.stripHooks(root)
-		if enabled := yamlGet(yamlGet(root, "plugins"), "enabled"); enabled != nil && enabled.Kind == yaml.SequenceNode {
+		pluginsNode := yamlGet(root, "plugins")
+		if enabled := yamlGet(pluginsNode, "enabled"); enabled != nil && enabled.Kind == yaml.SequenceNode {
 			kept := slices.DeleteFunc(slices.Clone(enabled.Content), func(item *yaml.Node) bool { return plugins[item.Value] })
 			if len(kept) != len(enabled.Content) {
 				enabled.Content, changed = kept, true
 			}
+		}
+		// Without our plugin, an unbounded callback timeout only lets other
+		// plugins hang Hermes; return it to Hermes's default.
+		if timeout := yamlGet(pluginsNode, "hook_callback_timeout"); len(plugins) > 0 && timeout != nil && timeout.Kind == yaml.ScalarNode && timeout.Value == "0" {
+			yamlDeleteKey(pluginsNode, "hook_callback_timeout")
+			changed = true
 		}
 		if !changed {
 			return nil, false, nil
