@@ -71,6 +71,8 @@ Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Instal
 
 The instance token and complete AAP base URL are the only required installation inputs. The base URL includes any provider path prefix; the client appends `/v1/requests`. The CLI's `--tool-glob 'create_*'` option limits coverage to normalized AAP tool names. Without a filter, every intercepted call is submitted.
 
+For Hermes, `adapters.WithPlugin(name, files)` installs your own Hermes plugin in place of the shell hook. The library writes the files to `~/.hermes/plugins/<name>/` with an `aap.json` naming the executable and its configuration directory, enables the plugin, and sets `plugins.hook_callback_timeout` to 0 so Hermes never abandons a long approval. The plugin must run `<executable> hook hermes` with `AAP_CONFIG_DIR` set, pass Hermes's shell-hook payload on stdin with `timeout_ms` as its own ceiling, and return the verdict it prints.
+
 ## Documentation
 
 Documentation at `/docs` introduces AAP and explains how to build with it. Specification at `/specification` contains the protocol requirements and generated API reference. Each area has its own sidebar and page sequence. The previous `/docs/specification/*` and `/docs/reference/*` URLs redirect to their new locations.

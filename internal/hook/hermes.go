@@ -14,8 +14,9 @@ import (
 )
 
 // Hermes runs the AAP half of the Hermes Agent adapter. Hermes invokes this
-// frontend directly from its native pre_tool_call shell-hook protocol. The
-// hook writes one proposed call to stdin and accepts these stdout directives:
+// frontend directly from its native pre_tool_call shell-hook protocol, or a
+// Hermes plugin runs it with the same payload. The hook writes one proposed
+// call to stdin and accepts these stdout directives:
 //
 //	{"action":"modify","args":{...}}           // approved, preserve reviewed args
 //	{"action":"block","message":"<reason>"}   // denied or failed closed
@@ -27,6 +28,10 @@ import (
 // required so its own guardrails and local approval flow still run. Repeating
 // the full reviewed argument object also overwrites modifications returned by
 // earlier hooks when this hook is registered last, as documented.
+//
+// A plugin caller adds `timeout_ms`, its watchdog ceiling; the request
+// expires a margin before it. Without one the request fits the 300-second
+// shell hook.
 func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.Writer) error {
 	raw, err := io.ReadAll(stdin)
 	if err != nil {
@@ -79,12 +84,16 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 		in.Extra.APIRequestID,
 		in.Extra.ToolCallID,
 	}, "\x00")
+	timeout := hermesApprovalTimeout
+	if in.TimeoutMs > 0 {
+		timeout = max(time.Duration(in.TimeoutMs)*time.Millisecond-hermesHookMargin, time.Second)
+	}
 	decision, err := gate(ctx, client, aap.CreateInput{
 		Tool:           call.Tool,
 		Server:         call.Server,
 		Arguments:      in.ToolInput,
 		Context:        requestContext,
-		Timeout:        fmt.Sprintf("%ds", int(hermesApprovalTimeout.Seconds())),
+		Timeout:        fmt.Sprintf("%ds", int(timeout.Seconds())),
 		IdempotencyKey: aap.IdempotencyKey(attempt, call, in.ToolInput),
 	})
 	switch {
@@ -101,8 +110,12 @@ func Hermes(ctx context.Context, client *aap.Client, stdin io.Reader, stdout io.
 
 // Hermes caps an individual shell hook at 300 seconds. Expire the provider
 // request first so the adapter has time to return the specific AAP boundary
-// before Hermes' own fail-closed watchdog kills it.
-const hermesApprovalTimeout = 300*time.Second - 30*time.Second
+// before Hermes' own fail-closed watchdog kills it. A plugin's ceiling gets
+// the same margin.
+const (
+	hermesHookMargin      = 30 * time.Second
+	hermesApprovalTimeout = 300*time.Second - hermesHookMargin
+)
 
 type hermesInput struct {
 	HookEventName string         `json:"hook_event_name"`
@@ -110,6 +123,7 @@ type hermesInput struct {
 	ToolInput     map[string]any `json:"tool_input"`
 	SessionID     string         `json:"session_id"`
 	Cwd           string         `json:"cwd"`
+	TimeoutMs     int64          `json:"timeout_ms"`
 	Extra         struct {
 		TaskID       string `json:"task_id"`
 		ToolCallID   string `json:"tool_call_id"`

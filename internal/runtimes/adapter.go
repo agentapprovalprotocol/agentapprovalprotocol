@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -130,6 +131,23 @@ type InstallReport struct {
 type ManifestEntry = credential.RuntimeInstall
 type HookPlan struct {
 	Matcher string
+	// Plugin, when set, is the runtime half to install in place of the
+	// library's own hook. Only a PluginHost accepts one.
+	Plugin *Plugin
+}
+
+// Plugin is a runtime plugin an importing CLI ships: Name is the plugin's
+// directory and registration name, Files its contents.
+type Plugin struct {
+	Name  string
+	Files fs.FS
+}
+
+// PluginHost is an Adapter whose runtime can load a caller's plugin as its
+// runtime half. ValidatePlugin runs before anything is written.
+type PluginHost interface {
+	Adapter
+	ValidatePlugin(Plugin) error
 }
 
 // InstallResult is one install: the report for the provider and the

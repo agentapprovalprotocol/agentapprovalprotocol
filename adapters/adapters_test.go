@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/agentapprovalprotocol/agentapprovalprotocol/internal/testprovider"
 )
@@ -148,6 +149,65 @@ func TestUserAddedPluginFileSurvivesUninstall(t *testing.T) {
 	raw, _ := os.ReadFile(file)
 	if string(raw) != "keep" {
 		t.Fatal("user asset removed")
+	}
+}
+func TestHermesPluginLifecycle(t *testing.T) {
+	m := manager(t, nil)
+	a, _ := m.Lookup("hermes")
+	config := filepath.Join(m.env.Home, ".hermes", "config.yaml")
+	os.MkdirAll(filepath.Dir(config), 0755)
+	shellHook := "/usr/bin/env AAP_CONFIG_DIR=/old/config /old/provider hook hermes"
+	before := "model: hermes-4\nplugins:\n  enabled: [notes]\n  disabled: [example]\nhooks:\n  pre_tool_call:\n    - command: audit --pre\n    - command: " + shellHook + "\n"
+	os.WriteFile(config, []byte(before), 0600)
+	files := fstest.MapFS{"plugin.yaml": {Data: []byte("name: example\n")}, "__init__.py": {Data: []byte("def register(ctx):\n    pass\n")}}
+	result, err := a.Install("secret", "https://provider.example", WithPlugin("example", files))
+	if err != nil || !result.Complete {
+		t.Fatalf("install %+v %v", result, err)
+	}
+	dir := filepath.Join(m.env.Home, ".hermes", "plugins", "example")
+	raw, _ := os.ReadFile(filepath.Join(dir, "aap.json"))
+	var written struct{ Binary, ConfigDir string }
+	if json.Unmarshal(raw, &written) != nil || written.Binary != m.env.Binary || written.ConfigDir != m.env.ConfigDir {
+		t.Fatalf("aap.json = %s", raw)
+	}
+	if raw, _ := os.ReadFile(filepath.Join(dir, "plugin.yaml")); string(raw) != "name: example\n" {
+		t.Fatalf("plugin.yaml = %q", raw)
+	}
+	raw, _ = os.ReadFile(config)
+	want := "model: hermes-4\nplugins:\n  enabled: [notes, example]\n  hook_callback_timeout: 0\nhooks:\n  pre_tool_call:\n    - command: audit --pre\n"
+	if string(raw) != want {
+		t.Fatalf("config.yaml =\n%s\nwant\n%s", raw, want)
+	}
+	if status, err := a.Status(); err != nil || !status.Complete {
+		t.Fatalf("status %+v %v", status, err)
+	}
+	// Hermes rewrites its own config between sessions.
+	os.WriteFile(config, append(raw, []byte("display:\n  compact: true\n")...), 0600)
+	os.MkdirAll(filepath.Join(dir, "__pycache__"), 0755)
+	os.WriteFile(filepath.Join(dir, "__pycache__", "x.pyc"), []byte("x"), 0600)
+	if err := a.Uninstall(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(dir); !os.IsNotExist(err) {
+		t.Fatalf("plugin directory remains: %v", err)
+	}
+	raw, _ = os.ReadFile(config)
+	if strings.Contains(string(raw), "example") || strings.Contains(string(raw), "hook_callback_timeout") || !strings.Contains(string(raw), "notes") || !strings.Contains(string(raw), "compact") {
+		t.Fatalf("ejected config.yaml =\n%s", raw)
+	}
+}
+func TestOnlyHermesAcceptsAPlugin(t *testing.T) {
+	m := manager(t, nil)
+	a, _ := m.Lookup("claude-code")
+	if _, err := a.Install("secret", "https://provider.example", WithPlugin("example", fstest.MapFS{})); err == nil {
+		t.Fatal("claude-code accepted a plugin")
+	}
+	a, _ = m.Lookup("hermes")
+	if _, err := a.Install("secret", "https://provider.example", WithPlugin("../escape", fstest.MapFS{})); err == nil {
+		t.Fatal("hermes accepted an invalid plugin name")
+	}
+	if entries, _ := os.ReadDir(m.env.ConfigDir); len(entries) != 0 {
+		t.Fatalf("a refused plugin wrote files: %v", entries)
 	}
 }
 func TestMissingCredentialsDeny(t *testing.T) {
