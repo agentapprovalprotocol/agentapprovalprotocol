@@ -41,15 +41,24 @@ func (hermes) ValidatePlugin(plugin Plugin) error {
 	return nil
 }
 
-func (hermes) pluginsDir(env Env) string {
-	return filepath.Join(env.Home, ".hermes", "plugins")
+// home is Hermes's home: HERMES_HOME when set (the official Docker image
+// uses /opt/data), else ~/.hermes.
+func (hermes) home(env Env) string {
+	if home := env.getenv("HERMES_HOME"); home != "" {
+		return home
+	}
+	return filepath.Join(env.Home, ".hermes")
+}
+
+func (h hermes) pluginsDir(env Env) string {
+	return filepath.Join(h.home(env), "plugins")
 }
 
 // hermesPluginName is the name Hermes accepts as a plugin key.
 var hermesPluginName = regexp.MustCompile(`^[a-z0-9_-]{1,64}$`)
 
-func (hermes) configPath(env Env) string {
-	return filepath.Join(env.Home, ".hermes", "config.yaml")
+func (h hermes) configPath(env Env) string {
+	return filepath.Join(h.home(env), "config.yaml")
 }
 
 const (

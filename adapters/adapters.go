@@ -324,6 +324,24 @@ func (a *Adapter) Uninstall() error {
 	return os.RemoveAll(filepath.Join(credential.BackupDir(env.ConfigDir), a.Key()))
 }
 
+// hookCredential is the credential a hook runs with. A runtime plugin that
+// keeps the instance token in the runtime's own secret store passes it as
+// AAP_INSTANCE_TOKEN with AAP_BASE_URL, which win over a saved installation.
+func (a *Adapter) hookCredential() (installation, error) {
+	getenv := a.manager.env.Getenv
+	if getenv == nil {
+		getenv = os.Getenv
+	}
+	if token := getenv("AAP_INSTANCE_TOKEN"); token != "" {
+		baseURL := strings.TrimRight(getenv("AAP_BASE_URL"), "/")
+		if err := aap.ValidateConfig(token, baseURL, ""); err != nil {
+			return installation{}, err
+		}
+		return installation{Token: token, BaseURL: baseURL}, nil
+	}
+	return a.load()
+}
+
 // RunHook is the entry point importing CLIs route their hook subcommand to.
 func RunHook(ctx context.Context, key string, stdin io.Reader, stdout io.Writer) error {
 	a, err := Lookup(key)
@@ -339,7 +357,7 @@ func (a *Adapter) RunHook(ctx context.Context, stdin io.Reader, stdout io.Writer
 		hook.Deny(a.Key(), raw, stdout)
 		return errors.New("invalid hook payload")
 	}
-	cfg, err := a.load()
+	cfg, err := a.hookCredential()
 	if err != nil {
 		hook.Deny(a.Key(), raw, stdout)
 		return errors.New("adapter credentials unavailable or invalid")

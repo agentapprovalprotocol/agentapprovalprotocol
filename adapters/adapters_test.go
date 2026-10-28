@@ -210,6 +210,57 @@ func TestOnlyHermesAcceptsAPlugin(t *testing.T) {
 		t.Fatalf("a refused plugin wrote files: %v", entries)
 	}
 }
+
+// A runtime plugin that keeps the token in the runtime's own secret store
+// passes it to the hook; nothing is saved by an install.
+func TestHookUsesAPassedInCredential(t *testing.T) {
+	p := testprovider.New(t)
+	passed := map[string]string{"AAP_INSTANCE_TOKEN": "test-token", "AAP_BASE_URL": p.Server.URL + "/custom/aap/"}
+	m, err := NewWithEnvironment(Environment{Home: t.TempDir(), ConfigDir: t.TempDir(), Executable: "/opt/provider/bin/provider", Getenv: func(key string) string { return passed[key] }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := m.Lookup("hermes")
+	var out bytes.Buffer
+	payload := `{"hook_event_name":"pre_tool_call","tool_name":"terminal","tool_input":{"command":"ls"},"session_id":"s","extra":{"tool_call_id":"c1"}}`
+	if err := a.RunHook(context.Background(), strings.NewReader(payload), &out); err != nil || !strings.Contains(out.String(), `"modify"`) {
+		t.Fatalf("%s %v", out.String(), err)
+	}
+	if len(p.Inputs()) != 1 || p.Inputs()[0].Tool != "terminal" {
+		t.Fatalf("requests %+v", p.Inputs())
+	}
+	passed["AAP_BASE_URL"] = "http://provider.example/aap"
+	out.Reset()
+	if err := a.RunHook(context.Background(), strings.NewReader(payload), &out); err == nil || !strings.Contains(out.String(), `"block"`) {
+		t.Fatalf("insecure passed-in URL accepted: %s %v", out.String(), err)
+	}
+}
+func TestHermesFollowsHermesHome(t *testing.T) {
+	hermesHome := filepath.Join(t.TempDir(), "data")
+	os.MkdirAll(hermesHome, 0755)
+	os.WriteFile(filepath.Join(hermesHome, "config.yaml"), []byte("model: hermes-4\n"), 0600)
+	m, err := NewWithEnvironment(Environment{Home: t.TempDir(), ConfigDir: t.TempDir(), Executable: "/opt/provider/bin/provider", LookPath: func(string) (string, error) { return "", os.ErrNotExist }, Getenv: func(key string) string {
+		if key == "HERMES_HOME" {
+			return hermesHome
+		}
+		return ""
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := m.Lookup("hermes")
+	files := fstest.MapFS{"plugin.yaml": {Data: []byte("name: example\n")}}
+	if result, err := a.Install("secret", "https://provider.example", WithPlugin("example", files)); err != nil || !result.Complete {
+		t.Fatalf("install %+v %v", result, err)
+	}
+	if _, err := os.Stat(filepath.Join(hermesHome, "plugins", "example", "aap.json")); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(filepath.Join(hermesHome, "config.yaml"))
+	if !strings.Contains(string(raw), "example") {
+		t.Fatalf("config.yaml = %s", raw)
+	}
+}
 func TestMissingCredentialsDeny(t *testing.T) {
 	m := manager(t, nil)
 	for _, info := range All() {

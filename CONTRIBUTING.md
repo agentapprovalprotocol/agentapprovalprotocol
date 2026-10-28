@@ -71,7 +71,7 @@ Import `github.com/agentapprovalprotocol/agentapprovalprotocol/adapters`. Instal
 
 The instance token and complete AAP base URL are the only required installation inputs. The base URL includes any provider path prefix; the client appends `/v1/requests`. The CLI's `--tool-glob 'create_*'` option limits coverage to normalized AAP tool names. Without a filter, every intercepted call is submitted.
 
-For Hermes, `adapters.WithPlugin(name, files)` installs your own Hermes plugin in place of the shell hook. The library writes the files to `~/.hermes/plugins/<name>/` with an `aap.json` naming the executable and its configuration directory, enables the plugin, and sets `plugins.hook_callback_timeout` to 0 so Hermes never abandons a long approval. The plugin must run `<executable> hook hermes` with `AAP_CONFIG_DIR` set, pass Hermes's shell-hook payload on stdin with `timeout_ms` as its own ceiling, and return the verdict it prints.
+For Hermes, `adapters.WithPlugin(name, files)` installs your own Hermes plugin in place of the shell hook. The library writes the files to `~/.hermes/plugins/<name>/` with an `aap.json` naming the executable and its configuration directory, enables the plugin, and sets `plugins.hook_callback_timeout` to 0 so Hermes never abandons a long approval. The plugin must run `<executable> hook hermes` with `AAP_CONFIG_DIR` set, pass Hermes's shell-hook payload on stdin with `timeout_ms` as its own ceiling, and return the verdict it prints. A plugin that keeps the instance token in Hermes's own secret store instead passes it to the hook as `AAP_INSTANCE_TOKEN`, with `AAP_BASE_URL`; these take precedence over a saved installation. Hermes paths follow `HERMES_HOME` when it is set.
 
 ## Documentation
 
