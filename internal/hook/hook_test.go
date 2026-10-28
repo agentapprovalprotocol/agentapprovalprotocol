@@ -86,7 +86,7 @@ func TestSixRuntimeHooks(t *testing.T) {
 	}
 }
 func TestPluginApprovalWindows(t *testing.T) {
-	for _, key := range []string{"pi", "openclaw"} {
+	for _, key := range []string{"pi", "openclaw", "hermes"} {
 		for _, tc := range []struct {
 			name    string
 			ceiling int64

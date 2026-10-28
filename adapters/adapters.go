@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,11 +54,22 @@ type Adapter struct {
 	manager *Manager
 	runtime runtimes.Adapter
 }
-type installOptions struct{ glob string }
+type installOptions struct {
+	glob   string
+	plugin *runtimes.Plugin
+}
 type InstallOption func(*installOptions)
 
 // WithToolGlob selects normalized AAP tool names using case-sensitive path.Match syntax.
 func WithToolGlob(pattern string) InstallOption { return func(o *installOptions) { o.glob = pattern } }
+
+// WithPlugin installs files as the runtime half, registered under name, in
+// place of the library's own hook. The plugin must run this executable's
+// `hook <adapter>` with the payload that hook reads. Hermes is the only
+// adapter that accepts one.
+func WithPlugin(name string, files fs.FS) InstallOption {
+	return func(o *installOptions) { o.plugin = &runtimes.Plugin{Name: name, Files: files} }
+}
 
 func All() []Info {
 	var out []Info
@@ -188,6 +200,15 @@ func (a *Adapter) Install(instanceToken, aapBaseURL string, options ...InstallOp
 	if err := aap.ValidateConfig(instanceToken, aapBaseURL, opts.glob); err != nil {
 		return result, err
 	}
+	if opts.plugin != nil {
+		host, ok := a.runtime.(runtimes.PluginHost)
+		if !ok {
+			return result, fmt.Errorf("adapter %s does not accept a plugin", a.Key())
+		}
+		if err := host.ValidatePlugin(*opts.plugin); err != nil {
+			return result, err
+		}
+	}
 	env := a.manager.env
 	unlock, err := storage.Lock(env.ConfigDir)
 	if err != nil {
@@ -216,7 +237,7 @@ func (a *Adapter) Install(instanceToken, aapBaseURL string, options ...InstallOp
 		return credential.SaveManifest(env.ConfigDir, manifest)
 	}
 	env.Changed = func(change FileChange) { result.Changes = append(result.Changes, change) }
-	installed, err := a.runtime.Install(env, det, runtimes.HookPlan{Matcher: ".*"})
+	installed, err := a.runtime.Install(env, det, runtimes.HookPlan{Matcher: ".*", Plugin: opts.plugin})
 	if len(installed.Report.Changes) > 0 {
 		result.Changes = installed.Report.Changes
 	}
