@@ -96,7 +96,7 @@ func (d deepSeek) installed(env Env) bool {
 		return false
 	}
 	doc, err := loadJSONObject(hooks, true)
-	return err == nil && claudeHookInstalled(doc.Root, d.Key(), env.hookCommand(d.Key()))
+	return err == nil && claudePreToolUse.installed(doc.Root, d.Key(), env.hookCommand(d.Key()))
 }
 
 // findBridge locates the aap entry in a Cordis patch sequence.
@@ -120,7 +120,7 @@ func (d deepSeek) Install(env Env, _ Detection, plan HookPlan) (InstallResult, e
 	if err != nil {
 		doc, _ = loadJSONObject(nil, false) // our own file: rewrite it if it was damaged
 	}
-	upsertClaudeHook(doc.Root, d.Key(), env.hookCommand(d.Key()), plan.Matcher)
+	claudePreToolUse.upsert(doc.Root, d.Key(), env.hookCommand(d.Key()), plan.Matcher)
 	if err := ed.write(hooksPath, doc.Bytes()); err != nil {
 		return InstallResult{}, err
 	}
@@ -161,7 +161,7 @@ func (d deepSeek) Install(env Env, _ Detection, plan HookPlan) (InstallResult, e
 func (d deepSeek) Eject(env Env, entry ManifestEntry) error {
 	return ejectFiles(env, entry, func(path string, content []byte) ([]byte, bool, error) {
 		if filepath.Ext(path) == ".json" {
-			return stripClaudeHookFile(d.Key())(path, content)
+			return claudePreToolUse.stripFile(d.Key())(path, content)
 		}
 		seq, err := loadYAMLSequence(content, true)
 		if err != nil {

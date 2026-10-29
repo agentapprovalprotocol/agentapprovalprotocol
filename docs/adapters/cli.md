@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-09-17
+lastModified: 2026-10-29
 ---
 
 # AAP CLI
@@ -69,6 +69,8 @@ Then choose your agent and follow its adapter setup guide:
 - [Pi](pi.md)
 - [Hermes Agent](hermes.md)
 - [DeepSeek Harness](deepseek.md)
+- [Gemini CLI](gemini.md)
+- [Antigravity](antigravity.md)
 
 ## Credentials and maintenance
 

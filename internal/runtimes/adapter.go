@@ -41,6 +41,10 @@ type Env struct {
 	Run func(ctx context.Context, name string, args ...string) ([]byte, error)
 	// Getenv reads an environment variable.
 	Getenv func(key string) string
+	// RuntimePlugin names a plugin the runtime installed itself that runs
+	// this binary's hook. Detection then looks for it in place of our own
+	// registration.
+	RuntimePlugin string
 }
 
 func (e Env) lookPath(name string) (string, error) {
@@ -134,6 +138,10 @@ type HookPlan struct {
 	// Plugin, when set, is the runtime half to install in place of the
 	// library's own hook. Only a PluginHost accepts one.
 	Plugin *Plugin
+	// RuntimePlugin, when set, names a plugin the runtime installed itself
+	// as the runtime half: install writes nothing and checks it is there.
+	// Only a RuntimePluginHost accepts one.
+	RuntimePlugin string
 }
 
 // Plugin is a runtime plugin an importing CLI ships: Name is the plugin's
@@ -148,6 +156,14 @@ type Plugin struct {
 type PluginHost interface {
 	Adapter
 	ValidatePlugin(Plugin) error
+}
+
+// RuntimePluginHost is an Adapter whose runtime installs plugins from its
+// own source, such as a Gemini CLI extension or an Antigravity plugin, so
+// a plugin there can carry the runtime half.
+type RuntimePluginHost interface {
+	Adapter
+	AcceptsRuntimePlugin()
 }
 
 // InstallResult is one install: the report for the provider and the
@@ -167,7 +183,7 @@ type Adapter interface {
 
 // All returns every adapter in catalog order.
 func All() []Adapter {
-	return []Adapter{claudeCode{}, codex{}, openClaw{}, pi{}, hermes{}, deepSeek{}}
+	return []Adapter{claudeCode{}, codex{}, openClaw{}, pi{}, hermes{}, deepSeek{}, gemini{}, antigravity{}}
 }
 
 // Lookup finds an adapter by runtime key.

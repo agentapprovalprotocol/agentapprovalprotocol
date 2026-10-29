@@ -55,8 +55,9 @@ type Adapter struct {
 	runtime runtimes.Adapter
 }
 type installOptions struct {
-	glob   string
-	plugin *runtimes.Plugin
+	glob          string
+	plugin        *runtimes.Plugin
+	runtimePlugin string
 }
 type InstallOption func(*installOptions)
 
@@ -70,6 +71,15 @@ func WithToolGlob(pattern string) InstallOption { return func(o *installOptions)
 // carry name as its id.
 func WithPlugin(name string, files fs.FS) InstallOption {
 	return func(o *installOptions) { o.plugin = &runtimes.Plugin{Name: name, Files: files} }
+}
+
+// WithRuntimePlugin names a plugin the runtime installs from its own
+// source (a Gemini CLI extension, an Antigravity plugin) whose hook runs
+// this executable's `hook <adapter>`. Install then writes nothing into the
+// runtime: it saves the credential the plugin's hook reads and checks the
+// plugin is installed. Gemini CLI and Antigravity accept one.
+func WithRuntimePlugin(name string) InstallOption {
+	return func(o *installOptions) { o.runtimePlugin = name }
 }
 
 func All() []Info {
@@ -152,7 +162,16 @@ func (m *Manager) Lookup(key string) (*Adapter, error) {
 }
 func (m *Manager) Detect() ([]Detection, error) { return runtimes.DetectAll(m.env) }
 func (a *Adapter) Key() string                  { return string(a.runtime.Key()) }
-func (a *Adapter) Detect() (Detection, error)   { return a.runtime.Detect(a.manager.env) }
+
+// Detect reports the runtime and whether it runs this adapter's hook,
+// through the runtime plugin a saved installation names.
+func (a *Adapter) Detect() (Detection, error) {
+	env := a.manager.env
+	if cfg, err := a.load(); err == nil {
+		env.RuntimePlugin = cfg.RuntimePlugin
+	}
+	return a.runtime.Detect(env)
+}
 
 // Installation owns no provider enrollment state. Token is deliberately absent from public results.
 type installation struct {
@@ -160,7 +179,9 @@ type installation struct {
 	Token      string `json:"instance_token"`
 	BaseURL    string `json:"base_url"`
 	ToolGlob   string `json:"tool_glob,omitempty"`
-	Complete   bool   `json:"complete"`
+	// RuntimePlugin is the runtime's own plugin that carries the hook.
+	RuntimePlugin string `json:"runtime_plugin,omitempty"`
+	Complete      bool   `json:"complete"`
 }
 
 func (a *Adapter) settingsPath() string {
@@ -201,6 +222,11 @@ func (a *Adapter) Install(instanceToken, aapBaseURL string, options ...InstallOp
 	if err := aap.ValidateConfig(instanceToken, aapBaseURL, opts.glob); err != nil {
 		return result, err
 	}
+	if opts.runtimePlugin != "" {
+		if _, ok := a.runtime.(runtimes.RuntimePluginHost); !ok || opts.plugin != nil {
+			return result, fmt.Errorf("adapter %s does not accept a runtime plugin", a.Key())
+		}
+	}
 	if opts.plugin != nil {
 		host, ok := a.runtime.(runtimes.PluginHost)
 		if !ok {
@@ -211,6 +237,7 @@ func (a *Adapter) Install(instanceToken, aapBaseURL string, options ...InstallOp
 		}
 	}
 	env := a.manager.env
+	env.RuntimePlugin = opts.runtimePlugin
 	unlock, err := storage.Lock(env.ConfigDir)
 	if err != nil {
 		return result, err
@@ -227,7 +254,7 @@ func (a *Adapter) Install(instanceToken, aapBaseURL string, options ...InstallOp
 	if !det.Installed {
 		return result, errors.New("runtime not found; install and configure it before installing the adapter")
 	}
-	cfg := installation{Executable: env.Binary, Token: instanceToken, BaseURL: strings.TrimRight(aapBaseURL, "/"), ToolGlob: opts.glob}
+	cfg := installation{Executable: env.Binary, Token: instanceToken, BaseURL: strings.TrimRight(aapBaseURL, "/"), ToolGlob: opts.glob, RuntimePlugin: opts.runtimePlugin}
 	if err = a.save(cfg); err != nil {
 		return result, err
 	}
@@ -238,7 +265,7 @@ func (a *Adapter) Install(instanceToken, aapBaseURL string, options ...InstallOp
 		return credential.SaveManifest(env.ConfigDir, manifest)
 	}
 	env.Changed = func(change FileChange) { result.Changes = append(result.Changes, change) }
-	installed, err := a.runtime.Install(env, det, runtimes.HookPlan{Matcher: ".*", Plugin: opts.plugin})
+	installed, err := a.runtime.Install(env, det, runtimes.HookPlan{Matcher: ".*", Plugin: opts.plugin, RuntimePlugin: opts.runtimePlugin})
 	if len(installed.Report.Changes) > 0 {
 		result.Changes = installed.Report.Changes
 	}
@@ -283,6 +310,7 @@ func (a *Adapter) Status() (Status, error) {
 	if cfg.Executable != "" {
 		env.Binary = cfg.Executable
 	}
+	env.RuntimePlugin = cfg.RuntimePlugin
 	det, detectErr := a.runtime.Detect(env)
 	if detectErr != nil {
 		return Status{}, detectErr

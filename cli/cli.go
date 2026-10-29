@@ -25,7 +25,7 @@ Usage:
   aap agent eject <runtime> [--yes]
   aap version
 
-Runtimes: claude-code, codex, openclaw, pi, hermes, deepseek
+Runtimes: claude-code, codex, openclaw, pi, hermes, deepseek, gemini, antigravity
 Configuration: AAP_CONFIG_DIR or the operating system user configuration directory plus aap.
 The base URL is the complete AAP root; API paths start at /v1 beneath it.
 `
