@@ -196,7 +196,114 @@ func TestHermesPluginLifecycle(t *testing.T) {
 		t.Fatalf("ejected config.yaml =\n%s", raw)
 	}
 }
-func TestOnlyHermesAcceptsAPlugin(t *testing.T) {
+func TestOpenClawPluginLifecycle(t *testing.T) {
+	m := manager(t, nil)
+	a, _ := m.Lookup("openclaw")
+	config := filepath.Join(m.env.Home, ".openclaw", "openclaw.json")
+	os.MkdirAll(filepath.Dir(config), 0755)
+	embedded := filepath.Join(m.env.ConfigDir, "plugins", "openclaw")
+	before := `{
+  "gateway": { "mode": "local" },
+  "plugins": {
+    "allow": ["notes", "aap"],
+    "deny": ["example"],
+    "load": { "paths": ["/opt/notes", "` + embedded + `"] },
+    "entries": {
+      "aap": { "enabled": true, "config": { "binary": "/old/provider" } },
+      "example": { "config": { "url": "https://provider.example" } }
+    }
+  }
+}
+`
+	os.WriteFile(config, []byte(before), 0600)
+	files := fstest.MapFS{
+		"openclaw.plugin.json": {Data: []byte(`{"id": "example"}`)},
+		"index.js":             {Data: []byte("export default {};\n")},
+		"assets/icon.png":      {Data: []byte("png")},
+	}
+	result, err := a.Install("secret", "https://provider.example", WithPlugin("example", files))
+	if err != nil || !result.Complete {
+		t.Fatalf("install %+v %v", result, err)
+	}
+	dir := filepath.Join(m.env.ConfigDir, "plugins", "example")
+	raw, _ := os.ReadFile(filepath.Join(dir, "aap.json"))
+	var written struct{ Binary, ConfigDir string }
+	if json.Unmarshal(raw, &written) != nil || written.Binary != m.env.Binary || written.ConfigDir != m.env.ConfigDir {
+		t.Fatalf("aap.json = %s", raw)
+	}
+	if raw, _ := os.ReadFile(filepath.Join(dir, "assets", "icon.png")); string(raw) != "png" {
+		t.Fatalf("icon = %q", raw)
+	}
+	var got struct {
+		Gateway map[string]any
+		Plugins struct {
+			Allow, Deny []string
+			Load        struct{ Paths []string }
+			Entries     map[string]map[string]any
+		}
+	}
+	raw, _ = os.ReadFile(config)
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("openclaw.json = %s: %v", raw, err)
+	}
+	// The plugin joins the allowlist, leaves the denylist, and replaces
+	// the embedded plugin; the entry keeps the plugin's saved settings.
+	plugins := got.Plugins
+	if strings.Join(plugins.Allow, ",") != "notes,example" || len(plugins.Deny) != 0 ||
+		strings.Join(plugins.Load.Paths, ",") != "/opt/notes,"+dir ||
+		plugins.Entries["aap"] != nil || plugins.Entries["example"]["enabled"] != true ||
+		plugins.Entries["example"]["config"] == nil || got.Gateway["mode"] != "local" {
+		t.Fatalf("openclaw.json =\n%s", raw)
+	}
+	if status, err := a.Status(); err != nil || !status.Complete {
+		t.Fatalf("status %+v %v", status, err)
+	}
+	// The plugin saves its settings after install.
+	edited := strings.Replace(string(raw), `"url": "https://provider.example"`, `"url": "https://provider.example", "agentKey": "k"`, 1)
+	os.WriteFile(config, []byte(edited), 0600)
+	if err := a.Uninstall(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(dir); !os.IsNotExist(err) {
+		t.Fatalf("plugin directory remains: %v", err)
+	}
+	raw, _ = os.ReadFile(config)
+	got.Plugins.Entries = nil
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatal(err)
+	}
+	plugins = got.Plugins
+	if strings.Contains(strings.Join(plugins.Load.Paths, ","), dir) || strings.Join(plugins.Allow, ",") != "notes" ||
+		plugins.Entries["example"]["enabled"] != nil || plugins.Entries["example"]["config"] == nil {
+		t.Fatalf("ejected openclaw.json =\n%s", raw)
+	}
+}
+
+// Without an allowlist, a plugin on a load path loads already; adding one
+// would turn every other plugin off.
+func TestOpenClawPluginLeavesNoAllowlist(t *testing.T) {
+	m := manager(t, nil)
+	a, _ := m.Lookup("openclaw")
+	config := filepath.Join(m.env.Home, ".openclaw", "openclaw.json")
+	os.MkdirAll(filepath.Dir(config), 0755)
+	os.WriteFile(config, []byte("{}\n"), 0600)
+	files := fstest.MapFS{"openclaw.plugin.json": {Data: []byte(`{"id": "example"}`)}}
+	if result, err := a.Install("secret", "https://provider.example", WithPlugin("example", files)); err != nil || !result.Complete {
+		t.Fatalf("install %+v %v", result, err)
+	}
+	raw, _ := os.ReadFile(config)
+	if strings.Contains(string(raw), "allow") {
+		t.Fatalf("openclaw.json =\n%s", raw)
+	}
+	if err := a.Uninstall(); err != nil {
+		t.Fatal(err)
+	}
+	if raw, _ := os.ReadFile(config); string(raw) != "{}\n" {
+		t.Fatalf("ejected openclaw.json =\n%s", raw)
+	}
+}
+
+func TestOnlyPluginHostsAcceptAPlugin(t *testing.T) {
 	m := manager(t, nil)
 	a, _ := m.Lookup("claude-code")
 	if _, err := a.Install("secret", "https://provider.example", WithPlugin("example", fstest.MapFS{})); err == nil {
@@ -205,6 +312,17 @@ func TestOnlyHermesAcceptsAPlugin(t *testing.T) {
 	a, _ = m.Lookup("hermes")
 	if _, err := a.Install("secret", "https://provider.example", WithPlugin("../escape", fstest.MapFS{})); err == nil {
 		t.Fatal("hermes accepted an invalid plugin name")
+	}
+	a, _ = m.Lookup("openclaw")
+	for name, files := range map[string]fstest.MapFS{
+		"../escape": {"openclaw.plugin.json": {Data: []byte(`{"id": "../escape"}`)}},
+		"aap":       {"openclaw.plugin.json": {Data: []byte(`{"id": "aap"}`)}},
+		"other":     {"openclaw.plugin.json": {Data: []byte(`{"id": "example"}`)}},
+		"bare":      {"index.js": {Data: []byte("export default {};\n")}},
+	} {
+		if _, err := a.Install("secret", "https://provider.example", WithPlugin(name, files)); err == nil {
+			t.Fatalf("openclaw accepted plugin %q", name)
+		}
 	}
 	if entries, _ := os.ReadDir(m.env.ConfigDir); len(entries) != 0 {
 		t.Fatalf("a refused plugin wrote files: %v", entries)

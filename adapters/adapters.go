@@ -64,9 +64,10 @@ type InstallOption func(*installOptions)
 func WithToolGlob(pattern string) InstallOption { return func(o *installOptions) { o.glob = pattern } }
 
 // WithPlugin installs files as the runtime half, registered under name, in
-// place of the library's own hook. The plugin must run this executable's
-// `hook <adapter>` with the payload that hook reads. Hermes is the only
-// adapter that accepts one.
+// place of the library's own hook or plugin. The plugin must run this
+// executable's `hook <adapter>` with the payload that hook reads. Hermes
+// and OpenClaw accept one; an OpenClaw plugin's openclaw.plugin.json must
+// carry name as its id.
 func WithPlugin(name string, files fs.FS) InstallOption {
 	return func(o *installOptions) { o.plugin = &runtimes.Plugin{Name: name, Files: files} }
 }
