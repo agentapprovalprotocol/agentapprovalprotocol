@@ -82,6 +82,22 @@ var scenarios = []scenario{
 		},
 	},
 	{
+		name: "gemini", key: catalog.Gemini,
+		plan:  HookPlan{Matcher: ".*"},
+		files: []string{".gemini/settings.json"},
+		tamper: func(t *testing.T, env Env) {
+			appendJSONKey(t, filepath.Join(env.Home, ".gemini", "settings.json"), "theme", "dark")
+		},
+	},
+	{
+		name: "antigravity", key: catalog.Antigravity,
+		plan:  HookPlan{Matcher: ".*"},
+		files: []string{".gemini/config/hooks.json"},
+		tamper: func(t *testing.T, env Env) {
+			appendJSONKey(t, filepath.Join(env.Home, ".gemini", "config", "hooks.json"), "reminder", "{}")
+		},
+	},
+	{
 		name: "deepseek", key: catalog.DeepSeek,
 		plan:    HookPlan{Matcher: ".*"},
 		files:   []string{".dsh/profiles/default/cordis.patch.yml", "config/deepseek/hooks.json"},

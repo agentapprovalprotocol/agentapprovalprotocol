@@ -12,6 +12,7 @@ import (
 func Run(ctx context.Context, key string, c *aap.Client, raw []byte, out io.Writer) error {
 	runners := map[string]func(context.Context, *aap.Client, io.Reader, io.Writer) error{
 		"claude-code": ClaudeCode, "codex": Codex, "deepseek": DeepSeek, "hermes": Hermes, "openclaw": OpenClaw, "pi": Pi,
+		"gemini": Gemini, "antigravity": Antigravity,
 	}
 	run, ok := runners[key]
 	if !ok {
@@ -32,6 +33,10 @@ func Deny(key string, raw []byte, out io.Writer) {
 		json.NewEncoder(out).Encode(piVerdict{Decision: "deny", Reason: aap.FailClosedText})
 	case "openclaw":
 		json.NewEncoder(out).Encode(openclawVerdict{Decision: "deny", Reason: aap.FailClosedText})
+	case "gemini":
+		json.NewEncoder(out).Encode(geminiVerdict{Decision: "deny", Reason: aap.FailClosedText})
+	case "antigravity":
+		json.NewEncoder(out).Encode(antigravityVerdict{Decision: "deny", Reason: aap.FailClosedText})
 	case "codex":
 		var in codexInput
 		_ = aap.Decode(raw, &in)

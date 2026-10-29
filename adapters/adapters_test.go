@@ -329,6 +329,64 @@ func TestOnlyPluginHostsAcceptAPlugin(t *testing.T) {
 	}
 }
 
+// A plugin the runtime installed carries the hook: install saves the
+// credential and writes nothing into the runtime.
+func TestRuntimePluginLifecycle(t *testing.T) {
+	for key, plugin := range map[string][]string{
+		"gemini":      {".gemini/extensions/example/gemini-extension.json", ".gemini/extensions/example/hooks/hooks.json"},
+		"antigravity": {".gemini/config/plugins/example/.antigravity-plugin/plugin.json", ".gemini/config/plugins/example/hooks.json"},
+	} {
+		t.Run(key, func(t *testing.T) {
+			m := manager(t, nil)
+			a, _ := m.Lookup(key)
+			if _, err := a.Install("secret", "https://provider.example", WithRuntimePlugin("example")); err == nil {
+				t.Fatal("install succeeded without the plugin")
+			}
+			for _, rel := range plugin {
+				path := filepath.Join(m.env.Home, rel)
+				os.MkdirAll(filepath.Dir(path), 0755)
+				os.WriteFile(path, []byte("{}\n"), 0644)
+			}
+			before, _ := os.ReadDir(filepath.Join(m.env.Home, ".gemini"))
+			result, err := a.Install("secret", "https://provider.example", WithRuntimePlugin("example"))
+			if err != nil || !result.Complete || len(result.Changes) != 0 {
+				t.Fatalf("install %+v %v", result, err)
+			}
+			if after, _ := os.ReadDir(filepath.Join(m.env.Home, ".gemini")); len(after) != len(before) {
+				t.Fatalf("install wrote into the runtime: %v", after)
+			}
+			if status, err := a.Status(); err != nil || !status.Complete {
+				t.Fatalf("status %+v %v", status, err)
+			}
+			if cfg, _ := a.load(); cfg.Token != "secret" || cfg.RuntimePlugin != "example" {
+				t.Fatalf("saved %+v", cfg)
+			}
+			if key == "antigravity" {
+				// Switched off in Antigravity, the plugin no longer runs the hook.
+				os.WriteFile(filepath.Join(m.env.Home, ".gemini", "config", "config.json"), []byte(`{"plugins":{"example":{"enabled":false}}}`), 0644)
+				if status, _ := a.Status(); status.Complete {
+					t.Fatal("disabled plugin reported complete")
+				}
+			}
+			if err := a.Uninstall(); err != nil {
+				t.Fatal(err)
+			}
+			for _, rel := range plugin {
+				if _, err := os.Stat(filepath.Join(m.env.Home, rel)); err != nil {
+					t.Fatalf("uninstall touched the runtime's plugin: %v", err)
+				}
+			}
+		})
+	}
+	m := manager(t, nil)
+	for _, key := range []string{"claude-code", "hermes"} {
+		a, _ := m.Lookup(key)
+		if _, err := a.Install("secret", "https://provider.example", WithRuntimePlugin("example")); err == nil {
+			t.Fatalf("%s accepted a runtime plugin", key)
+		}
+	}
+}
+
 // A runtime plugin that keeps the token in the runtime's own secret store
 // passes it to the hook; nothing is saved by an install.
 func TestHookUsesAPassedInCredential(t *testing.T) {

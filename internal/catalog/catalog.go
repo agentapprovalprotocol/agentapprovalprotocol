@@ -4,12 +4,14 @@ package catalog
 type Key string
 
 const (
-	ClaudeCode Key = "claude-code"
-	Codex      Key = "codex"
-	OpenClaw   Key = "openclaw"
-	Pi         Key = "pi"
-	Hermes     Key = "hermes"
-	DeepSeek   Key = "deepseek"
+	ClaudeCode  Key = "claude-code"
+	Codex       Key = "codex"
+	OpenClaw    Key = "openclaw"
+	Pi          Key = "pi"
+	Hermes      Key = "hermes"
+	DeepSeek    Key = "deepseek"
+	Gemini      Key = "gemini"
+	Antigravity Key = "antigravity"
 )
 
 type Runtime struct {
@@ -21,6 +23,7 @@ var catalog = []Runtime{
 	{ClaudeCode, "Claude Code", "claude", ".claude"}, {Codex, "Codex", "codex", ".codex"},
 	{OpenClaw, "OpenClaw", "openclaw", ".openclaw"}, {Pi, "Pi", "pi", ".pi"},
 	{Hermes, "Hermes Agent", "hermes", ".hermes"}, {DeepSeek, "DeepSeek Harness", "dsh", ".dsh"},
+	{Gemini, "Gemini CLI", "gemini", ".gemini"}, {Antigravity, "Antigravity", "agy", ".gemini"},
 }
 
 func All() []Runtime { return append([]Runtime(nil), catalog...) }

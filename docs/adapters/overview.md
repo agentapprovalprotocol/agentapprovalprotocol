@@ -1,5 +1,5 @@
 ---
-lastModified: 2026-10-12
+lastModified: 2026-10-29
 ---
 
 # Adapters overview
@@ -20,6 +20,8 @@ Install the [AAP CLI](cli.md#install-the-cli), then follow the guide for the age
 | [Pi](pi.md) | Start a new Pi session. |
 | [Hermes Agent](hermes.md) | Start a new session and accept the AAP hook when prompted. |
 | [DeepSeek Harness](deepseek.md) | Use the profile shown in the installation notes. |
+| [Gemini CLI](gemini.md) | Start a new Gemini CLI session. |
+| [Antigravity](antigravity.md) | Start a new conversation. |
 
 By default, AAP requests approval for all tool calls made through the configured agent. Your agent's own permissions still apply. Each guide explains how long it waits for approval and any limitations that affect your setup.
 

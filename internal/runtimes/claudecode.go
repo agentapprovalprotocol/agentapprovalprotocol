@@ -31,7 +31,7 @@ func (c claudeCode) Detect(env Env) (Detection, error) {
 		return det, err
 	}
 	if doc, err := loadJSONObject(content, existed); err == nil {
-		det.AlreadyHooked = claudeHookInstalled(doc.Root, c.Key(), env.hookCommand(c.Key()))
+		det.AlreadyHooked = claudePreToolUse.installed(doc.Root, c.Key(), env.hookCommand(c.Key()))
 	}
 	return det, nil
 }
@@ -46,7 +46,7 @@ func (c claudeCode) Install(env Env, _ Detection, plan HookPlan) (InstallResult,
 	if err != nil {
 		return InstallResult{}, err
 	}
-	upsertClaudeHook(doc.Root, c.Key(), env.hookCommand(c.Key()), plan.Matcher)
+	claudePreToolUse.upsert(doc.Root, c.Key(), env.hookCommand(c.Key()), plan.Matcher)
 	ed := newEditor(env, c.Key())
 	if err := ed.write(path, doc.Bytes()); err != nil {
 		return InstallResult{}, err
@@ -56,5 +56,5 @@ func (c claudeCode) Install(env Env, _ Detection, plan HookPlan) (InstallResult,
 }
 
 func (c claudeCode) Eject(env Env, entry ManifestEntry) error {
-	return ejectFiles(env, entry, stripClaudeHookFile(c.Key()))
+	return ejectFiles(env, entry, claudePreToolUse.stripFile(c.Key()))
 }

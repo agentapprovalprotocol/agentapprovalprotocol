@@ -11,13 +11,27 @@ import (
 // style hook registrations: the approval window plus room to answer.
 const hookTimeoutSeconds = 7*24*60*60 + 60
 
-// claudeHookEntry builds the PreToolUse entry Claude Code (and the dsh
-// bridge, which reads the same shape) runs for our hook.
-func claudeHookEntry(command, matcher string) *jsonObject {
+// hookEvent is one Claude Code style registration: the array under the
+// settings file's hooks object that holds our entry, and the timeout the
+// entry carries in the runtime's unit.
+type hookEvent struct {
+	name    string
+	timeout json.Number
+}
+
+// claudePreToolUse is Claude Code's registration, which the dsh bridge
+// reads too. geminiBeforeTool is Gemini CLI's, timed in milliseconds.
+var (
+	claudePreToolUse = hookEvent{"PreToolUse", json.Number(strconv.Itoa(hookTimeoutSeconds))}
+	geminiBeforeTool = hookEvent{"BeforeTool", json.Number(strconv.Itoa(hookTimeoutSeconds * 1000))}
+)
+
+// entry builds the entry the runtime runs for our hook.
+func (e hookEvent) entry(command, matcher string) *jsonObject {
 	hook := newJSONObject()
 	hook.Set("type", "command")
 	hook.Set("command", command)
-	hook.Set("timeout", json.Number(strconv.Itoa(hookTimeoutSeconds)))
+	hook.Set("timeout", e.timeout)
 	entry := newJSONObject()
 	if matcher != "" {
 		entry.Set("matcher", matcher)
@@ -26,7 +40,7 @@ func claudeHookEntry(command, matcher string) *jsonObject {
 	return entry
 }
 
-// findClaudeHook locates our entry in a hooks.PreToolUse array: the entry
+// findClaudeHook locates our entry in a hooks.<event> array: the entry
 // index and, within it, the hook index whose command is ours.
 func findClaudeHook(entries []jsonValue, key catalog.Key) (entryIndex, hookIndex int) {
 	for i, item := range entries {
@@ -45,14 +59,16 @@ func findClaudeHook(entries []jsonValue, key catalog.Key) (entryIndex, hookIndex
 	return -1, -1
 }
 
-// claudeHookInstalled reports whether root carries our hook naming the
-// given command exactly.
-func claudeHookInstalled(root *jsonObject, key catalog.Key, command string) bool {
+// installed reports whether root carries our hook naming the given
+// command exactly.
+func (e hookEvent) installed(root *jsonObject, key catalog.Key, command string) bool {
 	hooks, ok := root.ObjectIfPresent("hooks")
-	if !ok {
-		return false
-	}
-	entries, ok := hooks.Array("PreToolUse")
+	return ok && e.installedIn(hooks, key, command)
+}
+
+// installedIn is installed for the object that holds the event arrays.
+func (e hookEvent) installedIn(hooks *jsonObject, key catalog.Key, command string) bool {
+	entries, ok := hooks.Array(e.name)
 	if !ok {
 		return false
 	}
@@ -64,16 +80,15 @@ func claudeHookInstalled(root *jsonObject, key catalog.Key, command string) bool
 	return hooksArray[j].(*jsonObject).String("command") == command
 }
 
-// upsertClaudeHook installs or refreshes our PreToolUse entry. An existing
-// entry keeps its place in the array; only its matcher and our hook's
-// command and timeout are rewritten, so other hooks a person added to the
-// same entry survive.
-func upsertClaudeHook(root *jsonObject, key catalog.Key, command, matcher string) {
+// upsert installs or refreshes our entry. An existing entry keeps its
+// place in the array; only its matcher and our hook's command and timeout
+// are rewritten, so other hooks a person added to the same entry survive.
+func (e hookEvent) upsert(root *jsonObject, key catalog.Key, command, matcher string) {
 	hooks := root.Object("hooks")
-	entries, _ := hooks.Array("PreToolUse")
+	entries, _ := hooks.Array(e.name)
 	i, j := findClaudeHook(entries, key)
 	if i < 0 {
-		hooks.Set("PreToolUse", append(entries, claudeHookEntry(command, matcher)))
+		hooks.Set(e.name, append(entries, e.entry(command, matcher)))
 		return
 	}
 	entry := entries[i].(*jsonObject)
@@ -86,19 +101,28 @@ func upsertClaudeHook(root *jsonObject, key catalog.Key, command, matcher string
 	hook := hooksArray[j].(*jsonObject)
 	hook.Set("type", "command")
 	hook.Set("command", command)
-	hook.Set("timeout", json.Number(strconv.Itoa(hookTimeoutSeconds)))
-	hooks.Set("PreToolUse", entries)
+	hook.Set("timeout", e.timeout)
+	hooks.Set(e.name, entries)
 }
 
-// stripClaudeHook removes our hook from root. An entry left with no hooks
-// goes too, and so do the hooks.PreToolUse and hooks containers when they
-// end up empty, so the file returns to what it was before us.
-func stripClaudeHook(root *jsonObject, key catalog.Key) bool {
+// strip removes our hook from root. An entry left with no hooks goes too,
+// and so do the hooks.<event> and hooks containers when they end up
+// empty, so the file returns to what it was before us.
+func (e hookEvent) strip(root *jsonObject, key catalog.Key) bool {
 	hooks, ok := root.ObjectIfPresent("hooks")
-	if !ok {
+	if !ok || !e.stripIn(hooks, key) {
 		return false
 	}
-	entries, ok := hooks.Array("PreToolUse")
+	if hooks.Len() == 0 {
+		root.Delete("hooks")
+	}
+	return true
+}
+
+// stripIn is strip for the object that holds the event arrays, which it
+// leaves in place however empty.
+func (e hookEvent) stripIn(hooks *jsonObject, key catalog.Key) bool {
+	entries, ok := hooks.Array(e.name)
 	if !ok {
 		return false
 	}
@@ -129,24 +153,21 @@ func stripClaudeHook(root *jsonObject, key catalog.Key) bool {
 		return false
 	}
 	if len(kept) == 0 {
-		hooks.Delete("PreToolUse")
+		hooks.Delete(e.name)
 	} else {
-		hooks.Set("PreToolUse", kept)
-	}
-	if hooks.Len() == 0 {
-		root.Delete("hooks")
+		hooks.Set(e.name, kept)
 	}
 	return true
 }
 
-// stripClaudeHookFile is the stripFunc for a Claude Code style JSON file.
-func stripClaudeHookFile(key catalog.Key) stripFunc {
+// stripFile is the stripFunc for a Claude Code style JSON file.
+func (e hookEvent) stripFile(key catalog.Key) stripFunc {
 	return func(_ string, content []byte) ([]byte, bool, error) {
 		doc, err := loadJSONObject(content, true)
 		if err != nil {
 			return nil, false, err
 		}
-		if !stripClaudeHook(doc.Root, key) {
+		if !e.strip(doc.Root, key) {
 			return nil, false, nil
 		}
 		return doc.Bytes(), true, nil
