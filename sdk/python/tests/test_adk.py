@@ -261,6 +261,9 @@ async def test_calls_inside_an_agent_tool_are_gated_and_wait():
     assert ran == [{"payment_id": "payment_123", "amount": 4900}]
     assert sorted(s.body["tool"] for s in provider.requests.values()) == ["billing", "refund"]
     assert last_text(await session_events(runner, session_id)) == "Billing refunded it."
+    # The nested call waited, so it names no run for a receiver to wake.
+    resumes = {s.body["tool"]: "resume" in s.body["context"] for s in provider.requests.values()}
+    assert resumes == {"billing": True, "refund": False}
 
 
 def approve_on_poll(provider: FakeProvider) -> None:
