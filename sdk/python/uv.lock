@@ -1,20 +1,20 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
-    "python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.13.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
+    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
+    "python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
 ]
 conflicts = [[
@@ -44,7 +44,7 @@ crewai = [
     { name = "crewai", marker = "python_full_version < '3.14'" },
 ]
 deep-agents = [
-    { name = "deepagents", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "deepagents", marker = "python_full_version >= '3.11'" },
     { name = "langchain" },
     { name = "langgraph" },
 ]
@@ -56,12 +56,12 @@ openai-agents = [
     { name = "openai-agents" },
 ]
 pydantic-ai = [
-    { name = "pydantic-ai-slim", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic-ai-slim", marker = "python_full_version >= '3.11'" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "deepagents", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "deepagents", marker = "python_full_version >= '3.11'" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-timeout" },
@@ -327,7 +327,7 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version == '3.11.*' and sys_platform == 'emscripten')",
+    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
     "python_full_version < '3.11'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4e/8a/64761f4005f17809769d23e518d915db74e6310474e733e3593cfc854ef1/aiosqlite-0.22.1.tar.gz", hash = "sha256:043e0bd78d32888c0a9ca90fc788b38796843360c855a7262a532813133a0650", size = 14821, upload-time = "2025-12-23T19:25:43.997Z" }
@@ -358,15 +358,15 @@ name = "anthropic"
 version = "1.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "docstring-parser", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpx2", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "jiter", version = "0.14.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "jiter", version = "0.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "sniffio", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anyio" },
+    { name = "docstring-parser" },
+    { name = "httpx2" },
+    { name = "jiter", version = "0.14.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "jiter", version = "0.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/ed/e76e50601b7c476bcb9a2a7a4c4dab6f1a9b2c03e3922de8b3ec599ccbc5/anthropic-1.13.0.tar.gz", hash = "sha256:ad11d9bb9adafdfea26113943bcde9973e2a439ebeeda6c89ff3e3d85bb2f5c1", size = 1567362, upload-time = "2026-10-09T15:29:08.803Z" }
 wheels = [
@@ -378,9 +378,9 @@ name = "anyio"
 version = "4.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
     { name = "idna" },
-    { name = "typing-extensions", marker = "python_full_version < '3.15' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.15'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d2/f4d173e22df740bc37b1db102b386ba719b66e95b0f0d751f556b387e6d2/anyio-4.15.1.tar.gz", hash = "sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94", size = 276966, upload-time = "2026-09-05T10:42:39.44Z" }
 wheels = [
@@ -562,7 +562,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -845,9 +845,9 @@ dependencies = [
     { name = "mmh3", marker = "python_full_version < '3.14'" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.12' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "onnxruntime", version = "1.23.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "onnxruntime", version = "1.31.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "onnxruntime", version = "1.31.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "opentelemetry-api", marker = "python_full_version < '3.14'" },
     { name = "opentelemetry-exporter-otlp-proto-grpc", marker = "python_full_version < '3.14'" },
     { name = "opentelemetry-sdk", marker = "python_full_version < '3.14'" },
@@ -883,9 +883,9 @@ dependencies = [
     { name = "anyio" },
     { name = "jsonschema" },
     { name = "mcp", version = "1.28.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "mcp", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "mcp", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "sniffio" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7f/45/10f00a408b480926b5e340e3507562ede1e30d4ce5b73eea9ccc3468a9e6/claude_agent_sdk-0.2.165.tar.gz", hash = "sha256:1bfa8e7a6bb36e82de9a12324c9bcfa6eebd4f96ee5890f0c656d50445240ff8", size = 365169, upload-time = "2026-10-08T18:18:49.528Z" }
 wheels = [
@@ -1024,8 +1024,8 @@ name = "cryptography"
 version = "50.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9d/af/182eb91b0df3fe75c4d9f26fe70684569566745f6ba7e5c9c73a862c5252/cryptography-50.0.2.tar.gz", hash = "sha256:7b46165bb56eb4704e2eaaf86f3c940d19154535d9b0ca7d6d590b04060e00d5", size = 880623, upload-time = "2026-09-30T15:30:04.884Z" }
 wheels = [
@@ -1094,13 +1094,13 @@ name = "deepagents"
 version = "0.7.24"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "langchain", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "langchain-anthropic", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "langchain-core", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "langchain-google-genai", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "langsmith", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "wcmatch", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "langchain" },
+    { name = "langchain-anthropic" },
+    { name = "langchain-core" },
+    { name = "langchain-google-genai" },
+    { name = "langsmith" },
+    { name = "packaging" },
+    { name = "wcmatch" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8e/e6/61030816d91fb17521f684c3133886a8b5b0f8a76f246e8855d3812206d3/deepagents-0.7.24.tar.gz", hash = "sha256:3f7f96e0aec03b84c2bf213ead153bab971b921edfe62994cdaf37bd171c7be2", size = 326434, upload-time = "2026-10-12T04:46:27.834Z" }
 wheels = [
@@ -1160,7 +1160,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -1174,7 +1174,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "starlette" },
     { name = "typing-extensions" },
     { name = "typing-inspection" },
@@ -1363,9 +1363,9 @@ name = "genai-prices"
 version = "0.1.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "httpx2", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "httpx2" },
+    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b8/ac/59521c0e0254970d64cf01974a59e97f57e7e54bb2331e939058169d5113/genai_prices-0.1.11.tar.gz", hash = "sha256:47c6b84e38089ffee606cd0d2eaaa2f9939605c486faee792f98cb7258baf812", size = 129433, upload-time = "2026-10-12T14:14:50.812Z" }
 wheels = [
@@ -1378,7 +1378,7 @@ version = "2.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite", version = "0.21.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "aiosqlite", version = "0.22.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "aiosqlite", version = "0.22.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "authlib" },
     { name = "click" },
     { name = "fastapi" },
@@ -1391,7 +1391,7 @@ dependencies = [
     { name = "opentelemetry-sdk" },
     { name = "packaging" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "python-dotenv" },
     { name = "python-multipart" },
     { name = "pyyaml" },
@@ -1439,7 +1439,7 @@ dependencies = [
     { name = "google-auth", extra = ["requests"] },
     { name = "httpx" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "requests" },
     { name = "sniffio" },
     { name = "tenacity" },
@@ -1552,16 +1552,16 @@ version = "2.3.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
     "python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.13.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
+    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2b/27/b55f1a5278918be765fb2fd8b20966bc72bbdd3f789f031937cceea7834a/griffelib-2.3.2.tar.gz", hash = "sha256:df00c7a0dee3d86268d76788997a1859272cb1fb7b865658e043d2c0c3d52e60", size = 234729, upload-time = "2026-10-06T09:54:37.222Z" }
 wheels = [
@@ -1690,8 +1690,8 @@ name = "httpcore2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11", marker = "python_full_version < '3.12' or python_full_version >= '3.14' or (python_full_version == '3.13.*' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version == '3.12.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or sys_platform != 'emscripten'" },
-    { name = "truststore", marker = "python_full_version < '3.12' or python_full_version >= '3.14' or (python_full_version == '3.13.*' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version == '3.12.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or sys_platform != 'emscripten'" },
+    { name = "h11" },
+    { name = "truststore" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cb/f3/1db7aa2bc2524062192bb0e0323969492d1883152a232fe36eea65f4e35c/httpcore2-2.13.1.tar.gz", hash = "sha256:e0aa977abe17e69a3b820a24542a6fa88702676d83880b8d194dcd18408e5103", size = 68071, upload-time = "2026-09-23T07:47:22.372Z" }
 wheels = [
@@ -1839,12 +1839,12 @@ name = "httpx2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "sys_platform != 'emscripten' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpcore2", marker = "sys_platform != 'emscripten' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpx2-jsfetch", marker = "(python_full_version >= '3.12' and sys_platform == 'emscripten') or (python_full_version < '3.12' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anyio", marker = "sys_platform != 'emscripten'" },
+    { name = "httpcore2", marker = "sys_platform != 'emscripten'" },
+    { name = "httpx2-jsfetch", marker = "python_full_version >= '3.12' and sys_platform == 'emscripten'" },
     { name = "idna" },
-    { name = "truststore", marker = "sys_platform != 'emscripten' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "truststore", marker = "sys_platform != 'emscripten'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d5/44/474bef2a0e9d90f1715d32cb98b0738695ca17ba324095fb2497ed7fbd59/httpx2-2.13.1.tar.gz", hash = "sha256:e48744a19e3af5ee48313d0ce5fe941d5422fae5705ea922a4aabf94d7800dfa", size = 100405, upload-time = "2026-09-23T07:47:23.052Z" }
 wheels = [
@@ -1867,7 +1867,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click", marker = "python_full_version < '3.14'" },
     { name = "filelock", version = "4.1.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "filelock", version = "4.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "filelock", version = "4.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "fsspec", marker = "python_full_version < '3.14'" },
     { name = "hf-xet", marker = "(python_full_version < '3.14' and platform_machine == 'AMD64') or (python_full_version < '3.14' and platform_machine == 'ARM64') or (python_full_version < '3.14' and platform_machine == 'aarch64') or (python_full_version < '3.14' and platform_machine == 'amd64') or (python_full_version < '3.14' and platform_machine == 'arm64') or (python_full_version < '3.14' and platform_machine == 'x86_64')" },
     { name = "httpx2", marker = "python_full_version < '3.14'" },
@@ -2084,7 +2084,7 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version == '3.11.*' and sys_platform == 'emscripten')",
+    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
     "python_full_version < '3.11'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9c/1f/8176d92e001f86505424b41664032ae26a882bc9ca41a32c803f373f9195/jiter-0.17.0.tar.gz", hash = "sha256:03e432f226a453851079fb84cd17c6da9991eab723e28d716f14ae3d906e0c12", size = 229037, upload-time = "2026-09-12T15:14:14.253Z" }
@@ -2220,14 +2220,14 @@ wheels = [
 
 [[package]]
 name = "joserfc"
-version = "1.7.5"
+version = "1.7.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/19/94/80fea1514b7c6d7d37804d3fe9ca81455f633347fc98731bd71ffe1faa17/joserfc-1.7.5.tar.gz", hash = "sha256:d5ff536e658e17664f8c1b1ab60dc4aa62aa973fcef1edd33cc44bda45d6f5ea", size = 234990, upload-time = "2026-08-29T13:05:42.057Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/db/ec5b5fe07a7bda62cd2c2d619daf160eb7442b979c7cd61bbe0262108de9/joserfc-1.7.6.tar.gz", hash = "sha256:fb1cf6d2977318bef976c2ed2ef2167cc5f8ade8fc96f034e38f7abd656907c4", size = 236091, upload-time = "2026-10-18T23:12:18.43Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/c5/82addfd375e5ee6520644e0553e4aadde92d668c4fc99cc716d337fe7bb3/joserfc-1.7.5-py3-none-any.whl", hash = "sha256:add2c2c84e8373b084d526a8b53daba5d7a513a118cd2dcd9fc9f979d0922159", size = 71269, upload-time = "2026-08-29T13:05:40.718Z" },
+    { url = "https://files.pythonhosted.org/packages/98/40/63886ba742c6fd9e6dd222e20b8d54012fbc933465350c7747c4ed5b31e4/joserfc-1.7.6-py3-none-any.whl", hash = "sha256:e2d72e3fa937ed8ddd42ad8c1cc337a43e7ffd02efa572a2aa15e2764a05b506", size = 71588, upload-time = "2026-10-18T23:12:17.085Z" },
 ]
 
 [[package]]
@@ -2286,8 +2286,8 @@ dependencies = [
     { name = "attrs" },
     { name = "jsonschema-specifications" },
     { name = "referencing" },
-    { name = "rpds-py", version = "0.30.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "rpds-py", version = "2026.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "rpds-py", version = "0.30.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "rpds-py", version = "2026.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b3/fc/e067678238fa451312d4c62bf6e6cf5ec56375422aee02f9cb5f909b3047/jsonschema-4.26.0.tar.gz", hash = "sha256:0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326", size = 366583, upload-time = "2026-01-07T13:41:07.246Z" }
 wheels = [
@@ -2363,11 +2363,11 @@ dependencies = [
     { name = "lance-namespace", marker = "python_full_version < '3.14'" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.12' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "overrides", marker = "python_full_version < '3.12'" },
     { name = "packaging", marker = "python_full_version < '3.14'" },
     { name = "pyarrow", version = "25.0.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pyarrow", version = "26.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pyarrow", version = "26.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
     { name = "tqdm", marker = "python_full_version < '3.14'" },
 ]
@@ -2388,7 +2388,7 @@ dependencies = [
     { name = "langchain-core" },
     { name = "langgraph" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6a/a4/a3ceefc3ec734912ca3a21dd79a5e4a98af73015a87e64d284a92cd5572c/langchain-1.4.4.tar.gz", hash = "sha256:baac6e13c08460e1decd0e60061b9a87c07135f1c977424040b0b57ff7bc7887", size = 742902, upload-time = "2026-10-08T22:14:10.86Z" }
 wheels = [
@@ -2400,10 +2400,10 @@ name = "langchain-anthropic"
 version = "1.7.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anthropic", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "langchain-core", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anthropic" },
+    { name = "langchain-core" },
+    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3c/45/b369666909be4a6f58877b18e692655ee792e06047c6c572d1218e09a31c/langchain_anthropic-1.7.6.tar.gz", hash = "sha256:e5b41959a39810e69bc608fd6622b7d5d017bde93f858b09332fbb6ac764c393", size = 765188, upload-time = "2026-10-12T14:39:58.537Z" }
 wheels = [
@@ -2421,7 +2421,7 @@ dependencies = [
     { name = "langsmith" },
     { name = "packaging" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "pyyaml" },
     { name = "tenacity" },
     { name = "typing-extensions" },
@@ -2437,11 +2437,11 @@ name = "langchain-google-genai"
 version = "4.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filetype", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "google-genai", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "langchain-core", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "filetype" },
+    { name = "google-genai" },
+    { name = "langchain-core" },
+    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3f/25/3004415b1547436fee3445bcb2e06b2eace2dce95b693ad37af3ee0017d4/langchain_google_genai-4.4.1.tar.gz", hash = "sha256:1729b83e1e08d1431a6f4f29776b6b787b4f1c2ca95a248b08c4d90149d817bd", size = 378698, upload-time = "2026-10-10T19:08:16.655Z" }
 wheels = [
@@ -2470,7 +2470,7 @@ dependencies = [
     { name = "langgraph-prebuilt" },
     { name = "langgraph-sdk" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "xxhash" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/49/3f/6e60789eab2c5ceaf34ba2c626ac345df93b026bbe7385018aa4b9c30397/langgraph-1.2.14.tar.gz", hash = "sha256:5b1a72b7a7f994ac6947b7751fbbe00e949f8bb44d9ab78881604b703247ae55", size = 752793, upload-time = "2026-10-06T14:41:19.789Z" }
@@ -2528,10 +2528,10 @@ dependencies = [
     { name = "anyio" },
     { name = "distro" },
     { name = "httpx2" },
-    { name = "orjson", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "orjson", marker = "platform_python_implementation != 'PyPy'" },
     { name = "packaging" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "requests" },
     { name = "requests-toolbelt" },
     { name = "sniffio" },
@@ -2753,12 +2753,12 @@ dependencies = [
     { name = "pydantic-settings", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "pyjwt", extra = ["crypto"], marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "python-multipart", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pywin32", marker = "(python_full_version < '3.14' and sys_platform == 'win32' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (sys_platform != 'win32' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pywin32", marker = "(python_full_version < '3.14' and sys_platform == 'win32' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "sse-starlette", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "starlette", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "typing-extensions", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "typing-inspection", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "uvicorn", marker = "(python_full_version < '3.14' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (sys_platform == 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "uvicorn", marker = "(python_full_version < '3.14' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz", hash = "sha256:d51e36a5f5644faea4f85ea649bfffa6bc6c26770d42798ad6a3de3d2ba69683", size = 638501, upload-time = "2026-06-26T12:57:29.093Z" }
 wheels = [
@@ -2772,24 +2772,24 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version == '3.11.*' and sys_platform == 'emscripten')",
+    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
     "python_full_version < '3.11'",
 ]
 dependencies = [
-    { name = "anyio", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpx2", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "jsonschema", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "mcp-types", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "opentelemetry-api", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pyjwt", extra = ["crypto"], marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "python-multipart", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pywin32", marker = "(python_full_version >= '3.14' and sys_platform == 'win32') or (python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (sys_platform == 'win32' and extra != 'extra-21-agentapprovalprotocol-crewai') or (sys_platform != 'win32' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "sse-starlette", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "starlette", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-inspection", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "uvicorn", marker = "(python_full_version >= '3.14' and sys_platform != 'emscripten') or (python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai') or (sys_platform == 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anyio", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "httpx2", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "jsonschema", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "mcp-types", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "opentelemetry-api", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "pyjwt", extra = ["crypto"], marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "python-multipart", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "pywin32", marker = "(python_full_version >= '3.14' and sys_platform == 'win32') or (sys_platform == 'win32' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "sse-starlette", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "starlette", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "typing-inspection", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "uvicorn", marker = "(python_full_version >= '3.14' and sys_platform != 'emscripten') or (sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9d/8d/e0d339616f4810e9051d4aba6887afab289ab1f81875fe908b606cdfd0e3/mcp-2.3.0.tar.gz", hash = "sha256:8b147a50441cf059dc88c684e0aeed3687f0aa0f39c6cde7b90330effd2b34d8", size = 4171955, upload-time = "2026-10-02T22:06:56.091Z" }
 wheels = [
@@ -2801,8 +2801,8 @@ name = "mcp-types"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/2d/7c251e34207f6c51000312fc8839111ac45cfe02023f90b44e7f1051dd8e/mcp_types-2.3.0.tar.gz", hash = "sha256:d1e46549edb35ee19a94940fcee6d1addd7e589ab7ea92dda83f5d84781fc362", size = 65898, upload-time = "2026-10-02T22:06:57.863Z" }
 wheels = [
@@ -3474,7 +3474,7 @@ resolution-markers = [
 dependencies = [
     { name = "flatbuffers", marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.12' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "packaging", marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
     { name = "protobuf", marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
 ]
@@ -3538,7 +3538,7 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version == '3.11.*' and sys_platform == 'emscripten')",
+    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
     "python_full_version < '3.11'",
 ]
 dependencies = [
@@ -4597,14 +4597,14 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version == '3.11.*' and sys_platform == 'emscripten')",
+    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
     "python_full_version < '3.11'",
 ]
 dependencies = [
-    { name = "annotated-types", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic-core", version = "2.50.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-inspection", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "annotated-types", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "pydantic-core", version = "2.50.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "typing-inspection", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7c/0b/8e10b2e693af8ec54346a14caf36221334775975a747c9ceaa3f8371d96d/pydantic-2.14.1.tar.gz", hash = "sha256:94f478203dd03404682a1ada216965651dd74b1d2d5ffd62e00e0837caab5c26", size = 900362, upload-time = "2026-10-11T18:37:55.396Z" }
 wheels = [
@@ -4616,15 +4616,15 @@ name = "pydantic-ai-slim"
 version = "2.55.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "genai-prices", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "griffelib", version = "2.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpx2", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "opentelemetry-api", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic-graph", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-inspection", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anyio" },
+    { name = "genai-prices" },
+    { name = "griffelib", version = "2.3.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "httpx2" },
+    { name = "opentelemetry-api" },
+    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "pydantic-graph" },
+    { name = "typing-inspection" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9c/d6/3526056afb236ac3c01b07ae05f1fefc97cbee59f8e824b96ffd5405bbfe/pydantic_ai_slim-2.55.0.tar.gz", hash = "sha256:50b5ee70d3a0509c1f36bec759249e69f4dc060f1a816b1bbf0730af54297376", size = 1878726, upload-time = "2026-10-09T19:40:52.951Z" }
 wheels = [
@@ -4763,11 +4763,11 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version == '3.11.*' and sys_platform == 'emscripten')",
+    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
     "python_full_version < '3.11'",
 ]
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a6/24/af4ec4be49fbc810f35b0bdcacc3d433b56bbfa469fd3bfd4ae116cd9bf1/pydantic_core-2.50.1.tar.gz", hash = "sha256:e50d7b94baac6c7d09927fa5ca5800a0c7ee5015c7fcff65beb3a1931b5a6e09", size = 513515, upload-time = "2026-10-11T18:35:44.82Z" }
 wheels = [
@@ -4914,11 +4914,11 @@ name = "pydantic-graph"
 version = "2.55.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "logfire-api", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-inspection", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anyio" },
+    { name = "logfire-api" },
+    { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "typing-inspection" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b2/22/4e25465059448c4322e5f53f33e7b25ceb404c2d4dda8cfb0f497f7fb54b/pydantic_graph-2.55.0.tar.gz", hash = "sha256:461de7d0c33af634c3adeb21712f527f15878edf826d216184f024795e9c80c1", size = 45824, upload-time = "2026-10-09T19:40:57.238Z" }
 wheels = [
@@ -4953,7 +4953,7 @@ name = "pyjwt"
 version = "2.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/ea/5194e52748b0da83d71e082d75496eaec6e58f419f5e184786ded517e6a9/pyjwt-2.15.1.tar.gz", hash = "sha256:4f259e80cdfb6b3fc18a7de51fd1ef9ec79652f25019bae68975ca2468a34df8", size = 121252, upload-time = "2026-09-28T18:40:42.598Z" }
 wheels = [
@@ -5030,8 +5030,8 @@ name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
@@ -5049,9 +5049,9 @@ name = "pytest-asyncio"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "backports-asyncio-runner", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "backports-asyncio-runner", marker = "python_full_version < '3.11'" },
     { name = "pytest" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/7c/d36d04db312ecf4298932ef77e6e4a9e8ad017906e24e34f0b0c361a2473/pytest_asyncio-1.4.0.tar.gz", hash = "sha256:c6c0d2259945122819f171a32ecea2c349ead889ee28176caaf492143424be42", size = 58514, upload-time = "2026-05-26T09:56:04.083Z" }
 wheels = [
@@ -5195,9 +5195,9 @@ version = "0.37.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
-    { name = "rpds-py", version = "0.30.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "rpds-py", version = "2026.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "rpds-py", version = "0.30.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "rpds-py", version = "2026.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/22/f5/df4e9027acead3ecc63e50fe1e36aca1523e1719559c499951bb4b53188f/referencing-0.37.0.tar.gz", hash = "sha256:44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8", size = 78036, upload-time = "2025-10-13T15:30:48.871Z" }
 wheels = [
@@ -5509,16 +5509,16 @@ version = "2026.9.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
     "python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.13.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "python_full_version >= '3.14' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
-    "(python_full_version >= '3.11' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
+    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/68/3bd46b8a5e01d3c2ebdf9c5e9497912e3fe0cde02bac21a7130ca866e403/rpds_py-2026.9.1.tar.gz", hash = "sha256:4793ef7f78268b124b73fa933440f01d258bbae01de9fa53e9080c9ab0425a12", size = 63948, upload-time = "2026-10-04T16:32:36.469Z" }
 wheels = [
@@ -5697,7 +5697,7 @@ version = "1.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7b/2b/3850dc6bf7ef71b088962eba31dafc6cffd2f96e577ebb0bb316df96da3e/starlette-1.7.0.tar.gz", hash = "sha256:c79f74ea63cff761804fbbfb182f1e0b440c2d07b164d24700c5a1bab5d6ff5d", size = 2736246, upload-time = "2026-09-23T07:30:26.35Z" }
 wheels = [
@@ -5733,7 +5733,7 @@ dependencies = [
     { name = "markdown-it-py", extra = ["linkify"], marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "mdit-py-plugins", marker = "python_full_version < '3.14'" },
     { name = "platformdirs", version = "4.12.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "platformdirs", version = "4.13.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version >= '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "platformdirs", version = "4.13.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "pygments", marker = "python_full_version < '3.14'" },
     { name = "rich", marker = "python_full_version < '3.14'" },
     { name = "typing-extensions", marker = "python_full_version < '3.14'" },
@@ -6086,7 +6086,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "h11" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/da/34/30e9280707135d2cfc589dfff3cb796bd07a3aeb1a3e415ba09dd89d7bb4/uvicorn-0.54.0.tar.gz", hash = "sha256:a2e33cbfaa0306f8e6b0c13e0cb89d7d7a2da3e62b90c66e18c33d9807b28620", size = 112283, upload-time = "2026-09-25T06:52:37.601Z" }
 wheels = [
@@ -6239,7 +6239,7 @@ name = "wcmatch"
 version = "11.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "bracex", marker = "python_full_version >= '3.11' or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "bracex" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/78/cd/0e028d8b7d906d51acdac537334fbe85f8284f2a8147d48bc9403af77a0d/wcmatch-11.1.tar.gz", hash = "sha256:f2b6f0fad6f5e2571498723fcb3c8facdd0fba0dcc139f31d32f592eb648153e", size = 129091, upload-time = "2026-10-10T13:10:54.573Z" }
 wheels = [
