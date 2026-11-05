@@ -552,9 +552,34 @@ wheels = [
 name = "certifi"
 version = "2026.7.22"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version < '3.11'",
+]
 sdist = { url = "https://files.pythonhosted.org/packages/a3/c2/24167ea9858356b47a87a50d39908bfdb72ceeefe0041586e704e5376b3a/certifi-2026.7.22.tar.gz", hash = "sha256:741e2c3b351ddf169a738da9f2c048608ff7f2c5cc02f1ebc6b118bb090d5d55", size = 138112, upload-time = "2026-07-22T03:35:12.644Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl", hash = "sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775", size = 136983, upload-time = "2026-07-22T03:35:11.276Z" },
+]
+
+[[package]]
+name = "certifi"
+version = "2026.10.23"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.13.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version == '3.12.*' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')",
+    "python_full_version == '3.11.*' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (python_full_version == '3.11.*' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents')",
+    "python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+    "python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-crewai' and extra != 'extra-21-agentapprovalprotocol-openai-agents'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fd/11/b524cbd9bbdaca58608e4cf4053fd463417549e1959fa8d3aa18319f9555/certifi-2026.10.23.tar.gz", hash = "sha256:a9895e6e2758b371e0545e321a3a8fd1fcfd9829ada8824a936dfb16aaaf36cd", size = 136225, upload-time = "2026-10-23T11:36:16.478Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/d1/a3652fe2c19134d0d15922177821d863cbd7e842d53a21bbe7e8e3a1b5ac/certifi-2026.10.23-py3-none-any.whl", hash = "sha256:e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1", size = 135082, upload-time = "2026-10-23T11:36:14.763Z" },
 ]
 
 [[package]]
@@ -882,8 +907,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
     { name = "jsonschema" },
-    { name = "mcp", version = "1.28.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "mcp", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "mcp" },
     { name = "sniffio" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
@@ -928,7 +952,7 @@ wheels = [
 
 [[package]]
 name = "crewai"
-version = "1.15.27"
+version = "1.15.28.dev20261022"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles", marker = "python_full_version < '3.14'" },
@@ -945,7 +969,7 @@ dependencies = [
     { name = "json5", marker = "python_full_version < '3.14'" },
     { name = "jsonref", marker = "python_full_version < '3.14'" },
     { name = "lancedb", marker = "python_full_version < '3.14'" },
-    { name = "mcp", version = "1.28.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
+    { name = "mcp", marker = "python_full_version < '3.14'" },
     { name = "oauthlib", marker = "python_full_version < '3.14'" },
     { name = "openai", version = "2.54.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
     { name = "openpyxl", marker = "python_full_version < '3.14'" },
@@ -964,18 +988,18 @@ dependencies = [
     { name = "tomli", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
     { name = "tomli-w", marker = "python_full_version < '3.14'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8d/d4/a5a1555a80581275ee69ca4ae5215f72be27baaee04ee53fa066ae41de3d/crewai-1.15.27.tar.gz", hash = "sha256:764ca35f996898369819faaa5e107bd316ba7f1fd66ad9d501e8ba38f102b602", size = 8144930, upload-time = "2026-10-09T22:34:31.233Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/80/938f78549b1db564949da9e017b401891368f1bc71ec5a4f52e689c38df7/crewai-1.15.28.dev20261022.tar.gz", hash = "sha256:77ea0919518aa85a4db510b1c7b32ac3c0deff152aba4c721f58ca3337222e3c", size = 8317730, upload-time = "2026-10-22T06:16:56.36Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e6/42/58bdbbaab18f2a2c8428e3ea6bc4279e646ab61d063baab09e6ab3723b84/crewai-1.15.27-py3-none-any.whl", hash = "sha256:7ceb0da04531271bf9a3871f6a583b165d266bd27be891b8431faa87ce1dc2e9", size = 1235671, upload-time = "2026-10-09T22:34:28.668Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/26/c55beda9420bbcde248f66b67bded9030e8011e673fa2bffb07fec3e211c/crewai-1.15.28.dev20261022-py3-none-any.whl", hash = "sha256:05b87c5cb4ae9605a402b437907b6bfafba1f3309acbaafe0b0033e850808561", size = 1380891, upload-time = "2026-10-22T06:16:54.11Z" },
 ]
 
 [[package]]
 name = "crewai-cli"
-version = "1.15.27"
+version = "1.15.28.dev20261022"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs", marker = "python_full_version < '3.14'" },
-    { name = "certifi", marker = "python_full_version < '3.14'" },
+    { name = "certifi", version = "2026.10.23", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
     { name = "click", marker = "python_full_version < '3.14'" },
     { name = "crewai-core", marker = "python_full_version < '3.14'" },
     { name = "cryptography", marker = "python_full_version < '3.14'" },
@@ -991,14 +1015,14 @@ dependencies = [
     { name = "tomli-w", marker = "python_full_version < '3.14'" },
     { name = "uv", marker = "python_full_version < '3.14'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/2a/338bdabb57cae712e705e027d7397a8c48b5b371039b5afaed4cc15323d6/crewai_cli-1.15.27.tar.gz", hash = "sha256:bc87df202548e11fc51b14d0008166914757f1d1fe7e7fe557296f3e90c8674d", size = 303862, upload-time = "2026-10-09T22:34:35.171Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/4a/0bca10dd66a4e8729d1b0803b5c2beaf8ccf5aba2f278f0fe200d80c0467/crewai_cli-1.15.28.dev20261022.tar.gz", hash = "sha256:7086f6987f5cca170e6a693334e76e7a59159ce0dbea8b206c5a1f5febda2671", size = 353506, upload-time = "2026-10-22T06:16:59.993Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/21/a7/b342a9856079d34d9b47551fa7d4fdff95633da7bed5dda3147448a6eadc/crewai_cli-1.15.27-py3-none-any.whl", hash = "sha256:cb5659206ae3274fb3ac138a263eed7b3cd487a9972edece5d5cbfa1311e3f84", size = 234101, upload-time = "2026-10-09T22:34:33.232Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/90/2e3210a5799e75b096c256209ab5dc63c3b6ad5ec59a2c95864c6ca94cf0/crewai_cli-1.15.28.dev20261022-py3-none-any.whl", hash = "sha256:fc652123ad28586416efd11da3d5f3528c43759e33f30ebeced26e032fd59da2", size = 250176, upload-time = "2026-10-22T06:16:58.427Z" },
 ]
 
 [[package]]
 name = "crewai-core"
-version = "1.15.27"
+version = "1.15.28.dev20261022"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs", marker = "python_full_version < '3.14'" },
@@ -1014,9 +1038,9 @@ dependencies = [
     { name = "rich", marker = "python_full_version < '3.14'" },
     { name = "tomli", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/45/9a/f74ec80501d66be2845fd043283d744fada784818b8879ed53c70e13ea22/crewai_core-1.15.27.tar.gz", hash = "sha256:ec686838deb5d43b9ccf58dc17a6f296e6725ef3a195d00af692e65ba9b69319", size = 1268424, upload-time = "2026-10-09T22:34:39.041Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/14/0a/d9dbc55091ec07f96dc2b013745836feda1eaa2a067b9138e27f10fac5d0/crewai_core-1.15.28.dev20261022.tar.gz", hash = "sha256:7d875f7b3a23dd3fe4f001b6c17fef6e2144ab279ef4c80c46f59c0a00908eb8", size = 1303368, upload-time = "2026-10-22T06:17:03.369Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/36/438987c689f53a0c0ade46c4c05b93180eda97dc1752b36c5aae3107a7d8/crewai_core-1.15.27-py3-none-any.whl", hash = "sha256:ba66691005f686a84afb232963a01c8d27ad34fdea30e34cbdac9645d1edc76f", size = 1278362, upload-time = "2026-10-09T22:34:36.672Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/9b/ecee2c212418ff5284d7c26274c4d7c9ad03375a8086bfb3da048d440974/crewai_core-1.15.28.dev20261022-py3-none-any.whl", hash = "sha256:0a070a56ad8d1eb8b6c05effef6b90392a592c4de3699c3225c30f576f2b1c2c", size = 1310908, upload-time = "2026-10-22T06:17:01.622Z" },
 ]
 
 [[package]]
@@ -1677,7 +1701,8 @@ name = "httpcore"
 version = "1.0.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "certifi" },
+    { name = "certifi", version = "2026.7.22", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "certifi", version = "2026.10.23", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14') or (python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "h11" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/06/94/82699a10bca87a5556c9c59b5963f2d039dbd239f25bc2a63907a05a14cb/httpcore-1.0.9.tar.gz", hash = "sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8", size = 85484, upload-time = "2025-04-24T22:06:22.219Z" }
@@ -1816,7 +1841,8 @@ version = "0.28.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
-    { name = "certifi" },
+    { name = "certifi", version = "2026.7.22", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "certifi", version = "2026.10.23", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14') or (python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "httpcore" },
     { name = "idna" },
 ]
@@ -2312,7 +2338,7 @@ version = "36.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp", marker = "python_full_version < '3.14'" },
-    { name = "certifi", marker = "python_full_version < '3.14'" },
+    { name = "certifi", version = "2026.10.23", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
     { name = "durationpy", marker = "python_full_version < '3.14'" },
     { name = "python-dateutil", marker = "python_full_version < '3.14'" },
     { name = "pyyaml", marker = "python_full_version < '3.14'" },
@@ -2735,78 +2761,28 @@ wheels = [
 
 [[package]]
 name = "mcp"
-version = "1.28.1"
+version = "1.30.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform != 'emscripten'",
-    "python_full_version == '3.11.*'",
-    "python_full_version < '3.11'",
-]
 dependencies = [
-    { name = "anyio", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpx", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "httpx-sse", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "jsonschema", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "anyio" },
+    { name = "httpx" },
+    { name = "httpx-sse" },
+    { name = "jsonschema" },
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pydantic-settings", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pyjwt", extra = ["crypto"], marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "python-multipart", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "pywin32", marker = "(python_full_version < '3.14' and sys_platform == 'win32' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "sse-starlette", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "starlette", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-extensions", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-inspection", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "uvicorn", marker = "(python_full_version < '3.14' and sys_platform != 'emscripten' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz", hash = "sha256:d51e36a5f5644faea4f85ea649bfffa6bc6c26770d42798ad6a3de3d2ba69683", size = 638501, upload-time = "2026-06-26T12:57:29.093Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e2/5e/d118fce19f87a2e7d8101c35c8ae0ec289098a4df0ff244cec23e415aca0/mcp-1.28.1-py3-none-any.whl", hash = "sha256:2726bca5e7193f61c5dde8b12500a6de2d9acf6d1a1c0be9e8c2e706437991df", size = 222620, upload-time = "2026-06-26T12:57:27.218Z" },
-]
-
-[[package]]
-name = "mcp"
-version = "2.3.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "python_full_version == '3.11.*' or (python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten')",
-    "python_full_version < '3.11'",
-]
-dependencies = [
-    { name = "anyio", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "httpx2", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "jsonschema", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "mcp-types", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "opentelemetry-api", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
     { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "pyjwt", extra = ["crypto"], marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "python-multipart", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "pywin32", marker = "(python_full_version >= '3.14' and sys_platform == 'win32') or (sys_platform == 'win32' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "sse-starlette", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "starlette", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "typing-inspection", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "uvicorn", marker = "(python_full_version >= '3.14' and sys_platform != 'emscripten') or (sys_platform != 'emscripten' and extra != 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic-settings" },
+    { name = "pyjwt", extra = ["crypto"] },
+    { name = "python-multipart" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "sse-starlette" },
+    { name = "starlette" },
+    { name = "typing-extensions" },
+    { name = "typing-inspection" },
+    { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9d/8d/e0d339616f4810e9051d4aba6887afab289ab1f81875fe908b606cdfd0e3/mcp-2.3.0.tar.gz", hash = "sha256:8b147a50441cf059dc88c684e0aeed3687f0aa0f39c6cde7b90330effd2b34d8", size = 4171955, upload-time = "2026-10-02T22:06:56.091Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/93/0142dc84a666daf8ad51a34268f34c12fd6fda4f3810c4be2504eecc8212/mcp-1.30.0.tar.gz", hash = "sha256:445414625fce5c295faa505bb11bacece661ab6f4028d57c935db57820b7a3e4", size = 680511, upload-time = "2026-09-07T14:34:15.845Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/d7/4a2878f128df729db3ca04e71bfce26405cc2e0c9ebe19c592feeb4c61b9/mcp-2.3.0-py3-none-any.whl", hash = "sha256:dd0c44c089d16453e8ae31a3877a0054d7a2314caaa81f5e0541b9b1734b2377", size = 368664, upload-time = "2026-10-02T22:06:52.119Z" },
-]
-
-[[package]]
-name = "mcp-types"
-version = "2.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9e/2d/7c251e34207f6c51000312fc8839111ac45cfe02023f90b44e7f1051dd8e/mcp_types-2.3.0.tar.gz", hash = "sha256:d1e46549edb35ee19a94940fcee6d1addd7e589ab7ea92dda83f5d84781fc362", size = 65898, upload-time = "2026-10-02T22:06:57.863Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ce/48/32583066b155bb5d4507e7887dc88ee23118cc4de8e2a12870c49719e2a8/mcp_types-2.3.0-py3-none-any.whl", hash = "sha256:968efdbdaedfab06adae40d378a34395f1090c5921d4be3c9cde283aaf76d91d", size = 69108, upload-time = "2026-10-02T22:06:54.099Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/f4/e58bc33317c92a0203664daaf00bf6f41166cc0149e5d6870a03f7cd004a/mcp-1.30.0-py3-none-any.whl", hash = "sha256:666edb5009503e1047c9d60346a756f94b261f05cc2625f23d41c728ffc484d0", size = 234581, upload-time = "2026-09-07T14:34:14.266Z" },
 ]
 
 [[package]]
@@ -3562,7 +3538,7 @@ dependencies = [
     { name = "griffelib", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "griffelib", version = "2.3.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "httpx2" },
-    { name = "mcp", version = "2.3.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "mcp" },
     { name = "openai", version = "3.29.0", source = { registry = "https://pypi.org/simple" } },
     { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" } },
     { name = "pyjwt" },
@@ -4931,8 +4907,9 @@ version = "2.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic", version = "2.12.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "python-dotenv", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
-    { name = "typing-inspection", marker = "(python_full_version < '3.14' and extra == 'extra-21-agentapprovalprotocol-crewai') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or extra != 'extra-21-agentapprovalprotocol-crewai' or extra == 'extra-21-agentapprovalprotocol-openai-agents'" },
+    { name = "python-dotenv" },
+    { name = "typing-inspection" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/68/ca/31c57507b13119d7d3cfa1576dad2911a4861e3be07b579395f4e9d393f9/pydantic_settings-2.15.0.tar.gz", hash = "sha256:694b793e84f766ba76a90ebdefc01d0a9a045dab0382bee70393da93712ad117", size = 261253, upload-time = "2026-08-07T09:24:57.419Z" }
 wheels = [
@@ -5330,7 +5307,8 @@ name = "requests"
 version = "2.34.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "certifi" },
+    { name = "certifi", version = "2026.7.22", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version < '3.11' and extra == 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
+    { name = "certifi", version = "2026.10.23", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and python_full_version < '3.14') or (python_full_version < '3.11' and extra != 'extra-21-agentapprovalprotocol-openai-agents') or (extra == 'extra-21-agentapprovalprotocol-crewai' and extra == 'extra-21-agentapprovalprotocol-openai-agents')" },
     { name = "charset-normalizer" },
     { name = "idna" },
     { name = "urllib3" },
@@ -6055,28 +6033,28 @@ wheels = [
 
 [[package]]
 name = "uv"
-version = "0.11.33"
+version = "0.13.7"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/1d/2b/0820fbaaeeee0296e93d43c7b53e5dfa6118bda890ca9b7ea9d679b15065/uv-0.11.33.tar.gz", hash = "sha256:a4411bf854f5fe3d4b78d37dd2e4b84e0b99fbb0bd185de1511a8515404e04a8", size = 5802891, upload-time = "2026-07-28T10:24:59.213Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/71/73/0021f6679b1b686f2fdb7cb9914a9d953428644e3057b173edc181d1590c/uv-0.13.7.tar.gz", hash = "sha256:5e766791cb825d7a07e2ef9e622d307b48754fb682a31ba7bc5f272fab9ea395", size = 7550003, upload-time = "2026-11-03T02:42:34.944Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/e7/283ae1bfd023d910e1e5a66388723ba41f2dcb60b55172467a21d0a557e1/uv-0.11.33-py3-none-linux_armv6l.whl", hash = "sha256:d629531a4e8f7cd76d861ec2e0035faef2675036a084d0a5b35dad5025ec62aa", size = 21679896, upload-time = "2026-07-28T10:24:12.173Z" },
-    { url = "https://files.pythonhosted.org/packages/30/99/559a61e7e891c3074b2cf2ae8481fc7bf2bae7de047e7c9683f3ba0e1b27/uv-0.11.33-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:94fb388a86cf6c2f2610b427f1bf0897bc0f2771a869da41433e17f7d21a1a41", size = 19989546, upload-time = "2026-07-28T10:24:15.049Z" },
-    { url = "https://files.pythonhosted.org/packages/4d/e5/17a4e36299e9bd5e8101680be697c7832afac686d1fe8b28be28046c1d95/uv-0.11.33-py3-none-macosx_11_0_arm64.whl", hash = "sha256:8017991a398a55d177c33ecdb29beb33e7b53969921183e4681e3e5b278d73c2", size = 18324889, upload-time = "2026-07-28T10:24:17.589Z" },
-    { url = "https://files.pythonhosted.org/packages/0c/c9/166e7ce2bdb754e5dcb991773f16b54dc1a2339ac78c2a36414cc69db93f/uv-0.11.33-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:36a98c68ba5c3bb59469414f54aaf00bd3134a647ca34509bc53d133ed8e0b5d", size = 21141300, upload-time = "2026-07-28T10:24:20.541Z" },
-    { url = "https://files.pythonhosted.org/packages/bb/8e/c95333b21900b3bab223205aaf99eb3415f1fec5203e68fbb55dacf7e818/uv-0.11.33-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:ab9ee61ed9c7c843b52795a96733e109cec831cd3250d73d291bccbb90a81999", size = 21202069, upload-time = "2026-07-28T10:24:23.057Z" },
-    { url = "https://files.pythonhosted.org/packages/b8/c9/cf86cd18bf815793ee33878fc9ca9fe5506eb2cb31580c46da272e2aab41/uv-0.11.33-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:923874411bc0bbf5d1de16cdb14a7800d696d6c6e774eb1b202966243c6d507b", size = 21234505, upload-time = "2026-07-28T10:24:25.706Z" },
-    { url = "https://files.pythonhosted.org/packages/83/f3/7b3101d4bb8a70f4ac495e199fe26304357dd94610136083f5e92c408dff/uv-0.11.33-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e00f371e1affe3fac88f9f1afab31139c8199ecf8df7b1a37554f83629fd7eab", size = 22019144, upload-time = "2026-07-28T10:24:28.769Z" },
-    { url = "https://files.pythonhosted.org/packages/97/09/1891a906d55dc146e014aa60badc87e74e06c9589ff96505e08a45e033cc/uv-0.11.33-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:f4196584a7f7fbfef3dde1b1a0454c174399bd96071cdfb066c263a798a4524e", size = 23159525, upload-time = "2026-07-28T10:24:31.332Z" },
-    { url = "https://files.pythonhosted.org/packages/91/84/18fb0f561a59f0e14fb7ce64dad3a6994b37473622e5deebb2434fa59648/uv-0.11.33-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:70826563c7617efbf7244946354628253e4ea63d72cb1d35b98be4896c4530fd", size = 22768153, upload-time = "2026-07-28T10:24:34.466Z" },
-    { url = "https://files.pythonhosted.org/packages/a3/cb/f0ccaba1bf9b0f778dc883e56f3bfb315e3d974ba36fb7432a067b459528/uv-0.11.33-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9542178978b0b6f16a7ae99e55aca039f493a1edb373a15d7993eab80a28615a", size = 22212804, upload-time = "2026-07-28T10:24:36.997Z" },
-    { url = "https://files.pythonhosted.org/packages/d5/8c/aa413404a2e9731ccf64dff368875d46395957e12eb129d2d2203f184ef1/uv-0.11.33-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:71d00a28beb3924c593ba7ec248263679ae1f7c0f63a8cccc75e7d11ccb2adce", size = 21276985, upload-time = "2026-07-28T10:24:39.468Z" },
-    { url = "https://files.pythonhosted.org/packages/f5/fa/71d5502c2fc0f6ce34d36a3e486914af6e05203e2e99c092fa469d2569d8/uv-0.11.33-py3-none-manylinux_2_31_riscv64.musllinux_1_1_riscv64.whl", hash = "sha256:ad74bd02a236417df9766b913c2613a7c3db0ef071c4c2390d28e5005be3e4b2", size = 22023545, upload-time = "2026-07-28T10:24:41.994Z" },
-    { url = "https://files.pythonhosted.org/packages/d1/b0/757180a4ed21f956a93e37de46fe3b4eb0a474e7eea5ddc904f4175d29c4/uv-0.11.33-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:686ed8c8d9e76eb9259e7f7db627ea836420d9a5e013b169c41398bcd28ee948", size = 22143736, upload-time = "2026-07-28T10:24:44.566Z" },
-    { url = "https://files.pythonhosted.org/packages/e7/38/3f49cbd8631f2abf330d03f5fc687a9c35918c62cbe25ab5921b57dd2c76/uv-0.11.33-py3-none-musllinux_1_1_i686.whl", hash = "sha256:c1ca9b0b51cd89310f87f1fc0bf9d9c6fdb64be516fe3e409817662ec3d9378f", size = 21164825, upload-time = "2026-07-28T10:24:46.992Z" },
-    { url = "https://files.pythonhosted.org/packages/f1/74/7170288fa059340bb58ac5574f65d8c689afe3c2baa4099b5fa6cd304b73/uv-0.11.33-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:2a8506f558e08498c0d80857c356452d14048eddfcc7bc20ec9f201b3011eaaf", size = 22412054, upload-time = "2026-07-28T10:24:49.466Z" },
-    { url = "https://files.pythonhosted.org/packages/c8/91/86a61485e507d14a14bed223706db4fd6d95c99b452ce881a0122f2b018a/uv-0.11.33-py3-none-win32.whl", hash = "sha256:3242c8bc708b75fb72687c9a24f0e6f47c2004a3d82d32a81b06e17822708c28", size = 19394668, upload-time = "2026-07-28T10:24:51.848Z" },
-    { url = "https://files.pythonhosted.org/packages/dd/be/b90df95297cdae2cbd5a83fddf429a304b17a0e9c277ca02190d995cbe09/uv-0.11.33-py3-none-win_amd64.whl", hash = "sha256:521229afa69ad5f57127de800120cb2bea1ac729a05a0851aaf920124f8edf66", size = 20185845, upload-time = "2026-07-28T10:24:54.367Z" },
-    { url = "https://files.pythonhosted.org/packages/ed/3a/061c8abd15dbb60a1dce2e28b60378a70fd18152718715cf59a3799f3045/uv-0.11.33-py3-none-win_arm64.whl", hash = "sha256:3cb5b325c58a9ee5febfedf4895e0c48cc7d22d801d1b23a4b8335f16508d0da", size = 19123673, upload-time = "2026-07-28T10:24:57.05Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/e8/bda02e68c92b896e2c27581843c461e1007cb68c67c0b357d1e4849e6311/uv-0.13.7-py3-none-linux_armv6l.whl", hash = "sha256:89df450624dec8c48b8b5a7adb654928cc50e95753f869c70cd65ef8333f2197", size = 18121202, upload-time = "2026-11-03T02:41:43.776Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/5b/e0379e7b172659420b1ec99a8e8229830aa85ea59684847c80b1c959a056/uv-0.13.7-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:fd04bf01ba5f2829f4f94ca8f0c24a743f21e73d75045613ed6fc2fd66fc7bda", size = 17194673, upload-time = "2026-11-03T02:41:46.959Z" },
+    { url = "https://files.pythonhosted.org/packages/40/a5/8756c38ace102fa13fd4e653e8bc40e1f65924f1c0a0d23350339dac97e5/uv-0.13.7-py3-none-macosx_11_0_arm64.whl", hash = "sha256:f91a229093163eefca89ea1b220a221d64c3beade05d03519a6584d1797a5a5f", size = 14454941, upload-time = "2026-11-03T02:41:50.208Z" },
+    { url = "https://files.pythonhosted.org/packages/96/72/da1119f94034d7173e6c8e2cd77a6299744458f0af3cb8e3a04d5cd419d1/uv-0.13.7-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:a90f5d95716ab83091f0f73a8e7ec64e557abf2a28537fcd719b2ac88e6f725a", size = 17656749, upload-time = "2026-11-03T02:41:52.729Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/a8/d554d757e372d2dc8788e4c07601e440c09ce31535e3107180690233f4a2/uv-0.13.7-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:952dcae9b1a7742f2fab28e82391fbfabe8807e4e9363f674b0f6be1053b8dd4", size = 17815154, upload-time = "2026-11-03T02:41:55.393Z" },
+    { url = "https://files.pythonhosted.org/packages/19/db/70ad6aeef83b9566ec1cbfa345a1a976af13413863086aa85809cba16b53/uv-0.13.7-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:94f65a8ac5826dff76a93cb3cafbaad15def1788c63da2ce5ce09e0bd1303e7a", size = 17827605, upload-time = "2026-11-03T02:41:58.237Z" },
+    { url = "https://files.pythonhosted.org/packages/78/55/fafeedc33a903456e7fd5fa442e7116331451c50e68e6fa985df47c06b3a/uv-0.13.7-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:57ff66891d9a738ec087c23fdde842ac8e5eb63189ffed6ee95caee1b82ceb54", size = 18466549, upload-time = "2026-11-03T02:42:01.031Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/5e/50494a1cac0ff7030edc430c8ac86ee91ca43c54134d399b0f7a137930c7/uv-0.13.7-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:917733990ebc178318af0321d6873823ed5da707e1c4b1e5060ac2065a81f1f3", size = 19781452, upload-time = "2026-11-03T02:42:03.787Z" },
+    { url = "https://files.pythonhosted.org/packages/28/b2/7fc68c91580168907f557c8824521973a3f63d1e3629ae3478aaeeebef7f/uv-0.13.7-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:1bc8543d930464bbb22ac01bb1a660a448235e558014914de1e1cd5b993361b8", size = 19493895, upload-time = "2026-11-03T02:42:06.604Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/93/0e053a2ca4523ee9825ccbedeb7121470d0a188933f11688b6d90d7f5c08/uv-0.13.7-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2c9bdc4a872b60a93c5f26c0791089ea11585a4f9d3b3c017d78eb8487505e25", size = 17202345, upload-time = "2026-11-03T02:42:09.344Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/c8/2d0da4535b8607cf224023724cbf8d4572d1a3e33c2c9629100af6b522bb/uv-0.13.7-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:08f16fd463926786b702b497473511deae4b3e17a2fa6d22180950d6059a120d", size = 16636343, upload-time = "2026-11-03T02:42:12.122Z" },
+    { url = "https://files.pythonhosted.org/packages/28/3d/e7db43beff8b219ec392346f11b8aad325bc87bb282eea57e64cbe0aba56/uv-0.13.7-py3-none-manylinux_2_31_riscv64.musllinux_1_1_riscv64.whl", hash = "sha256:d30cafb7070901ba35353ec64cf228ae46caf79ac0f6fae329f95468b1482531", size = 18026164, upload-time = "2026-11-03T02:42:14.745Z" },
+    { url = "https://files.pythonhosted.org/packages/7d/85/dc25db684d7e8c8c1c6927d78a29b64c7ef5479e8f17c7a2d1b74af4af21/uv-0.13.7-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:158953b8669bee6f4bc2babdd997e34ff9f0d57170093cfe907f64448292b7c3", size = 17911506, upload-time = "2026-11-03T02:42:17.752Z" },
+    { url = "https://files.pythonhosted.org/packages/04/c3/0ca099ff442fb6a01a59b7582d8733f187183d491bc86e6f96c9203c3e1e/uv-0.13.7-py3-none-musllinux_1_1_i686.whl", hash = "sha256:8fc6019740794df995085f7b278d99dc11ccacffad9c63957278d3a6e272280b", size = 17946690, upload-time = "2026-11-03T02:42:20.53Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/22/065e097ca6051ae7022d7c5c9d1591dcff97ed5609fb9eb450d8ee22fa17/uv-0.13.7-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:8b8ac028ae4ebb2a3f9d04907c61794f2cf8d7a7002bfbb4019a3dee28351fb2", size = 18949870, upload-time = "2026-11-03T02:42:23.574Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/f2/3cfb8543acb8dc07b228d2517a0962b124ab97bd859690617d957248129c/uv-0.13.7-py3-none-win32.whl", hash = "sha256:5f37cc4d4660e4aee8a24d0dc179a0b0ce99506259c6796d37fa69bca9543a03", size = 16094323, upload-time = "2026-11-03T02:42:26.697Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/4f/041b59d2a38807a3e31ef41064cf3e45d2752fe0409d89040d52778049ae/uv-0.13.7-py3-none-win_amd64.whl", hash = "sha256:2835e2ab397d0db86323b9975dce75ecd76aa9cfa0d6a2aea84734aae7f8c9b3", size = 15330939, upload-time = "2026-11-03T02:42:29.422Z" },
+    { url = "https://files.pythonhosted.org/packages/44/8d/1594dce4465d9699467a639b25aafd335ce1e5917f8bb60c9c0bed9e0859/uv-0.13.7-py3-none-win_arm64.whl", hash = "sha256:55e741a380a98008fc4985cf069855f36bc50242ef438e21a466786f5bc84da8", size = 15633037, upload-time = "2026-11-03T02:42:32.095Z" },
 ]
 
 [[package]]
