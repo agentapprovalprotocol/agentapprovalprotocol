@@ -102,7 +102,8 @@ class ApprovalPlugin(BasePlugin):
         ic = tool_context.get_invocation_context()
         session = ic.session
         found = _function_call(session.events, tool_context.function_call_id)
-        resume = {"framework": "adk", "app_name": session.app_name, "user_id": session.user_id, "session_id": session.id}
+        # A call inside a running tool never pauses, so nothing should wake a run for it.
+        resume = None if _inside_tool.get() else {"framework": "adk", "app_name": session.app_name, "user_id": session.user_id, "session_id": session.id}
         call = Call(
             key=f"{session.app_name}:{session.user_id}:{session.id}:{ic.invocation_id}:{tool_context.function_call_id}",
             tool=tool.name,

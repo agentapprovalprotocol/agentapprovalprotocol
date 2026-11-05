@@ -132,7 +132,8 @@ class ApprovalMiddleware(AgentMiddleware):
         thread, namespace, assistant = _thread(request)
         tool_call = request.tool_call
         resume = None
-        if thread is not None:
+        # A call inside a running tool never pauses, so nothing should wake a run for it.
+        if thread is not None and not _running.get():
             resume = {"framework": "langgraph", "thread_id": thread}
             if assistant:
                 resume["assistant_id"] = assistant

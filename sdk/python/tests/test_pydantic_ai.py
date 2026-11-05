@@ -249,6 +249,9 @@ async def test_subagent_calls_are_gated_and_wait():
     assert result.output == "The subagent refunded it."
     assert ran == [{"payment_id": "payment_123", "amount": 4900}]
     assert sorted(s.body["tool"] for s in provider.requests.values()) == ["delegate", "refund"]
+    # The sub-agent's call waited, so it names no run for a receiver to wake.
+    resumes = {s.body["tool"]: "resume" in s.body["context"] for s in provider.requests.values()}
+    assert resumes == {"delegate": True, "refund": False}
 
 
 async def test_native_tools_are_refused():
